@@ -97,6 +97,11 @@ inverse = function(a) {
          (a === 0  ) ? nil :
          {ord: - a.ord, arg: (a.arg === 0) ? 0 : (1 - a.arg)}
 },
+conjugate = function(a) {
+  return (a === nil) ? nil :
+         (a === 0  ) ? 0   :
+         {ord:   a.ord, arg: (a.arg === 0) ? 0 : (1 - a.arg)}
+},
 _log = function(a) {
   var ord, arg
 
@@ -319,8 +324,8 @@ keys = {
   '−': function() {
     fix(); set(minus(e.value))
   },
-  '\\': function() {
-    alert('Not Implemented')
+  '†': function() {
+    fix(); set(conjugate(e.value))
   },
   ' ': function() {
     if (e.previousSibling) {
@@ -349,7 +354,7 @@ display.setAttribute('id', 'display');
   ['↑'  , '↓', '←', '7', '8', '9'],
   ['g'  , 'm', 's', '4', '5', '6'],
   ['log', ' ', '/', '1', '2', '3'],
-  ['exp', '+', '−', '0', '.', '\\']
+  ['exp', '+', '−', '0', '.', '†']
 ].forEach(function(tds) {
   var tr = document.createElement('tr')
 
