@@ -7,7 +7,7 @@ A calculator for minimalist.
 It supports the followings:
 
 + RPN
-  + `↑` push, `↓` pop, `←` mackspace.
+  + `↑` push, `↓` pop, `←` backspace.
 + Planck Unit System
   + `g` gramme, `m` meter, `s` second.
 + Complex numbers
