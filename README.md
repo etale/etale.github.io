@@ -1,18 +1,28 @@
 etale.github.io
 ===============
 
-# calc.html
+# calc
 
 A calculator for minimalist.
-It supports the followings:
 
 + RPN
-  + `↑` push, `↓` pop, `←` backspace.
+  + `↑` push
+  + `↓` pop
+  + `←` backspace
 + Planck Unit System
-  + `g` gramme, `m` meter, `s` second.
+  + `g` gram
+  + `m` meter
+  + `s` second
 + Complex numbers
-  + `log` logarithmic function, ` ` multiply, `/` invert
-  + `exp` exponential function, `+` add, `-` negate, `†` conjugate
+  + `log` logarithmic function
+  + `  ` multiply
+  + `/` invert
+  + `1` unity
+  + `exp` exponential function
+  + `+` add
+  + `-` negate
+  + `0` zero
+  + `†` conjugate
 + Logarithmic representation
   + a.b.c = a.b + 2πi × 0.c
     + 0.0.5 = πi
