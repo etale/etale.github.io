@@ -25,8 +25,8 @@ A calculator for minimalist.
   + `.` radix point
   + `†` conjugate
 + Logarithmic representation
-  + a.b.c = a.b + 2πi × 0.c
-    + 0.0.5 = πi
+  + `a.b.c` = `a.b` + 2πi × `0.c`
+    + `0.0.5` = `0.0` + 2πi × `0.5` = πi
   + z X = exp z
     + 0 X = 1
     + 1 X = e
