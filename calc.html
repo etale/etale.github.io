@@ -103,12 +103,13 @@ conjugate = function(a) {
          {ord:   a.ord, arg: (a.arg === 0) ? 0 : (1 - a.arg)}
 },
 _log = function(a) {
-  var ord, arg
+  var ord, arg, pi2arg
 
-  if (a.arg >= 0.5) a.arg -= 1
-  a.arg *= pi2
-  ord = Math.log(a.ord * a.ord + a.arg * a.arg) * 0.5
-  arg = Math.atan2(a.arg, a.ord) / pi2
+  pi2arg = a.arg
+  if (a.arg >= 0.5) pi2arg -= 1
+  pi2arg *= pi2
+  ord = Math.log(a.ord * a.ord + pi2arg * pi2arg) * 0.5
+  arg = Math.atan2(pi2arg, a.ord) / pi2
   if (arg < 0) arg += 1
   return {ord: ord, arg: arg}
 },
@@ -118,12 +119,13 @@ log = function(a) {
          _log(a)
 },
 _exp = function(a) {
-  var ord, arg
+  var ord, arg, pi2arg
 
-  if (a.arg >= 0.5) a.arg -= 1
-  a.arg *= pi2
-  ord =  Math.exp(a.ord) * Math.cos(a.arg)
-  arg = (Math.exp(a.ord) * Math.sin(a.arg) / pi2) % 1
+  pi2arg = a.arg
+  if (a.arg >= 0.5) pi2arg -= 1
+  pi2arg *= pi2
+  ord =  Math.exp(a.ord) * Math.cos(pi2arg)
+  arg = (Math.exp(a.ord) * Math.sin(pi2arg) / pi2) % 1
   if (arg < 0) arg += 1
   return {ord: ord, arg: arg}
 },
