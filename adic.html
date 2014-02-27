@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>p-adic numbers</title>
-<meta name="viewport" content="width=device-width">
 <script>
 Number.prototype.forEach = function(a) {var i = 0; while (i < this) {a(i); i++}}
 var canvas
@@ -13,16 +12,18 @@ onload = function(){
   tau = 2 * Math.PI,
   scale = 256,
   p = parseInt(location.hash.slice(1)) || 7,
-  radius = 1/p
+  radius = 1/p,
+  w = screen.width, h = screen.height
+  
   document.getElementsByTagName('title')[0].textContent = p.toString() + '-adic numbers'
 
   canvas = document.createElement('canvas')
   ctx = canvas.getContext('2d')
 
-  canvas.setAttribute('width', 1024)
-  canvas.setAttribute('height', 1024)
+  canvas.setAttribute('width', w)
+  canvas.setAttribute('height', h)
 
-  ctx.translate(512, 512)
+  ctx.translate(w/2, h/2)
   ctx.scale(scale, scale)
   ctx.lineWidth = 1/scale
 
