@@ -13,6 +13,7 @@ onload = function(){
   scale = 256,
   p = parseInt(location.hash.slice(1)) || 7,
   radius = 1/p
+  document.getElementsByTagName('title')[0].textContent = p.toString() + '-adic numbers'
 
   canvas = document.createElement('canvas')
   ctx = canvas.getContext('2d')
