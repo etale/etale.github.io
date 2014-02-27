@@ -4,13 +4,18 @@
 <title>p-adic numbers</title>
 <script>
 Number.prototype.forEach = function(a) {var i = 0; while (i < this) {a(i); i++}}
+var canvas
 
 onload = function(){
   var
-  canvas = document.createElement('canvas'),
-  ctx = canvas.getContext('2d'),
-  p = 17, tau = 2 * Math.PI, radius = 1/p,
-  scale = 256
+  ctx,
+  tau = 2 * Math.PI,
+  scale = 256,
+  p = parseInt(location.hash.slice(1)) || 7,
+  radius = 1/p
+
+  canvas = document.createElement('canvas')
+  ctx = canvas.getContext('2d')
 
   canvas.setAttribute('width', screen.width)
   canvas.setAttribute('height', screen.height)
@@ -32,6 +37,10 @@ onload = function(){
   })
 
   document.body.appendChild(canvas)
+}
+onhashchange = function() {
+  document.body.removeChild(canvas)
+  onload()
 }
 </script>
 </head>
