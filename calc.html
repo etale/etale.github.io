@@ -103,13 +103,13 @@ conjugate = function(a) {
          {ord:   a.ord, arg: (a.arg === 0) ? 0 : (1 - a.arg)}
 },
 _log = function(a) {
-  var ord, arg, pi2arg
+  var ord, arg, _
 
-  pi2arg = a.arg
-  if (a.arg >= 0.5) pi2arg -= 1
-  pi2arg *= pi2
-  ord = Math.log(a.ord * a.ord + pi2arg * pi2arg) * 0.5
-  arg = Math.atan2(pi2arg, a.ord) / pi2
+  _ = a.arg
+  if (a.arg >= 0.5) _ -= 1
+  _ *= pi2
+  ord = Math.log(a.ord * a.ord + _ * _) * 0.5
+  arg = Math.atan2(_, a.ord) / pi2
   if (arg < 0) arg += 1
   return {ord: ord, arg: arg}
 },
@@ -119,13 +119,13 @@ log = function(a) {
          _log(a)
 },
 _exp = function(a) {
-  var ord, arg, pi2arg
+  var ord, arg, _
 
-  pi2arg = a.arg
-  if (a.arg >= 0.5) pi2arg -= 1
-  pi2arg *= pi2
-  ord =  Math.exp(a.ord) * Math.cos(pi2arg)
-  arg = (Math.exp(a.ord) * Math.sin(pi2arg) / pi2) % 1
+  _ = a.arg
+  if (a.arg >= 0.5) _ -= 1
+  _ *= pi2
+  ord =  Math.exp(a.ord) * Math.cos(_)
+  arg = (Math.exp(a.ord) * Math.sin(_) / pi2) % 1
   if (arg < 0) arg += 1
   return {ord: ord, arg: arg}
 },
@@ -235,7 +235,7 @@ pop = function() {
   return value
 },
 set = function(a) {
-  var aord, aarg
+  var ord, arg
 
   e.value = a
   if (a === nil) {
@@ -245,11 +245,11 @@ set = function(a) {
     e.data.textContent = '0'
   } else
   {
-    aord = a.ord.toFixed(6).split('.')
-    aarg = a.arg.toFixed(6).split('.')
-    aord[1] = aord[1] ? aord[1] : '0'
-    aarg[1] = aarg[1] ? aarg[1] : '0'
-    e.data.textContent = aord[0] + '.' + aord[1] + '.' + aarg[1] + 'X'
+    ord = a.ord.toFixed(6).split('.')
+    arg = a.arg.toFixed(6).split('.')
+    ord[1] = ord[1] ? ord[1] : '0'
+    arg[1] = arg[1] ? arg[1] : '0'
+    e.data.textContent = ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
   }
 },
 numeric = function() {
@@ -258,13 +258,11 @@ numeric = function() {
   if (isFixed()) {
     push(); e.data.textContent = label
   } else
+  if (e.data.textContent === '0') {
+    e.data.textContent = label
+  } else
   {
-    if (e.data.textContent === '0') {
-      e.data.textContent = label
-    } else
-    {
-      e.data.textContent += label
-    }
+    e.data.textContent += label
   }
 },
 keys = {
