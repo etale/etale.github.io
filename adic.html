@@ -3,46 +3,46 @@
 <head>
 <title>p-adic numbers</title>
 <script>
-Number.prototype.forEach = function(a) {var i = 0; while (i < this) {a(i); i++}}
-var canvas
+Number.prototype.forEach = function (a) {var i = 0; while (i < this) {a(i); i++}}
 
-onload = function(){
+var svg
+
+onload = function () {
   var
-  ctx,
-  tau = 2 * Math.PI,
-  scale = 256,
+  circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle'),
   p = parseInt(location.hash.slice(1)) || 7,
-  radius = 1/p,
-  w = screen.width, h = screen.height
-  
+  cx = function (i) {return Math.cos(i * 2 * Math.PI / (p-1))},
+  cy = function (i) {return Math.sin(i * 2 * Math.PI / (p-1))}
+
   document.getElementsByTagName('title')[0].textContent = p.toString() + '-adic numbers'
 
-  canvas = document.createElement('canvas')
-  ctx = canvas.getContext('2d')
+  svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('viewBox', '-1.5 -1.5 3 3')
 
-  canvas.setAttribute('width', w)
-  canvas.setAttribute('height', h)
+  with (circle) {
+    setAttribute('cx', 0)
+    setAttribute('cy', 0)
+    setAttribute('r', 1)
+    setAttribute('stroke-width', 1/128)
+    setAttribute('stroke', 'black')
+    setAttribute('fill', 'none')
+  }
 
-  ctx.translate(w/2, h/2)
-  ctx.scale(scale, scale)
-  ctx.lineWidth = 1/scale
+  svg.appendChild(circle.cloneNode())
+  circle.setAttribute('r', 1/p)
+  svg.appendChild(circle)
 
-  ctx.beginPath()
-  ctx.arc(0, 0, radius, 0, tau, true)
-  ctx.moveTo(1, 0)
-  ctx.arc(0, 0, 1, 0, tau, true)
-  ctx.stroke(); // !!
-
-  (p-1).forEach(function(i) {
-    ctx.beginPath()
-    ctx.arc(Math.cos(tau/(p-1)*i), Math.sin(tau/(p-1)*i), radius, 0, tau, true)
-    ctx.stroke()
+  ;(p-1).forEach(function (i) {
+    var c = circle.cloneNode()
+    c.setAttribute('cx', cx(i))
+    c.setAttribute('cy', cy(i))
+    svg.appendChild(c)
   })
 
-  document.body.appendChild(canvas)
+  document.body.appendChild(svg)
 }
-onhashchange = function() {
-  document.body.removeChild(canvas)
+onhashchange = function () {
+  document.body.removeChild(svg)
   onload()
 }
 </script>
