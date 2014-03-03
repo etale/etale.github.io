@@ -5,43 +5,35 @@
 <script>
 Number.prototype.forEach = function (a) {var i = 0; while (i < this) {a(i); i++}}
 
-var svg
+var my = {}
 
 onload = function () {
-  var
-  circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle'),
-  p = parseInt(location.hash.slice(1)) || 7,
-  theta = function (i) {return i * 2 * Math.PI / (p-1)},
-  cx = function (i) {return Math.cos(theta(i))},
-  cy = function (i) {return Math.sin(theta(i))}
+  my.p = parseInt(location.hash.slice(1)) || 7
+  document.getElementsByTagName('title')[0].textContent = my.p.toString() + '-adic numbers'
+  my.f = function (i) {return i * 2 * Math.PI / (my.p - 1)}
+  my.s = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  my.s.setAttribute('viewBox', '-1.5 -1.5 3 3')
+  my.c = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+  my.c.cx.baseVal.value = 0
+  my.c.cy.baseVal.value = 0
+  my.c.r .baseVal.value = 1/my.p
+  my.c.setAttribute('stroke-width', 1/128)
+  my.c.setAttribute('stroke', 'black')
+  my.c.setAttribute('fill', 'none')
+  my.s.appendChild(my.c.cloneNode())
 
-  document.getElementsByTagName('title')[0].textContent = p.toString() + '-adic numbers'
+  ;(my.p - 1).forEach(function (i) {
+    var c = my.c.cloneNode()
 
-  svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('viewBox', '-1.5 -1.5 3 3')
-
-  circle.cx.baseVal.value = 0
-  circle.cy.baseVal.value = 0
-  circle.r .baseVal.value = 1
-  circle.setAttribute('stroke-width', 1/128)
-  circle.setAttribute('stroke', 'black')
-  circle.setAttribute('fill', 'none')
-
-  svg.appendChild(circle.cloneNode())
-  circle.setAttribute('r', 1/p)
-  svg.appendChild(circle)
-
-  ;(p-1).forEach(function (i) {
-    var c = circle.cloneNode()
-    c.setAttribute('cx', cx(i))
-    c.setAttribute('cy', cy(i))
-    svg.appendChild(c)
+    c.cx.baseVal.value = Math.cos(my.f(i))
+    c.cy.baseVal.value = Math.sin(my.f(i))
+    my.s.appendChild(c)
   })
 
-  document.body.appendChild(svg)
+  document.body.appendChild(my.s)
 }
 onhashchange = function () {
-  document.body.removeChild(svg)
+  document.body.removeChild(my.s)
   onload()
 }
 </script>
