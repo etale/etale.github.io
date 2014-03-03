@@ -244,12 +244,13 @@ set = function(a) {
   } else
   if (a === 0) {
     e.data.textContent = '0'
+    delete e.value
   } else
   {
     ord = a.ord.toFixed(6).split('.')
     arg = a.arg.toFixed(6).split('.')
-    ord[1] = ord[1] ? ord[1] : '0'
-    arg[1] = arg[1] ? arg[1] : '0'
+    ord[1] = ord[1] || '0'
+    arg[1] = arg[1] || '0'
     e.data.textContent = ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
   }
 },
