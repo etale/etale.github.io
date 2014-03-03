@@ -3,7 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <meta charset="UTF-8">
-<title>Natural Calc</title>
+<title>Calc/infty</title>
 <style>
 body {
   width: 100%;
@@ -103,14 +103,14 @@ conjugate = function(a) {
          {ord:   a.ord, arg: (a.arg === 0) ? 0 : (1 - a.arg)}
 },
 _log = function(a) {
-  var ord, arg, _
+  var _, ord, arg
 
   _ = a.arg
-  if (a.arg >= 0.5) _ -= 1
+  _ < 0.5 || (_ -= 1)
   _ *= pi2
   ord = Math.log(a.ord * a.ord + _ * _) * 0.5
   arg = Math.atan2(_, a.ord) / pi2
-  if (arg < 0) arg += 1
+  arg < 0 && (arg += 1)
   return {ord: ord, arg: arg}
 },
 log = function(a) {
@@ -119,14 +119,14 @@ log = function(a) {
          _log(a)
 },
 _exp = function(a) {
-  var ord, arg, _
+  var _, ord, arg
 
   _ = a.arg
-  if (a.arg >= 0.5) _ -= 1
+  _ < 0.5 || (_ -= 1)
   _ *= pi2
   ord =  Math.exp(a.ord) * Math.cos(_)
   arg = (Math.exp(a.ord) * Math.sin(_) / pi2) % 1
-  if (arg < 0) arg += 1
+  arg < 0 && (arg += 1)
   return {ord: ord, arg: arg}
 },
 exp = function(a) {
@@ -147,7 +147,7 @@ fix = function() {
 
   _ = e.data.textContent.split('.')
   _ = [0, 1, 2].map(function(i) {
-    return _[i] ? _[i] : '0'
+    return _[i] || '0'
   })
   ord = parseFloat(_[0] + '.' + _[1])
   arg = parseFloat(      '0.' + _[2])
@@ -162,7 +162,7 @@ fixAsIs = function() {
   {
     _ = e.data.textContent.split('.')
     _ = [0, 1, 2].map(function(i) {
-      return _[i] ? _[i] : '0'
+      return _[i] || '0'
     })
     ord = parseFloat(_[0] + '.' + _[1])
     arg = parseFloat(      '0.' + _[2])
@@ -175,10 +175,11 @@ moveFocus = function() {
   e = this.cell
 },
 makeCell = function() {
-  var cell  = document.createElement('tr')
-  var label = document.createElement('td')
-  var input = document.createElement('input')
-  var data  = document.createElement('td')
+  var
+  cell  = document.createElement('tr'),
+  label = document.createElement('td'),
+  input = document.createElement('input'),
+  data  = document.createElement('td')
   
   label.appendChild(input)
   cell.appendChild(label)
