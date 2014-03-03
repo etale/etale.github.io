@@ -11,22 +11,21 @@ onload = function () {
   var
   circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle'),
   p = parseInt(location.hash.slice(1)) || 7,
-  cx = function (i) {return Math.cos(i * 2 * Math.PI / (p-1))},
-  cy = function (i) {return Math.sin(i * 2 * Math.PI / (p-1))}
+  theta = function (i) {return i * 2 * Math.PI / (p-1)},
+  cx = function (i) {return Math.cos(theta(i))},
+  cy = function (i) {return Math.sin(theta(i))}
 
   document.getElementsByTagName('title')[0].textContent = p.toString() + '-adic numbers'
 
   svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   svg.setAttribute('viewBox', '-1.5 -1.5 3 3')
 
-  with (circle) {
-    setAttribute('cx', 0)
-    setAttribute('cy', 0)
-    setAttribute('r', 1)
-    setAttribute('stroke-width', 1/128)
-    setAttribute('stroke', 'black')
-    setAttribute('fill', 'none')
-  }
+  circle.cx.baseVal.value = 0
+  circle.cy.baseVal.value = 0
+  circle.r .baseVal.value = 1
+  circle.setAttribute('stroke-width', 1/128)
+  circle.setAttribute('stroke', 'black')
+  circle.setAttribute('fill', 'none')
 
   svg.appendChild(circle.cloneNode())
   circle.setAttribute('r', 1/p)
