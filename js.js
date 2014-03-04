@@ -17,7 +17,7 @@ var _ = Complex.prototype
 
 _.pi2 = Math.PI * 2
 
-_.equal = function(a) {
+_.eql = function(a) {
   return this.ord === a.ord && this.arg === a.arg
 }
 _.shift = function() {
@@ -26,20 +26,20 @@ _.shift = function() {
 _.succ = function() {
   return this.exp().shift().log()
 }
-_.inverse = function() {
+_.inv = function() {
   return new Complex(-this.ord, -this.arg)
 }
 _.mul = function(a) {
   return new Complex(this.ord + a.ord, this.arg + a.arg)
 }
-_.negative = function() {
+_.neg = function() {
   return new Complex(this.ord, this.arg + 0.5)
 }
 _.add = function(a) {
-  return a === 0                  ? this        :
-         this.negative().equal(a) ? 0           :
-         this.ord < a.ord         ? a.add(this) :
-         this.mul(this.inverse().mul(a).succ())
+  return a === 0           ? this        :
+         this.neg().eql(a) ? 0           :
+         this.ord < a.ord  ? a.add(this) :
+         this.mul(this.inv().mul(a).succ())
 }
 _.conjugate = function() {
   return new Complex(this.ord, -this.arg)
