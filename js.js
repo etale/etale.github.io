@@ -1,12 +1,9 @@
 var Complex = function(ord, arg) {
   var _
   ord = ord || 0; arg = arg || 0
-  arg %= 1
-  arg < 0 && (arg += 1)
+  arg %= 1; arg < 0 && (arg += 1)
   this.ord = ord; this.arg = arg
-  _ = arg
-  _ < 0.5 || (_ -= 1)
-  _ *= this.pi2
+  _ = arg; _ < 0.5 || (_ -= 1); _ *= this.pi2
   this._arg = _
   ord === 0 && arg === 0 && (this.isUnity = true)
 }
@@ -17,14 +14,18 @@ var _ = Complex.prototype
 
 _.pi2 = Math.PI * 2
 
-_.eql = function(a) {
-  return this.ord === a.ord && this.arg === a.arg
-}
 _.shift = function() {
   return new Complex(this.ord + 1, this.arg)
 }
 _.succ = function() {
   return this.exp().shift().log()
+}
+_.conjugate = function() {
+  return new Complex(this.ord, -this.arg)
+}
+
+_.eql = function(a) {
+  return this.ord === a.ord && this.arg === a.arg
 }
 _.inv = function() {
   return new Complex(-this.ord, -this.arg)
@@ -40,9 +41,6 @@ _.add = function(a) {
          this.neg().eql(a) ? 0           :
          this.ord < a.ord  ? a.add(this) :
          this.mul(this.inv().mul(a).succ())
-}
-_.conjugate = function() {
-  return new Complex(this.ord, -this.arg)
 }
 _.log = function() {
   return this.isUnity ? 0 :
