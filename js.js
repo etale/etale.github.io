@@ -6,6 +6,18 @@ var Complex = function(ord, arg) {
   _ = arg; _ < 0.5 || (_ -= 1); _ *= this.pi2
   this._arg = _
   ord === 0 && arg === 0 && (this.isUnity = true)
+},
+
+parseComplex = function(a) {
+  var _ = a.split('.'), ord, arg
+
+  _ = [0, 1, 2].map(function(i) {
+    return _[i] || '0'
+  })
+  ord = parseFloat(_[0] + '.' + _[1])
+  arg = parseFloat(      '0.' + _[2])
+  _ = new Complex(ord, arg)
+  return a.indexOf('X') === -1 ? _.log() : _
 }
 
 !function(){
