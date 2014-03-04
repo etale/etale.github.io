@@ -1,3 +1,12 @@
+Number.prototype.toArray = function() {
+  var _ = [], i = 0
+
+  while (i < this) {
+    _.push(i); i++
+  }
+  return _
+}
+
 var Complex = function(ord, arg) {
   var _
   ord = ord || 0; arg = arg || 0
