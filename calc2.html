@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<meta charset="UTF-8">
+<title>calc/-infty</title>
+<style>
+body {
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  overflow: auto;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  margin: 0;
+  font-size: 1.5rem;
+  font-family: serif;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -o-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+.focus {
+  background-color: #fff;
+}
+.button {
+  color: #eee;
+  background-color: #444;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+#display {
+  background-color: #eee;
+  border: 0;
+  border-collapse: collapse;
+}
+#display input {
+  width: 100%;
+  font-family: serif;
+  font-size: 1.5rem;
+  color: #aaa;
+  background-color: transparent;
+  margin: 0;
+  border: 0;
+}
+#display td {
+  text-align: right;
+  background-color: transparent;
+  padding: 0 10px;
+  margin: 0;
+  border: 0;
+}
+#keypad td {
+  width: 16.6667%;
+  text-align: center;
+  color: #eee;
+  background-color: #444;
+  padding: 0.75rem;
+  border: 0;
+}
+</style>
+<script src="js.js"></script>
+<script>
+var
+e, touch,
+isFixed = function() {
+  return e.hasOwnProperty('value')
+},
+fix = function() {
+  isFixed() || set(parseComplex(e.data.textContent))
+},
+fixAsIs = function() {
+  set(isFixed() ? e.value.exp() : parseComplex(e.data.textContent + 'X'))
+},
+moveFocus = function() {
+  e.classList.remove('focus')
+  e = this.cell
+  e.classList.add('focus')
+},
+makeCell = function() {
+  var
+  cell  = document.createElement('tr'),
+  label = document.createElement('td'),
+  input = document.createElement('input'),
+  data  = document.createElement('td')
+  
+  label.appendChild(input)
+  cell.appendChild(label)
+  cell.appendChild(data)
+
+  cell.label = input
+  cell.data = data
+  
+  input.cell = cell
+  input.onchange = function() {
+    if (this.value === '') {
+      this.cell.data[touch] = moveFocus
+      while (this.cell.previousSibling.label.value !== '') {
+        display.insertBefore(this.cell, this.cell.previousSibling)
+      }
+      this.cell.classList.remove('button')
+    } else
+    {
+      this.cell.data[touch] = function() {
+        isFixed() && push(); set(this.cell.value)
+      }
+      if (e === this.cell) {
+        fix()
+        e.previousSibling ? e.previousSibling.data[touch]() : push()
+      }
+      this.cell.classList.add('button')
+      while (this.cell.nextSibling && this.cell.nextSibling.label.value === '') {
+        display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
+      }
+      while (this.cell.nextSibling && this.cell.nextSibling.value.ord < this.cell.value.ord) {
+        display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
+      }
+    }
+  }
+  data.cell = cell
+  data.textContent = '0'
+  data[touch] = moveFocus
+
+  return cell
+},
+push = function() {
+  display.insertBefore(makeCell(), e.nextSibling)
+  e.nextSibling.data[touch]()
+},
+pop = function() {
+  var _ = e.value
+  
+  e.previousSibling &&
+  (e.previousSibling.data[touch](), display.removeChild(e.nextSibling))
+  
+  return _
+},
+set = function(a) {
+  if (a === 0) {
+    delete e.value
+  } else
+  {
+    e.value = a
+  }
+  e.data.textContent = a.toString()
+},
+numeric = function() {
+  var label = this.textContent, _
+  
+  isFixed() && push()
+  _ = e.data
+  _.textContent = (_.textContent === '0' ? '' : _.textContent) + label
+},
+keys = {
+  '0': numeric,
+  '1': numeric,
+  '2': numeric, '3': numeric, '4': numeric, '5': numeric,
+  '6': numeric, '7': numeric, '8': numeric, '9': numeric,
+  '.': function() {
+    isFixed() && push()
+    e.data.textContent += '.'
+  },
+  '↑': function() {
+    if (isFixed()) {
+      push(); set(e.previousSibling.value)
+    } else
+    {
+      fix()
+    }
+  },
+  '↓': function() {
+    if (e.previousSibling) {
+      pop()
+    } else
+    {
+      delete e.value
+      e.data.textContent = '0'
+    }
+  },
+  '←': function() {
+    var _ = e.data
+
+    if (isFixed()) {
+      delete e.value
+      _.textContent = '0'
+    } else
+    {
+      _.textContent = _.textContent.slice(0, -1)
+      _.textContent === '' && (_.textContent = '0')
+    }
+  },
+  'g': function() {
+    fix(); push(); set(new Complex(10.7352))
+  },
+  'm': function() {
+    fix(); push(); set(new Complex(80.1104))
+  },
+  's': function() {
+    fix(); push(); set(new Complex(99.6290))
+  },
+  'exp': function() {
+    fixAsIs()
+  },
+  'log': function() {
+    fix(); e.value && set(e.value.log())
+  },
+  '/': function() {
+    fix(); e.value && set(e.value.inv())
+  },
+  '−': function() {
+    fix(); e.value && set(e.value.neg())
+  },
+  '†': function() {
+    fix(); e.value && set(e.value.conjugate())
+  },
+  ' ': function() {
+    var _
+    if (e.previousSibling) {
+      fix(); _ = pop()
+      if (e.value) {
+        set(e.value.mul(_))
+      } else
+      {
+        set(0)
+      }
+    }
+  },
+  '+': function() {
+    var _
+    if (e.previousSibling) {
+      fix(); _ = pop()
+      if (e.value) {
+        set(e.value.add(_))
+      } else
+      {
+        set(_)
+      }
+    }
+  }
+}
+
+touch = document.createElement('div')
+  .hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup';
+
+var
+display = document.createElement('table'),
+keypad  = document.createElement('table')
+  
+e = makeCell()
+display.appendChild(e)
+display.setAttribute('id', 'display');
+
+[
+  ['↑'  , '↓', '←', '7', '8', '9'],
+  ['g'  , 'm', 's', '4', '5', '6'],
+  ['log', ' ', '/', '1', '2', '3'],
+  ['exp', '+', '−', '0', '.', '†']
+].forEach(function(tds) {
+  var tr = document.createElement('tr')
+
+  tds.forEach(function(td) {
+    var _ = document.createElement('td')
+              
+    _.textContent = td
+    _[touch] = keys[td]
+    tr.appendChild(_)
+  })
+  keypad.appendChild(tr)
+})
+keypad.setAttribute('id', 'keypad')
+
+onload = function() {
+  document.body.appendChild(display)
+  document.body.appendChild(keypad)
+}
+</script>
+</head>
+<body></body>
+</html>
