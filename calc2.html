@@ -32,12 +32,12 @@ table {
   width: 100%;
   border-collapse: collapse;
 }
-#display {
+.display {
   background-color: #eee;
   border: 0;
   border-collapse: collapse;
 }
-#display input {
+.display input {
   width: 100%;
   font-family: serif;
   font-size: 1.5rem;
@@ -46,14 +46,14 @@ table {
   margin: 0;
   border: 0;
 }
-#display td {
+.display td {
   text-align: right;
   background-color: transparent;
   padding: 0 10px;
   margin: 0;
   border: 0;
 }
-#keypad td {
+.keypad td {
   width: 16.6667%;
   text-align: center;
   color: #eee;
@@ -64,16 +64,31 @@ table {
 </style>
 <script src="js.js"></script>
 <script>
+var calc = function () {
+  document.body.appendChild(calc.display)
+  document.body.appendChild(calc.keypad)
+}
+
+!function () {
+
+var html = {};
+
+['tr', 'td', 'input', 'div', 'table'].forEach(function (a) {
+  html[a] = function() { return document.createElement(a) }
+})
+
+Complex.precision = 6
+
 var
 e, touch,
 isFixed = function() {
   return e.hasOwnProperty('value')
 },
 fix = function() {
-  isFixed() || set(parseComplex(e.data.textContent))
+  e.value || set(parseComplex(e.data.textContent))
 },
 fixAsIs = function() {
-  set(isFixed() ? e.value.exp() : parseComplex(e.data.textContent + 'X'))
+  set(e.value ? e.value.exp() : parseComplex(e.data.textContent + 'X'))
 },
 moveFocus = function() {
   e.classList.remove('focus')
@@ -82,10 +97,10 @@ moveFocus = function() {
 },
 makeCell = function() {
   var
-  cell  = document.createElement('tr'),
-  label = document.createElement('td'),
-  input = document.createElement('input'),
-  data  = document.createElement('td')
+  cell  = html.tr(),
+  label = html.td(),
+  input = html.input(),
+  data  = html.td()
   
   label.appendChild(input)
   cell.appendChild(label)
@@ -99,13 +114,13 @@ makeCell = function() {
     if (this.value === '') {
       this.cell.data[touch] = moveFocus
       while (this.cell.previousSibling.label.value !== '') {
-        display.insertBefore(this.cell, this.cell.previousSibling)
+        calc.display.insertBefore(this.cell, this.cell.previousSibling)
       }
       this.cell.classList.remove('button')
     } else
     {
       this.cell.data[touch] = function() {
-        isFixed() && push(); set(this.cell.value)
+        fix(); e.value && push(); set(this.cell.value)
       }
       if (e === this.cell) {
         fix()
@@ -113,10 +128,10 @@ makeCell = function() {
       }
       this.cell.classList.add('button')
       while (this.cell.nextSibling && this.cell.nextSibling.label.value === '') {
-        display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
+        calc.display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
       }
       while (this.cell.nextSibling && this.cell.nextSibling.value.ord < this.cell.value.ord) {
-        display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
+        calc.display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
       }
     }
   }
@@ -127,30 +142,24 @@ makeCell = function() {
   return cell
 },
 push = function() {
-  display.insertBefore(makeCell(), e.nextSibling)
+  calc.display.insertBefore(makeCell(), e.nextSibling)
   e.nextSibling.data[touch]()
 },
 pop = function() {
   var _ = e.value
   
   e.previousSibling &&
-  (e.previousSibling.data[touch](), display.removeChild(e.nextSibling))
+  (e.previousSibling.data[touch](), calc.display.removeChild(e.nextSibling))
   
   return _
 },
 set = function(a) {
-  if (a === 0) {
-    delete e.value
-  } else
-  {
-    e.value = a
-  }
-  e.data.textContent = a.toString()
+  e.value = a; e.data.textContent = a.toString()
 },
 numeric = function() {
   var label = this.textContent, _
   
-  isFixed() && push()
+  e.value && push()
   _ = e.data
   _.textContent = (_.textContent === '0' ? '' : _.textContent) + label
 },
@@ -160,15 +169,15 @@ keys = {
   '2': numeric, '3': numeric, '4': numeric, '5': numeric,
   '6': numeric, '7': numeric, '8': numeric, '9': numeric,
   '.': function() {
-    isFixed() && push()
+    e.value && push()
     e.data.textContent += '.'
   },
   '↑': function() {
-    if (isFixed()) {
+    if (e.value) {
       push(); set(e.previousSibling.value)
     } else
     {
-      fix()
+      set(parseComplex(e.data.textContent))
     }
   },
   '↓': function() {
@@ -183,7 +192,7 @@ keys = {
   '←': function() {
     var _ = e.data
 
-    if (isFixed()) {
+    if (e.value) {
       delete e.value
       _.textContent = '0'
     } else
@@ -193,19 +202,19 @@ keys = {
     }
   },
   'g': function() {
-    fix(); push(); set(new Complex(10.7352))
+    e.value || set(parseComplex(e.data.textContent)); e.value && push(); set(new Complex(10.7352))
   },
   'm': function() {
-    fix(); push(); set(new Complex(80.1104))
+    fix(); e.value && push(); set(new Complex(80.1104))
   },
   's': function() {
-    fix(); push(); set(new Complex(99.6290))
+    fix(); e.value && push(); set(new Complex(99.6290))
   },
   'exp': function() {
     fixAsIs()
   },
   'log': function() {
-    fix(); e.value && set(e.value.log())
+    e.value || set(parseComplex(e.data.textContent)); e.value && set(e.value.log())
   },
   '/': function() {
     fix(); e.value && set(e.value.inv())
@@ -242,40 +251,35 @@ keys = {
   }
 }
 
-touch = document.createElement('div')
-  .hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup';
+touch = html.div().hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup';
 
-var
-display = document.createElement('table'),
-keypad  = document.createElement('table')
+calc.display = html.table()
+calc.keypad  = html.table()
   
 e = makeCell()
-display.appendChild(e)
-display.setAttribute('id', 'display');
+calc.display.appendChild(e)
+calc.display.classList.add('display');
 
-[
-  ['↑'  , '↓', '←', '7', '8', '9'],
+[ ['↑'  , '↓', '←', '7', '8', '9'],
   ['g'  , 'm', 's', '4', '5', '6'],
   ['log', ' ', '/', '1', '2', '3'],
-  ['exp', '+', '−', '0', '.', '†']
-].forEach(function(tds) {
-  var tr = document.createElement('tr')
+  ['exp', '+', '−', '0', '.', '†'] ].forEach(function (tds) {
+  var tr = html.tr()
 
-  tds.forEach(function(td) {
-    var _ = document.createElement('td')
+  tds.forEach(function (td) {
+    var _ = html.td()
               
     _.textContent = td
     _[touch] = keys[td]
     tr.appendChild(_)
   })
-  keypad.appendChild(tr)
+  calc.keypad.appendChild(tr)
 })
-keypad.setAttribute('id', 'keypad')
+calc.keypad.classList.add('keypad')
 
-onload = function() {
-  document.body.appendChild(display)
-  document.body.appendChild(keypad)
-}
+}()
+
+onload = calc
 </script>
 </head>
 <body></body>

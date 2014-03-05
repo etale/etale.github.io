@@ -7,7 +7,8 @@ Number.prototype.toArray = function() {
   return _
 }
 
-var Complex = function(ord, arg) {
+var
+Complex = function(ord, arg) {
   var _
   ord = ord || 0; arg = arg || 0
   arg %= 1; arg < 0 && (arg += 1)
@@ -16,7 +17,6 @@ var Complex = function(ord, arg) {
   this._arg = _
   ord === 0 && arg === 0 && (this.isUnity = true)
 },
-
 parseComplex = function(a) {
   var _ = a.split('.'), ord, arg
 
@@ -28,6 +28,8 @@ parseComplex = function(a) {
   _ = new Complex(ord, arg)
   return a.indexOf('X') === -1 ? _.log() : _
 }
+
+Complex.precision = 8
 
 !function(){
 
@@ -46,13 +48,13 @@ _.conjugate = function() {
 }
 
 _.eql = function(a) {
-  return this.ord === a.ord && this.arg === a.arg
+  return a !== 0 && this.ord === a.ord && this.arg === a.arg
 }
 _.inv = function() {
   return new Complex(-this.ord, -this.arg)
 }
 _.mul = function(a) {
-  return new Complex(this.ord + a.ord, this.arg + a.arg)
+  return a === 0 ? 0 : new Complex(this.ord + a.ord, this.arg + a.arg)
 }
 _.neg = function() {
   return new Complex(this.ord, this.arg + 0.5)
@@ -81,8 +83,8 @@ _.exp = function() {
 _.toString = function() {
   var ord, arg
 
-  ord = this.ord.toFixed(8).split('.')
-  arg = this.arg.toFixed(8).split('.')
+  ord = this.ord.toFixed(Complex.precision).split('.')
+  arg = this.arg.toFixed(Complex.precision).split('.')
   ord[1] = ord[1] || '0'
   arg[1] = arg[1] || '0'
   return ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
