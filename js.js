@@ -2,8 +2,17 @@
 
 var _ = Number.prototype
 
+_.divmod = function(a) {
+  return a === 0 ? [0, this.valueOf()] : [Math.floor(this / a), this % a]
+}
+_.div =function(a) {
+  return this.divmod(a)[0]
+}
+_.mod =function(a) {
+  return this.divmod(a)[1]
+}
 _.gcd = function(a) {
-  var _ = this, __
+  var _ = this.valueOf(), __
   while (a !== 0) {
     __ = [a, _ % a]
     _ = __[0]
@@ -14,6 +23,39 @@ _.gcd = function(a) {
 _.lcm = function(a) {
   return this * a / this.gcd(a)
 }
+_.inv = function(a) {
+  var _ = this, x = 1, z = 0, __, q, r
+  while (a !== 0) {
+    __ = _.divmod(a)
+    q = __[0]; r = __[1]
+    __ = [a, r, z, x - q * z]
+    _ = __[0]; a = __[1]; x = __[2]; z = __[3]
+  }
+  return x
+}
+_.unit = function() {
+  return this < 0 ? -1 : 1
+}
+_.body = function() {
+  return Math.abs(this)
+}
+_.ub = function(a) {
+  var u = this.valueOf(), b = 1, _
+  a = a || 0
+  if (a === 0) {
+    return [this.unit(), this.body()]
+  }
+  while (true) {
+    _ = u.gcd(a)
+    if (_ === 1) {
+      break
+    }
+    u = Math.floor(u / _)
+    b = b * _
+  }
+  return [u, b]
+}
+
 _.toArray = function() {
   var _ = [], i = 0; while (i < this) _.push(i++); return _
 }
@@ -113,9 +155,15 @@ _.toString = function() {
 
 var
 Adele = function(r, s, n) {
+  var _, u
+
   r = r || 0
   s = s || 1
   n = n || 0
+
+  ｎ = n.body()
+  _ = s.ub(n); u = _[0]; s = _[1]
+  r = (r * u.inv(n)).mod(n * s)
 
   this.r = r; this.s = s; this.n = n
 }
@@ -123,6 +171,54 @@ Adele = function(r, s, n) {
 !function(){
 
 _ = Adele.prototype
+
+_.coerce = function(a) {
+  var _, __, _n, _u, _s, au, as, s_, _r, ar
+
+  _ = this
+  _n = _.n.gcd(a.n)
+  __ = _.s.ub(_n); _u = __[0]; _s = __[1]
+  __ = a.s.ub(_n); au = __[0]; as = __[1]
+  s_ = _s.lcm(as)
+  _r = _.r * _u.inv(_n) * s_.div(_s)
+  ar = a.r * au.inv(_n) * s_.div(as)
+  _ = new Adele(_r, s_, _n)
+  a = new Adele(ar, s_, _n)
+
+  return [a, _]
+}
+_.eql = function(a) {
+  return this.n == a.n && this.r === a.r && this.s === a.s
+}
+_.neg = function() {
+  return new Adele(-this.r, this.s, this.n)
+}
+_.res = function() {
+  var _, u, _n
+  // return if unit? in ruby
+  _ = this.r.ub(this.n); u = _[0], _n = _[1]
+  return new Adele(0, 1, _n)
+}
+_.add = function(a) {
+  var _ = this.coerce(a)
+  return _[0]._add(_[1])
+}
+_._add = function(a) {
+  return new Adele(this.r + a.r, this.s, this.n)
+}
+_.inv = function() {
+  var _r, _s, __, u
+  __ = this.r.ub(this.n); u = __[0]; _s = __[1]
+  _r = this.s * u.inv(this.n)
+  return new Adele(_r, _s, this.n)
+}
+_.mul = function(a) {
+  var _ = this.coerce(a)
+  return _[0]._mul(_[1])
+}
+_._mul = function(a) {
+  return new Adele(this.r * a.r, this.s * a.s, this.n)
+}
 
 _.toString = function() {
   var _ = ''
