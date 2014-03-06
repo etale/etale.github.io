@@ -3,7 +3,14 @@
 var _ = Number.prototype
 
 _.divmod = function(a) {
-  return a === 0 ? [0, this.valueOf()] : [Math.floor(this / a), this % a]
+  var q, r
+
+  if (a === 0) {
+    return [0, this.valueOf()]
+  }
+
+  r = this % a; q = (this - r) / a
+  return [q, r]
 }
 _.div =function(a) {
   return this.divmod(a)[0]
@@ -13,6 +20,7 @@ _.mod =function(a) {
 }
 _.gcd = function(a) {
   var _ = this.valueOf(), __
+
   while (a !== 0) {
     __ = [a, _ % a]
     _ = __[0]
@@ -50,7 +58,7 @@ _.ub = function(a) {
     if (_ === 1) {
       break
     }
-    u = Math.floor(u / _)
+    u = u / _
     b = b * _
   }
   return [u, b]
@@ -71,6 +79,7 @@ _.map = function(a) {
 var
 Complex = function(ord, arg) {
   var _
+
   ord = ord || 0; arg = arg || 0
   arg %= 1; arg < 0 && (arg += 1)
   this.ord = ord; this.arg = arg
@@ -172,6 +181,33 @@ Adele = function(r, s, n) {
 
 _ = Adele.prototype
 
+//  def finalize
+//    return if n.unity? or s.zero?
+//    _ = r.gcd s
+//    _r = r.div _
+//    _s = s.div _
+//    return _r if n.zero? and _s.unity?
+//    get n, _r, _s
+//  end
+
+_.finalize = function() {
+  var _, _r, _s
+
+  if (this.n === 1 || this.s === 0) {
+    return null
+  }
+
+  _ = this.r.gcd(this.s)
+  _r = this.r.div(_)
+  _s = this.s.div(_)
+
+  if (this.n === 0 && _s === 1) {
+    return _r
+  }
+
+  return new Adele(_r, _s, this.n)
+}
+
 _.coerce = function(a) {
   var _, __, _n, _u, _s, au, as, s_, _r, ar
 
@@ -200,10 +236,13 @@ _.res = function() {
   return new Adele(0, 1, _n)
 }
 _.add = function(a) {
-  var _ = this.coerce(a)
-  return _[0]._add(_[1])
+  return this._add(a).finalize()
 }
 _._add = function(a) {
+  var _ = this.coerce(a)
+  return _[0].__add(_[1])
+}
+_.__add = function(a) {
   return new Adele(this.r + a.r, this.s, this.n)
 }
 _.inv = function() {
@@ -213,10 +252,13 @@ _.inv = function() {
   return new Adele(_r, _s, this.n)
 }
 _.mul = function(a) {
-  var _ = this.coerce(a)
-  return _[0]._mul(_[1])
+  return this._mul(a).finalize()
 }
 _._mul = function(a) {
+  var _ = this.coerce(a)
+  return _[0].__mul(_[1])
+}
+_.__mul = function(a) {
   return new Adele(this.r * a.r, this.s * a.s, this.n)
 }
 
@@ -231,5 +273,3 @@ _.toString = function() {
 }
 
 }()
-
-

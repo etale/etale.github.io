@@ -32,12 +32,12 @@ table {
   width: 100%;
   border-collapse: collapse;
 }
-#display {
+.display {
   background-color: #eee;
   border: 0;
   border-collapse: collapse;
 }
-#display input {
+.display input {
   width: 100%;
   font-family: serif;
   font-size: 1.5rem;
@@ -46,14 +46,14 @@ table {
   margin: 0;
   border: 0;
 }
-#display td {
+.display td {
   text-align: right;
   background-color: transparent;
   padding: 0 10px;
   margin: 0;
   border: 0;
 }
-#keypad td {
+.keypad td {
   width: 16.6667%;
   text-align: center;
   color: #eee;
@@ -62,78 +62,22 @@ table {
   border: 0;
 }
 </style>
+<script src="js.js"></script>
 <script>
-var
-pi2 = Math.PI * 2, nil = 'nil',
-equal = function(a, b) {
-  return a.ord === b.ord && a.arg === b.arg
-},
-shift = function(a) {
-  return (a === 0) ? 0 : {ord: a.ord + 1, arg: a.arg}
-},
-succ = function(a) {
-  return log(shift(exp(a)))
-},
-add = function(a, b) {
-  return (a === nil || b === nil) ? nil       :
-         (a === 0               ) ? b         :
-         (b === 0               ) ? a         :
-         equal(a, minus(b))       ? 0         :
-         (a.ord < b.ord)          ? add(b, a) :
-          mul(a, succ(mul(inverse(a), b)))
-},
-mul = function(a, b) {
-  return (a === nil || b === nil) ? nil :
-         (a === 0   || b === 0  ) ? 0   :
-         {ord: a.ord + b.ord, arg: (a.arg + b.arg) % 1}
-},
-minus = function(a) {
-  return (a === nil) ? nil :
-         (a === 0  ) ? 0   :
-         {ord: a.ord, arg: (a.arg + 0.5) % 1}
-},
-inverse = function(a) {
-  return (a === nil) ? nil :
-         (a === 0  ) ? nil :
-         {ord: - a.ord, arg: (a.arg === 0) ? 0 : (1 - a.arg)}
-},
-conjugate = function(a) {
-  return (a === nil) ? nil :
-         (a === 0  ) ? 0   :
-         {ord:   a.ord, arg: (a.arg === 0) ? 0 : (1 - a.arg)}
-},
-_log = function(a) {
-  var _, ord, arg
-
-  _ = a.arg
-  _ < 0.5 || (_ -= 1)
-  _ *= pi2
-  ord = Math.log(a.ord * a.ord + _ * _) * 0.5
-  arg = Math.atan2(_, a.ord) / pi2
-  arg < 0 && (arg += 1)
-  return {ord: ord, arg: arg}
-},
-log = function(a) {
-  return (a     === nil || a     === 0) ? nil :
-         (a.ord === 0   && a.arg === 0) ? 0   :
-         _log(a)
-},
-_exp = function(a) {
-  var _, ord, arg
-
-  _ = a.arg
-  _ < 0.5 || (_ -= 1)
-  _ *= pi2
-  ord =  Math.exp(a.ord) * Math.cos(_)
-  arg = (Math.exp(a.ord) * Math.sin(_) / pi2) % 1
-  arg < 0 && (arg += 1)
-  return {ord: ord, arg: arg}
-},
-exp = function(a) {
-  return (a === nil) ? nil              :
-         (a === 0  ) ? {ord: 0, arg: 0} :
-         _exp(a)
+var calc = function () {
+  document.body.appendChild(calc.display)
+  document.body.appendChild(calc.keypad)
 }
+
+!function () {
+
+var html = {};
+
+['tr', 'td', 'input', 'div', 'table'].forEach(function (a) {
+  html[a] = function() { return document.createElement(a) }
+})
+
+Complex.precision = 6
 
 var
 e, touch,
@@ -141,45 +85,22 @@ isFixed = function() {
   return e.hasOwnProperty('value')
 },
 fix = function() {
-  var _, ord, arg
-
-  if (isFixed()) return
-
-  _ = e.data.textContent.split('.')
-  _ = [0, 1, 2].map(function(i) {
-    return _[i] || '0'
-  })
-  ord = parseFloat(_[0] + '.' + _[1])
-  arg = parseFloat(      '0.' + _[2])
-  set(log({ord: ord, arg: arg}))
+  e.value || set(parseComplex(e.data.textContent))
 },
 fixAsIs = function() {
-  var _, ord, arg
-
-  if (isFixed()) {
-    set(exp(e.value))
-  } else
-  {
-    _ = e.data.textContent.split('.')
-    _ = [0, 1, 2].map(function(i) {
-      return _[i] || '0'
-    })
-    ord = parseFloat(_[0] + '.' + _[1])
-    arg = parseFloat(      '0.' + _[2])
-    set({ord: ord, arg: arg})
-  }
+  set(e.value ? e.value.exp() : parseComplex(e.data.textContent + 'X'))
 },
 moveFocus = function() {
   e.classList.remove('focus')
-  this.cell.classList.add('focus')
   e = this.cell
+  e.classList.add('focus')
 },
 makeCell = function() {
   var
-  cell  = document.createElement('tr'),
-  label = document.createElement('td'),
-  input = document.createElement('input'),
-  data  = document.createElement('td')
+  cell  = html.tr(),
+  label = html.td(),
+  input = html.input(),
+  data  = html.td()
   
   label.appendChild(input)
   cell.appendChild(label)
@@ -193,13 +114,13 @@ makeCell = function() {
     if (this.value === '') {
       this.cell.data[touch] = moveFocus
       while (this.cell.previousSibling.label.value !== '') {
-        display.insertBefore(this.cell, this.cell.previousSibling)
+        calc.display.insertBefore(this.cell, this.cell.previousSibling)
       }
       this.cell.classList.remove('button')
     } else
     {
       this.cell.data[touch] = function() {
-        isFixed() && push(); set(this.cell.value)
+        fix(); e.value && push(); set(this.cell.value)
       }
       if (e === this.cell) {
         fix()
@@ -207,10 +128,10 @@ makeCell = function() {
       }
       this.cell.classList.add('button')
       while (this.cell.nextSibling && this.cell.nextSibling.label.value === '') {
-        display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
+        calc.display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
       }
       while (this.cell.nextSibling && this.cell.nextSibling.value.ord < this.cell.value.ord) {
-        display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
+        calc.display.insertBefore(this.cell, this.cell.nextSibling.nextSibling)
       }
     }
   }
@@ -221,51 +142,26 @@ makeCell = function() {
   return cell
 },
 push = function() {
-  display.insertBefore(makeCell(), e.nextSibling)
+  calc.display.insertBefore(makeCell(), e.nextSibling)
   e.nextSibling.data[touch]()
 },
 pop = function() {
-  var value = e.value
+  var _ = e.value
   
-  if (!e.previousSibling) {
-    return
-  }
-  e.previousSibling.data[touch]()
-  display.removeChild(e.nextSibling)
+  e.previousSibling &&
+  (e.previousSibling.data[touch](), calc.display.removeChild(e.nextSibling))
   
-  return value
+  return _
 },
 set = function(a) {
-  var ord, arg
-
-  e.value = a
-  if (a === nil) {
-    e.data.textContent = nil
-  } else
-  if (a === 0) {
-    e.data.textContent = '0'
-    delete e.value
-  } else
-  {
-    ord = a.ord.toFixed(6).split('.')
-    arg = a.arg.toFixed(6).split('.')
-    ord[1] = ord[1] || '0'
-    arg[1] = arg[1] || '0'
-    e.data.textContent = ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
-  }
+  e.value = a; e.data.textContent = a.toString()
 },
 numeric = function() {
-  var label = this.textContent
+  var label = this.textContent, _
   
-  if (isFixed()) {
-    push(); e.data.textContent = label
-  } else
-  if (e.data.textContent === '0') {
-    e.data.textContent = label
-  } else
-  {
-    e.data.textContent += label
-  }
+  e.value && push()
+  _ = e.data
+  _.textContent = (_.textContent === '0' ? '' : _.textContent) + label
 },
 keys = {
   '0': numeric,
@@ -273,15 +169,15 @@ keys = {
   '2': numeric, '3': numeric, '4': numeric, '5': numeric,
   '6': numeric, '7': numeric, '8': numeric, '9': numeric,
   '.': function() {
-    isFixed() && push()
+    e.value && push()
     e.data.textContent += '.'
   },
   '↑': function() {
-    if (isFixed()) {
+    if (e.value) {
       push(); set(e.previousSibling.value)
     } else
     {
-      fix()
+      set(parseComplex(e.data.textContent))
     }
   },
   '↓': function() {
@@ -294,87 +190,96 @@ keys = {
     }
   },
   '←': function() {
-    if (isFixed()) {
+    var _ = e.data
+
+    if (e.value) {
       delete e.value
-      e.data.textContent = '0'
+      _.textContent = '0'
     } else
     {
-      e.data.textContent = e.data.textContent.slice(0, -1)
-      if (e.data.textContent === '') {
-        e.data.textContent = '0'
-      }
+      _.textContent = _.textContent.slice(0, -1)
+      _.textContent === '' && (_.textContent = '0')
     }
   },
   'g': function() {
-    isFixed() && push(); set({ord: 10.7352, arg: 0})
+    e.value || set(parseComplex(e.data.textContent)); e.value && push(); set(new Complex(10.7352))
   },
   'm': function() {
-    isFixed() && push(); set({ord: 80.1104, arg: 0})
+    fix(); e.value && push(); set(new Complex(80.1104))
   },
   's': function() {
-    isFixed() && push(); set({ord: 99.6290, arg: 0})
+    fix(); e.value && push(); set(new Complex(99.6290))
   },
   'exp': function() {
     fixAsIs()
   },
   'log': function() {
-    fix(); set(log(e.value))
+    e.value || set(parseComplex(e.data.textContent)); e.value && set(e.value.log())
   },
   '/': function() {
-    fix(); set(inverse(e.value))
+    fix(); e.value && set(e.value.inv())
   },
   '−': function() {
-    fix(); set(minus(e.value))
+    fix(); e.value && set(e.value.neg())
   },
   '†': function() {
-    fix(); set(conjugate(e.value))
+    fix(); e.value && set(e.value.conjugate())
   },
   ' ': function() {
+    var _
     if (e.previousSibling) {
-      fix(); set(mul(e.value, pop()))
+      fix(); _ = pop()
+      if (e.value) {
+        set(e.value.mul(_))
+      } else
+      {
+        set(0)
+      }
     }
   },
   '+': function() {
+    var _
     if (e.previousSibling) {
-      fix(); set(add(e.value, pop()))
+      fix(); _ = pop()
+      if (e.value) {
+        set(e.value.add(_))
+      } else
+      {
+        set(_)
+      }
     }
   }
 }
 
-touch = document.createElement('div')
-  .hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup';
+touch = html.div().hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup';
 
-var
-display = document.createElement('table'),
-keypad  = document.createElement('table')
+calc.display = html.table()
+calc.keypad  = html.table()
   
 e = makeCell()
-display.appendChild(e)
-display.setAttribute('id', 'display');
+calc.display.appendChild(e)
+calc.display.classList.add('display');
 
-[
-  ['↑'  , '↓', '←', '7', '8', '9'],
+[ ['↑'  , '↓', '←', '7', '8', '9'],
   ['g'  , 'm', 's', '4', '5', '6'],
   ['log', ' ', '/', '1', '2', '3'],
-  ['exp', '+', '−', '0', '.', '†']
-].forEach(function(tds) {
-  var tr = document.createElement('tr')
+  ['exp', '+', '−', '0', '.', '†'] ].forEach(function (tds) {
+  var tr = html.tr()
 
-  tds.forEach(function(td) {
-    var _ = document.createElement('td')
+  tds.forEach(function (td) {
+    var _ = html.td()
               
     _.textContent = td
     _[touch] = keys[td]
     tr.appendChild(_)
   })
-  keypad.appendChild(tr)
+  calc.keypad.appendChild(tr)
 })
-keypad.setAttribute('id', 'keypad')
+calc.keypad.classList.add('keypad')
 
-onload = function() {
-  document.body.appendChild(display)
-  document.body.appendChild(keypad)
-}
+}()
+
+onload = calc
 </script>
 </head>
 <body></body>
