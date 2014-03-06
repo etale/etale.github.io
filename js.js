@@ -2,6 +2,18 @@
 
 var _ = Number.prototype
 
+_.gcd = function(a) {
+  var _ = this, __
+  while (a !== 0) {
+    __ = [a, _ % a]
+    _ = __[0]
+    a = __[1]
+  }
+  return _
+}
+_.lcm = function(a) {
+  return this * a / this.gcd(a)
+}
 _.toArray = function() {
   var _ = [], i = 0; while (i < this) _.push(i++); return _
 }
