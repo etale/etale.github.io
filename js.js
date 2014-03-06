@@ -60,7 +60,7 @@ _.toArray = function() {
   var _ = [], i = 0; while (i < this) _.push(i++); return _
 }
 _.forEach = function(a) {
-  this.toArray.forEach(a)
+  this.toArray().forEach(a)
 }
 _.map = function(a) {
   return this.toArray().map(a)
