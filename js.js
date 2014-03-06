@@ -115,8 +115,8 @@ _ = Adele.prototype
 _.toString = function() {
   var _ = ''
 
-  this.n       && (_ += this.n.toString() + '\\')
-  _ += this.r.toString()
+  this.n === 0 || (_ +=       this.n.toString() + '\\')
+                   _ +=       this.r.toString()
   this.s === 1 || (_ += '/' + this.s.toString())
 
   return _
