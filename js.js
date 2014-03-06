@@ -105,7 +105,7 @@ Adele = function(r, s, n) {
   s = s || 1
   n = n || 0
 
-  this.r = r; this.r = s; this.n = n
+  this.r = r; this.s = s; this.n = n
 }
 
 !function(){
