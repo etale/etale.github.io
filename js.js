@@ -201,10 +201,6 @@ _.finalize = function() {
   _r = this.r.div(_)
   _s = this.s.div(_)
 
-  if (this.n === 0 && _s === 1) {
-    return _r
-  }
-
   return new Adele(_r, _s, this.n)
 }
 
