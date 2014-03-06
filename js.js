@@ -98,3 +98,30 @@ _.toString = function() {
 }
 
 }()
+
+var
+Adele = function(r, s, n) {
+  r = r || 0
+  s = s || 1
+  n = n || 0
+
+  this.r = r; this.r = s; this.n = n
+}
+
+!function(){
+
+_ = Adele.prototype
+
+_.toString = function() {
+  var _ = ''
+
+  this.n       && (_ += this.n.toString() + '\\')
+  _ += this.r.toString()
+  this.s === 1 || (_ += '/' + this.s.toString())
+
+  return _
+}
+
+}()
+
+
