@@ -1,11 +1,18 @@
-Number.prototype.toArray = function() {
-  var _ = [], i = 0
+!function(){
 
-  while (i < this) {
-    _.push(i); i++
-  }
-  return _
+var _ = Number.prototype
+
+_.toArray = function() {
+  var _ = []; while (i < this) _.push(i++); return _
 }
+_.forEach = function(a) {
+  this.toArray.forEach(a)
+}
+_.map = function(a) {
+  return this.toArray().map(a)
+}
+
+}()
 
 var
 Complex = function(ord, arg) {

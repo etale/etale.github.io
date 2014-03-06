@@ -331,12 +331,12 @@ keys = {
   },
   ' ': function() {
     if (e.previousSibling) {
-      fix(); _ = pop(); set(mul(e.value, _))
+      fix(); set(mul(e.value, pop()))
     }
   },
   '+': function() {
     if (e.previousSibling) {
-      fix(); _ = pop(); set(add(e.value, _))
+      fix(); set(add(e.value, pop()))
     }
   }
 }
