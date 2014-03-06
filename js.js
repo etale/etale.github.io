@@ -3,7 +3,7 @@
 var _ = Number.prototype
 
 _.toArray = function() {
-  var _ = []; while (i < this) _.push(i++); return _
+  var _ = [], i = 0; while (i < this) _.push(i++); return _
 }
 _.forEach = function(a) {
   this.toArray.forEach(a)
