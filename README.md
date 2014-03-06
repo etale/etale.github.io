@@ -1,9 +1,9 @@
 etale.github.io
 ===============
 
-# calc
+# calc/infty
 
-A calculator for minimalist.
+A calculator for minimalist at infinity.
 
 + RPN
   + `↑` push
