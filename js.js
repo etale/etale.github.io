@@ -3,13 +3,13 @@
 var _ = Number.prototype
 
 _.divmod = function(a) {
-  var q, r
+  var _ = this, q, r
 
   if (a === 0) {
-    return [0, this.valueOf()]
+    return [0, _.valueOf()]
   }
 
-  r = this % a; q = (this - r) / a
+  r = _ % a; q = (_ - r) / a
   return [q, r]
 }
 _.div =function(a) {
@@ -22,20 +22,18 @@ _.gcd = function(a) {
   var _ = this.valueOf(), __
 
   while (a !== 0) {
-    __ = [a, _ % a]
-    _ = __[0]
-    a = __[1]
+    __ = [a, _ % a]; _ = __[0]; a = __[1]
   }
   return _
 }
 _.lcm = function(a) {
-  return this * a / this.gcd(a)
+  var _ = this
+  return _ * a / _.gcd(a)
 }
 _.inv = function(a) {
   var _ = this, x = 1, z = 0, __, q, r
   while (a !== 0) {
-    __ = _.divmod(a)
-    q = __[0]; r = __[1]
+    __ = _.divmod(a); q = __[0]; r = __[1]
     __ = [a, r, z, x - q * z]
     _ = __[0]; a = __[1]; x = __[2]; z = __[3]
   }
@@ -58,8 +56,7 @@ _.ub = function(a) {
     if (_ === 1) {
       break
     }
-    u = u / _
-    b = b * _
+    u /= _; b *= _
   }
   return [u, b]
 }
@@ -78,14 +75,14 @@ _.map = function(a) {
 
 var
 Complex = function(ord, arg) {
-  var _
+  var _ = this, __
 
   ord = ord || 0; arg = arg || 0
   arg %= 1; arg < 0 && (arg += 1)
-  this.ord = ord; this.arg = arg
-  _ = arg; _ < 0.5 || (_ -= 1); _ *= this.pi2
-  this._arg = _
-  ord === 0 && arg === 0 && (this.isUnity = true)
+  _.ord = ord; _.arg = arg
+  __ = arg; __ < 0.5 || (__ -= 1); __ *= this.pi2
+  _._arg = __
+  ord === 0 && arg === 0 && (_.isUnity = true)
 },
 parseComplex = function(a) {
   var _ = a.split('.'), ord, arg
@@ -108,53 +105,61 @@ var _ = Complex.prototype
 _.pi2 = Math.PI * 2
 
 _.shift = function() {
-  return new Complex(this.ord + 1, this.arg)
+  var _ = this
+  return new Complex(_.ord + 1, _.arg)
 }
 _.succ = function() {
   return this.exp().shift().log()
 }
 _.conjugate = function() {
-  return new Complex(this.ord, -this.arg)
+  var _ = this
+  return new Complex(_.ord, -_.arg)
 }
 
 _.eql = function(a) {
-  return a !== 0 && this.ord === a.ord && this.arg === a.arg
+  var _ = this
+  return a !== 0 && _.ord === a.ord && _.arg === a.arg
 }
 _.inv = function() {
-  return new Complex(-this.ord, -this.arg)
+  var _ = this
+  return new Complex(-_.ord, -_.arg)
 }
 _.mul = function(a) {
-  return a === 0 ? 0 : new Complex(this.ord + a.ord, this.arg + a.arg)
+  var _ = this
+  return a === 0 ? 0 : new Complex(_.ord + a.ord, _.arg + a.arg)
 }
 _.neg = function() {
-  return new Complex(this.ord, this.arg + 0.5)
+  var _ = this
+  return new Complex(_.ord, _.arg + 0.5)
 }
 _.add = function(a) {
-  return a === 0           ? this        :
-         this.neg().eql(a) ? 0           :
-         this.ord < a.ord  ? a.add(this) :
-         this.mul(this.inv().mul(a).succ())
+  var _ = this
+  return a === 0        ? _        :
+         _.neg().eql(a) ? 0        :
+         _.ord < a.ord  ? a.add(_) :
+         _.mul(_.inv().mul(a).succ())
 }
 _.log = function() {
-  return this.isUnity ? 0 :
+  var _ = this
+  return _.isUnity ? 0 :
          new Complex(
-           Math.log  (this.ord * this.ord + this._arg * this._arg) * 0.5,
-           Math.atan2(this._arg, this.ord) / this.pi2
+           Math.log  (_.ord * _.ord + _._arg * _._arg) * 0.5,
+           Math.atan2(_._arg, _.ord) / _.pi2
          )
 }
 _.exp = function() {
-  var _ = Math.exp(this.ord)
+  var _ = this, __ = Math.exp(_.ord)
 
   return new Complex(
-           _ * Math.cos(this._arg),
-           _ * Math.sin(this._arg) / this.pi2
+           __ * Math.cos(_._arg),
+           __ * Math.sin(_._arg) / _.pi2
          )
 }
 _.toString = function() {
-  var ord, arg
+  var _ = this, ord, arg
 
-  ord = this.ord.toFixed(Complex.precision).split('.')
-  arg = this.arg.toFixed(Complex.precision).split('.')
+  ord = _.ord.toFixed(Complex.precision).split('.')
+  arg = _.arg.toFixed(Complex.precision).split('.')
   ord[1] = ord[1] || '0'
   arg[1] = arg[1] || '0'
   return ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
@@ -164,17 +169,15 @@ _.toString = function() {
 
 var
 Adele = function(r, s, n) {
-  var _, u
+  var _ = this, __, u
 
-  r = r || 0
-  s = s || 1
-  n = n || 0
+  r = r || 0; s = s || 1; n = n || 0
 
   ｎ = n.body()
-  _ = s.ub(n); u = _[0]; s = _[1]
+  __ = s.ub(n); u = __[0]; s = __[1]
   r = (r * u.inv(n)).mod(n * s)
 
-  this.r = r; this.s = s; this.n = n
+  _.r = r; _.s = s; _.n = n
 }
 
 !function(){
@@ -191,45 +194,44 @@ _ = Adele.prototype
 //  end
 
 _.finalize = function() {
-  var _, _r, _s
+  var _ = this, __, _r, _s
 
-  if (this.n === 1 || this.s === 0) {
-    return null
+  if (_.n === 1 || _.s === 0) {
+    return null // !
   }
 
-  _ = this.r.gcd(this.s)
-  _r = this.r.div(_)
-  _s = this.s.div(_)
+  __ = _.r.gcd(_.s); _r = _.r.div(__); _s = _.s.div(__)
 
-  return new Adele(_r, _s, this.n)
+  return new Adele(_r, _s, _.n)
 }
 
 _.coerce = function(a) {
-  var _, __, _n, _u, _s, au, as, s_, _r, ar
+  var _ = this, __, n, _u, _s, au, as, s, _r, ar
 
-  _ = this
-  _n = _.n.gcd(a.n)
-  __ = _.s.ub(_n); _u = __[0]; _s = __[1]
-  __ = a.s.ub(_n); au = __[0]; as = __[1]
-  s_ = _s.lcm(as)
-  _r = _.r * _u.inv(_n) * s_.div(_s)
-  ar = a.r * au.inv(_n) * s_.div(as)
-  _ = new Adele(_r, s_, _n)
-  a = new Adele(ar, s_, _n)
+  n = _.n.gcd(a.n)
+  __ = _.s.ub(n); _u = __[0]; _s = __[1]
+  __ = a.s.ub(n); au = __[0]; as = __[1]
+  s = _s.lcm(as)
+  _r = _.r * _u.inv(n) * s.div(_s)
+  ar = a.r * au.inv(n) * s.div(as)
+  _ = new Adele(_r, s, n)
+  a = new Adele(ar, s, n)
 
   return [a, _]
 }
 _.eql = function(a) {
-  return this.n == a.n && this.r === a.r && this.s === a.s
+  var _ = this
+  return _.n == a.n && _.r === a.r && _.s === a.s
 }
 _.neg = function() {
-  return new Adele(-this.r, this.s, this.n)
+  var _ = this
+  return new Adele(-_.r, _.s, _.n)
 }
 _.res = function() {
-  var _, u, _n
+  var _ = this, __, u, n
   // return if unit? in ruby
-  _ = this.r.ub(this.n); u = _[0], _n = _[1]
-  return new Adele(0, 1, _n)
+  __ = _.r.ub(_.n); u = __[0], n = __[1]
+  return new Adele(0, 1, n)
 }
 _.add = function(a) {
   return this._add(a).finalize()
@@ -239,33 +241,35 @@ _._add = function(a) {
   return _[0].__add(_[1])
 }
 _.__add = function(a) {
-  return new Adele(this.r + a.r, this.s, this.n)
+  var _ = this
+  return new Adele(_.r + a.r, _.s, _.n)
 }
 _.inv = function() {
-  var _r, _s, __, u
-  __ = this.r.ub(this.n); u = __[0]; _s = __[1]
-  _r = this.s * u.inv(this.n)
-  return new Adele(_r, _s, this.n)
+  var _ = this, r, s, __, u
+  __ = _.r.ub(_.n); u = __[0]; s = __[1]
+  r = _.s * u.inv(_.n)
+  return new Adele(r, s, _.n)
 }
 _.mul = function(a) {
   return this._mul(a).finalize()
 }
 _._mul = function(a) {
-  var _ = this.coerce(a)
-  return _[0].__mul(_[1])
+  var __ = this.coerce(a)
+  return __[0].__mul(__[1])
 }
 _.__mul = function(a) {
-  return new Adele(this.r * a.r, this.s * a.s, this.n)
+  var _ = this
+  return new Adele(_.r * a.r, _.s * a.s, _.n)
 }
 
 _.toString = function() {
-  var _ = ''
+  var _ = this, __ = ''
 
-  this.n === 0 || (_ +=       this.n.toString() + '\\')
-                   _ +=       this.r.toString()
-  this.s === 1 || (_ += '/' + this.s.toString())
+  _.n === 0 || (__ +=       _.n.toString() + '\\')
+                __ +=       _.r.toString()
+  _.s === 1 || (__ += '/' + _.s.toString())
 
-  return _
+  return __
 }
 
 }()
