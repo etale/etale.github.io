@@ -28,10 +28,12 @@ _.gcd = function (a) {
 }
 _.lcm = function (a) {
   var _ = this
+
   return _ * a / _.gcd(a)
 }
 _.inv = function (a) {
   var _ = this, x = 1, z = 0, __, q, r
+
   while (a !== 0) {
     __ = _.divmod(a); q = __[0]; r = __[1]
     __ = [a, r, z, x - q * z]
@@ -47,6 +49,7 @@ _.body = function () {
 }
 _.ub = function (a) {
   var _ = this.valueOf(), b = 1, d
+
   a = a || 0
   if (_ * a === 0) {
     return [_.unit(), _.body()]
@@ -106,6 +109,7 @@ _.pi2 = Math.PI * 2
 
 _.shift = function () {
   var _ = this
+
   return new Complex(_.ord + 1, _.arg)
 }
 _.succ = function () {
@@ -113,27 +117,33 @@ _.succ = function () {
 }
 _.conjugate = function () {
   var _ = this
+
   return new Complex(_.ord, -_.arg)
 }
 
 _.eql = function (a) {
   var _ = this
+
   return a !== 0 && _.ord === a.ord && _.arg === a.arg
 }
 _.inv = function () {
   var _ = this
+
   return new Complex(-_.ord, -_.arg)
 }
 _.mul = function (a) {
   var _ = this
+
   return a === 0 ? 0 : new Complex(_.ord + a.ord, _.arg + a.arg)
 }
 _.neg = function () {
   var _ = this
+
   return new Complex(_.ord, _.arg + 0.5)
 }
 _.add = function (a) {
   var _ = this
+
   return a === 0        ? _        :
          _.neg().eql(a) ? 0        :
          _.ord < a.ord  ? a.add(_) :
@@ -141,6 +151,7 @@ _.add = function (a) {
 }
 _.log = function () {
   var _ = this
+
   return _.isUnity ? 0 :
          new Complex(
            Math.log  (_.ord * _.ord + _._arg * _._arg) * 0.5,
@@ -219,27 +230,32 @@ _.coerce = function (a) {
 }
 _.eql = function (a) {
   var _ = this
+
   return _.n == a.n && _.r === a.r && _.s === a.s
 }
 _.neg = function () {
   var _ = this
+
   return _.eql(nil) ? nil : new Adele(-_.r, _.s, _.n)
 }
 _.res = function () {
   var _ = this, __, u, n
+
   // return if unit? in ruby
-  __ = _.r.ub(_.n); u = __[0], n = __[1]
+  __ = _.r.ub(_.n); u = __[0]; n = __[1]
   return new Adele(0, 1, n)
 }
 _.add = function (a) {
   return this._add(a).finalize()
 }
 _._add = function (a) {
-  var _ = this.coerce(a)
-  return _[0].__add(_[1])
+  var __ = this.coerce(a)
+
+  return __[0].__add(__[1])
 }
 _.__add = function (a) {
   var _ = this
+
   return _.eql(nil) ? nil :
          new Adele(_.r + a.r, _.s, _.n)
 }
@@ -258,10 +274,12 @@ _.mul = function (a) {
 }
 _._mul = function (a) {
   var __ = this.coerce(a)
+
   return __[0].__mul(__[1])
 }
 _.__mul = function (a) {
   var _ = this
+
   return _.eql(nil) ? nil :
          new Adele(_.r * a.r, _.s * a.s, _.n)
 }
