@@ -124,10 +124,15 @@ func['+'] = function () {
 func.ub = function () {
   var _, u, b
 
-  fix()
-  _ = e.value
-  set(_.unit()); push()
-  set(_.body())
+  fix(); _ = e.value
+  set(_.body()); push()
+  set(_.unit())
+}
+func.lift = function () {
+  var _
+
+  fix(); _ = e.value
+  set(new Adele(_._r, _.s))
 }
 
 ;['tr', 'td', 'table'].forEach(function (a) {
@@ -142,8 +147,8 @@ calc.keypad  = html.table()
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
   ['m', 'n', 'd', '4', '5', '6'],
-  [' ', ' ', '/', '1', '2', '3'],
-  ['ub', '+', '−', '0', '.', '\\']
+  ['ub', ' ', '/', '1', '2', '3'],
+  ['lift', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
   var tr = html.tr()
 

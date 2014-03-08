@@ -302,7 +302,7 @@ _.unit = function () {
   var _ = this, __
 
   __ = _.r.ub(_.n); r = __[0]
-  return new Adele(r, _.s, _.n)
+  return new Adele(r, 1, _.n)
 }
 _.body = function () {
   var _ = this, __
