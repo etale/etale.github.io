@@ -9,7 +9,8 @@ _.divmod = function (a) {
     return [0, _.valueOf()]
   }
 
-  r = _ % a; q = (_ - r) / a
+  r = _ % a; r < 0 && (r += a)
+  q = (_ - r) / a
   return [q, r]
 }
 _.div =function (a) {
