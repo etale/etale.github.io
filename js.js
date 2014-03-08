@@ -190,6 +190,10 @@ Adele = function (r, s, n) {
   r = (r * u.inv(n)).mod(n * s)
 
   _.r = r; _.s = s; _.n = n
+
+  _._r = n === 0 ? r :
+         r < n/2 ? r :
+         r - n
 }
 
 !function () {
@@ -234,6 +238,11 @@ _.eql = function (a) {
 
   return _.n == a.n && _.r === a.r && _.s === a.s
 }
+_.zero = function () {
+  var _ = this
+
+  return new Adele(0, _.s, _.n)
+}
 _.neg = function () {
   var _ = this
 
@@ -260,6 +269,11 @@ _.__add = function (a) {
   return _.eql(nil) ? nil :
          new Adele(_.r + a.r, _.s, _.n)
 }
+_.unity = function () {
+  var _ = this
+
+  return new Adele(_.s, _.s, _.n)
+}
 _.inv = function () {
   var _ = this, r, s, __, u
 
@@ -284,11 +298,17 @@ _.__mul = function (a) {
   return _.eql(nil) ? nil :
          new Adele(_.r * a.r, _.s * a.s, _.n)
 }
-_.isZero = function () {
-  return this.r === 0
+_.unit = function () {
+  var _ = this, __
+
+  __ = _.r.ub(_.n); r = __[0]
+  return new Adele(r, _.s, _.n)
 }
-_.isUnity = function () {
-  return this.r === 1
+_.body = function () {
+  var _ = this, __
+
+  __ = _.r.ub(_.n); r = __[1]
+  return new Adele(r, _.s, _.n)
 }
 
 _.toString = function () {

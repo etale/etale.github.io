@@ -121,6 +121,14 @@ func['+'] = function () {
     fix(); _ = pop(); set(e.value ? e.value.add(_) : _)
   }
 }
+func.ub = function () {
+  var _, u, b
+
+  fix()
+  _ = e.value
+  set(_.unit()); push()
+  set(_.body())
+}
 
 ;['tr', 'td', 'table'].forEach(function (a) {
   html[a] = function () {
@@ -135,7 +143,7 @@ calc.keypad  = html.table()
   ['↑', '↓', '←', '7', '8', '9'],
   ['m', 'n', 'd', '4', '5', '6'],
   [' ', ' ', '/', '1', '2', '3'],
-  [' ', '+', '−', '0', '.', '\\']
+  ['ub', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
   var tr = html.tr()
 
