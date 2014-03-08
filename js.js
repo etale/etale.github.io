@@ -33,7 +33,10 @@ _.lcm = function (a) {
   return _ * a / _.gcd(a)
 }
 _.inv = function (a) {
-  var _ = this, x = 1, z = 0, __, q, r
+  var _ = this.valueOf(), x = 1, z = 0, __, q, r
+
+  if (a === 0 && _ === -1)
+    return -1
 
   while (a !== 0) {
     __ = _.divmod(a); q = __[0]; r = __[1]
