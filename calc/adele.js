@@ -60,7 +60,7 @@ numeric = function () {
   __ = e.data
   __.textContent = (__.textContent === '0' ? '' : __.textContent) + _
 },
-touch = document.createElement('div').ontouchend ? 'ontouchend' : 'onmouseup',
+touch = document.createElement('div').hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup',
 e,
 html = {}, func = {}
 
