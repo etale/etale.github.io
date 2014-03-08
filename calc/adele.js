@@ -85,13 +85,13 @@ func['←'] = function () {
 
   e.value ? reset() : bs()
 }
-func.mod = function () {
+func.m = function () {
   fix(); set(new Adele(e.value.n))
 }
-func.num = function () {
+func.n = function () {
   fix(); set(new Adele(e.value.r))
 }
-func.den = function () {
+func.d = function () {
   fix(); set(new Adele(e.value.s))
 }
 func.exp = function () {
@@ -133,7 +133,7 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['mod', 'num', 'den', '4', '5', '6'],
+  ['m', 'n', 'd', '4', '5', '6'],
   [' ', ' ', '/', '1', '2', '3'],
   [' ', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
