@@ -3,10 +3,11 @@
 var _ = Number.prototype
 
 _.divmod = function (a) {
-  var _ = this, q, r
+  var _ = this.valueOf(), q, r
 
+  a = a || 0
   if (a === 0) {
-    return [0, _.valueOf()]
+    return [0, _]
   }
 
   r = _ % a; r < 0 && (r += a)
@@ -22,19 +23,22 @@ _.mod =function (a) {
 _.gcd = function (a) {
   var _ = this.valueOf(), __
 
+  a = a || 0
   while (a !== 0) {
     __ = [a, _ % a]; _ = __[0]; a = __[1]
   }
   return _
 }
 _.lcm = function (a) {
-  var _ = this
+  var _ = this.valueOf()
 
+  a = a || 1
   return _ * a / _.gcd(a)
 }
-_.inv = function (a) {
+_._inv = function (a) {
   var _ = this.valueOf(), x = 1, z = 0, __, q, r
 
+  a = a || 0
   if (a === 0 && _ === -1)
     return -1
 
@@ -190,7 +194,7 @@ Adele = function (r, s, n) {
 
   ｎ = n.body()
   __ = s.ub(n); u = __[0]; s = __[1]
-  r = (r * u.inv(n)).mod(n * s)
+  r = (r * u._inv(n)).mod(n * s)
 
   _.r = r; _.s = s; _.n = n
 
@@ -229,8 +233,8 @@ _.coerce = function (a) {
   __ = _.s.ub(n); _u = __[0]; _s = __[1]
   __ = a.s.ub(n); au = __[0]; as = __[1]
   s = _s.lcm(as)
-  _r = _.r * _u.inv(n) * s.div(_s)
-  ar = a.r * au.inv(n) * s.div(as)
+  _r = _.r * _u._inv(n) * s.div(_s)
+  ar = a.r * au._inv(n) * s.div(as)
   _ = new Adele(_r, s, n)
   a = new Adele(ar, s, n)
 
@@ -284,7 +288,7 @@ _.inv = function () {
     return nil
   }
   __ = _.r.ub(_.n); u = __[0]; s = __[1]
-  r = _.s * u.inv(_.n)
+  r = _.s * u._inv(_.n)
   return new Adele(r, s, _.n)
 }
 _.mul = function (a) {
@@ -311,7 +315,7 @@ _.body = function () {
   var _ = this, __
 
   __ = _.r.ub(_.n); r = __[1]
-  return new Adele(r, _.s, _.n)
+  return new Adele(r, _.s, 0)
 }
 
 _.toString = function () {

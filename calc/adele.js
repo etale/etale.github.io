@@ -20,19 +20,19 @@ bs = function () {
 fix = function () {
   e.value = e.value || new Adele(parseInt(e.data.textContent))
 },
+focus = function () {
+  e.classList.remove('focus')
+  e = this
+  e.classList.add('focus')
+},
 makeCell = function () {
   var
   cell = html.tr(),
   data = html.td()
-
-  cell[touch] = cell.focus = function () {
-    e.classList.remove('focus')
-    e = this
-    e.classList.add('focus')
-  }
   
   cell.appendChild(data)
   data.textContent = '0'
+  cell[touch] = cell.focus = focus
 
   cell.data = data
   data.cell = cell
@@ -60,7 +60,7 @@ numeric = function () {
   __ = e.data
   __.textContent = (__.textContent === '0' ? '' : __.textContent) + _
 },
-touch = document.createElement('div').hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup',
+touch = document.createElement('div').ontouchend ? 'ontouchend' : 'onmouseup',
 e,
 html = {}, func = {}
 
@@ -81,8 +81,6 @@ func['↓'] = function () {
   e.previousSibling ? pop() : reset()
 }
 func['←'] = function () {
-  var _ = e.data
-
   e.value ? reset() : bs()
 }
 func.m = function () {
@@ -122,7 +120,7 @@ func['+'] = function () {
   }
 }
 func.ub = function () {
-  var _, u, b
+  var _
 
   fix(); _ = e.value
   set(_.body()); push()
@@ -132,7 +130,8 @@ func.lift = function () {
   var _
 
   fix(); _ = e.value
-  set(new Adele(_._r, _.s))
+  set(new Adele(_._r, _.s)); push()
+  set(new Adele(0, 1, _.n))
 }
 
 ;['tr', 'td', 'table'].forEach(function (a) {
