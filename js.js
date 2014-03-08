@@ -283,6 +283,12 @@ _.__mul = function (a) {
   return _.eql(nil) ? nil :
          new Adele(_.r * a.r, _.s * a.s, _.n)
 }
+_.isZero = function () {
+  return this.r === 0
+}
+_.isUnity = function () {
+  return this.r === 1
+}
 
 _.toString = function () {
   var _ = this, __ = ''
