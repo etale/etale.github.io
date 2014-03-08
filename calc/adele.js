@@ -25,7 +25,7 @@ makeCell = function () {
   cell = html.tr(),
   data = html.td()
 
-  cell.focus = function () {
+  cell[touch] = cell.focus = function () {
     e.classList.remove('focus')
     e = this
     e.classList.add('focus')
@@ -85,13 +85,13 @@ func['←'] = function () {
 
   e.value ? reset() : bs()
 }
-func.n = function () {
+func.mod = function () {
   fix(); set(new Adele(e.value.n))
 }
-func.r = function () {
+func.num = function () {
   fix(); set(new Adele(e.value.r))
 }
-func.s = function () {
+func.den = function () {
   fix(); set(new Adele(e.value.s))
 }
 func.exp = function () {
@@ -133,7 +133,7 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['n', 'r', 's', '4', '5', '6'],
+  ['mod', 'num', 'den', '4', '5', '6'],
   [' ', ' ', '/', '1', '2', '3'],
   [' ', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
