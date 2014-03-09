@@ -80,7 +80,7 @@ func['↓'] = function () {
 func['←'] = function () {
   e.value ? reset() : bs()
 }
-func['⁝'] = function () {
+func['⋮'] = function () {
   var _
 
   fix(); _ = e.value
@@ -151,7 +151,7 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['⁝', '↕', '↺', '4', '5', '6'],
+  ['⋮', '↕', '↺', '4', '5', '6'],
   ['✃', ' ', '/', '1', '2', '3'],
   ['✁', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
