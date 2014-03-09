@@ -82,7 +82,7 @@ func['↓'] = function () {
 func['←'] = function () {
   e.value ? reset() : bs()
 }
-func['⎵'] = function () {
+func._ = function () {
   fix(); set(new Adele(e.value.n))
 }
 func['↕'] = function () {
@@ -142,7 +142,7 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['⎵', '↕', '↺', '4', '5', '6'],
+  ['_', '↕', '↺', '4', '5', '6'],
   ['✃', ' ', '/', '1', '2', '3'],
   ['✁', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
