@@ -317,6 +317,16 @@ _.body = function () {
   __ = _.r.ub(_.n); r = __[1]
   return new Adele(r, _.s, 0)
 }
+_.isZero = function () {
+  var _ = this
+
+  return _.eql(_.zero())
+}
+_.isUnit = function () {
+  var _ = this
+
+  return _.eql(_.unit())
+} 
 
 _.toString = function () {
   var _ = this, __ = ''

@@ -80,8 +80,12 @@ func['↓'] = function () {
 func['←'] = function () {
   e.value ? reset() : bs()
 }
-func._ = function () {
-  fix(); set(new Adele(e.value.n))
+func['⁝'] = function () {
+  var _
+
+  fix(); _ = e.value
+  set(_.body()); push()
+  set(_.unit())
 }
 func['↕'] = function () {
   fix()
@@ -98,7 +102,14 @@ func['−'] = function () {
   fix(); set(e.value.neg())
 }
 func['\\'] = function () {
-  fix(); set(e.value.res())
+  var _
+
+  fix(); _ = e.value
+  set(
+    _.isZero()  ? new Adele(_.n) :
+    _.isUnit() ? _              :
+                  _.res()
+  )
 }
 func[' '] = function () {
   var _
@@ -140,7 +151,7 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['_', '↕', '↺', '4', '5', '6'],
+  ['⁝', '↕', '↺', '4', '5', '6'],
   ['✃', ' ', '/', '1', '2', '3'],
   ['✁', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
