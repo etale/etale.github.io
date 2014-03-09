@@ -82,7 +82,7 @@ func['↓'] = function () {
 func['←'] = function () {
   e.value ? reset() : bs()
 }
-func.mod = function () {
+func['⎵'] = function () {
   fix(); set(new Adele(e.value.n))
 }
 func['↕'] = function () {
@@ -116,14 +116,14 @@ func['+'] = function () {
     fix(); _ = pop(); set(e.value ? e.value.add(_) : _)
   }
 }
-func.unit = function () {
+func['✃'] = function () {
   var _
 
   fix(); _ = e.value
   set(_.body()); push()
   set(_.unit())
 }
-func.zero = function () {
+func['✁'] = function () {
   var _
 
   fix(); _ = e.value
@@ -142,9 +142,9 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['mod', '↕', '↺', '4', '5', '6'],
-  ['unit', ' ', '/', '1', '2', '3'],
-  ['zero', '+', '−', '0', '.', '\\']
+  ['⎵', '↕', '↺', '4', '5', '6'],
+  ['✃', ' ', '/', '1', '2', '3'],
+  ['✁', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
   var tr = html.tr()
 
