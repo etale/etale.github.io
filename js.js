@@ -243,7 +243,7 @@ _.coerce = function (a) {
 _.eql = function (a) {
   var _ = this
 
-  return _.n == a.n && _.r === a.r && _.s === a.s
+  return _.n === a.n && _.r === a.r && _.s === a.s
 }
 _.zero = function () {
   var _ = this

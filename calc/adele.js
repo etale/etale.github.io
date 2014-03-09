@@ -61,8 +61,7 @@ numeric = function () {
   __.textContent = (__.textContent === '0' ? '' : __.textContent) + _
 },
 touch = document.createElement('div').hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup',
-e,
-html = {}, func = {}
+html = {}, func = {}, e
 
 10 .forEach(function (i) {
   func[i] = numeric
@@ -83,19 +82,17 @@ func['↓'] = function () {
 func['←'] = function () {
   e.value ? reset() : bs()
 }
-func.m = function () {
+func.mod = function () {
   fix(); set(new Adele(e.value.n))
 }
-func.n = function () {
-  fix(); set(new Adele(e.value.r))
+func['↕'] = function () {
+  fix()
+  if (e.previousSibling) {
+    e.parentNode.insertBefore(e, e.previousSibling)
+    e.nextSibling.focus()
+  }
 }
-func.d = function () {
-  fix(); set(new Adele(e.value.s))
-}
-func.exp = function () {
-}
-func.log = function () {
-}
+func['↺'] = function () {}
 func['/'] = function () {
   fix(); set(e.value.inv())
 }
@@ -119,14 +116,14 @@ func['+'] = function () {
     fix(); _ = pop(); set(e.value ? e.value.add(_) : _)
   }
 }
-func.ub = function () {
+func.unit = function () {
   var _
 
   fix(); _ = e.value
   set(_.body()); push()
   set(_.unit())
 }
-func.lift = function () {
+func.zero = function () {
   var _
 
   fix(); _ = e.value
@@ -145,9 +142,9 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['m', 'n', 'd', '4', '5', '6'],
-  ['ub', ' ', '/', '1', '2', '3'],
-  ['lift', '+', '−', '0', '.', '\\']
+  ['mod', '↕', '↺', '4', '5', '6'],
+  ['unit', ' ', '/', '1', '2', '3'],
+  ['zero', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
   var tr = html.tr()
 
