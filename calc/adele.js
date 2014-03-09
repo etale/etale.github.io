@@ -33,9 +33,7 @@ makeCell = function () {
   cell.appendChild(data)
   data.textContent = '0'
   cell[touch] = cell.focus = focus
-
   cell.data = data
-  data.cell = cell
 
   return cell
 },
@@ -127,7 +125,7 @@ func['✁'] = function () {
   var _
 
   fix(); _ = e.value
-  set(new Adele(_._r, _.s)); push()
+  set(new Adele(_.r, _.s)); push()
   set(new Adele(0, 1, _.n))
 }
 
