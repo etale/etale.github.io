@@ -81,9 +81,11 @@ func['←'] = function () {
   e.value ? reset() : bs()
 }
 func['⋮'] = function () {
-  var _
+  var _, b, u
 
-  fix(); _ = e.value
+  fix(); _ = pop()
+  b = _.body(); u = _.unit()
+
   set(_.body()); push()
   set(_.unit())
 }
@@ -106,9 +108,9 @@ func['\\'] = function () {
 
   fix(); _ = e.value
   set(
-    _.isZero()  ? new Adele(_.n) :
+    _.isZero() ? new Adele(_.n) :
     _.isUnit() ? _              :
-                  _.res()
+                 _.res()
   )
 }
 func[' '] = function () {
