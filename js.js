@@ -73,7 +73,11 @@ _.ub = function (a) {
 }
 
 _.toArray = function () {
-  var _ = [], i = 0; while (i < this) _.push(i++); return _
+  var _ = [], i = 0, j = this
+
+  i > j && (i = j, j = 0)
+  while (i < j) _.push(i++)
+  return _
 }
 _.forEach = function (a) {
   this.toArray().forEach(a)
