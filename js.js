@@ -208,15 +208,15 @@ Adele = function (r, s, n) {
 var _ = Adele.prototype, nil = new Adele(0, 0, 1)
 
 _.finalize = function () {
-  var _ = this, __, _r, _s
+  var _ = this, __, r, s
 
   if (_.n === 1 || _.s === 0) {
     return nil
   }
 
-  __ = _.r.gcd(_.s); _r = _.r.div(__); _s = _.s.div(__)
+  __ = _.r.gcd(_.s); r = _.r.div(__); s = _.s.div(__)
 
-  return new Adele(_r, _s, _.n)
+  return new Adele(r, s, _.n)
 }
 
 _.coerce = function (a) {
