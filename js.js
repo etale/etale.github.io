@@ -205,9 +205,7 @@ Adele = function (r, s, n) {
 
 !function () {
 
-_ = Adele.prototype
-
-var nil = new Adele(0, 0, 1)
+var _ = Adele.prototype, nil = new Adele(0, 0, 1)
 
 _.finalize = function () {
   var _ = this, __, _r, _s
