@@ -47,7 +47,7 @@ _._inv = function (a) {
     __ = [a, r, z, x - q * z]
     _ = __[0]; a = __[1]; x = __[2]; z = __[3]
   }
-  return x
+  return x.mod(a)
 }
 _.unit = function () {
   return this < 0 ? -1 : 1
