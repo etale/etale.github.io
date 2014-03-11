@@ -5,7 +5,7 @@ var _ = Number.prototype
 _.divmod = function (a) {
   var _ = this.valueOf(), q, r
 
-  a = a || 0
+  a = (a || 0).body()
   if (a === 0) {
     return [0, _]
   }
@@ -21,24 +21,24 @@ _.mod =function (a) {
   return this.divmod(a)[1]
 }
 _.gcd = function (a) {
-  var _ = this.valueOf(), __
+  var _ = this.body(), __
 
-  a = a || 0
+  a = (a || 0).body()
   while (a !== 0) {
-    __ = [a, _ % a]; _ = __[0]; a = __[1]
+    __ = [a, _.mod(a)]; _ = __[0]; a = __[1]
   }
   return _
 }
 _.lcm = function (a) {
-  var _ = this.valueOf()
+  var _ = this.body()
 
-  a = a || 1
+  a = (a || 1).body()
   return _ * a / _.gcd(a)
 }
 _._inv = function (a) {
   var _ = this.valueOf(), x = 1, z = 0, __, q, r
 
-  a = a || 0
+  a = (a || 0).body()
   if (a === 0 && _ === -1)
     return -1
 
@@ -58,7 +58,7 @@ _.body = function () {
 _.ub = function (a) {
   var _ = this.valueOf(), b = 1, d
 
-  a = a || 0
+  a = (a || 0).body()
   if (_ * a === 0) {
     return [_.unit(), _.body()]
   }
@@ -196,7 +196,7 @@ Adele = function (r, s, n) {
 
   r = r || 0; s = s || 1; n = n || 0
 
-  ｎ = n.body()
+  n = n.body()
   __ = s.ub(n); u = __[0]; s = __[1]
   r = (r * u._inv(n)).mod(n * s)
 
