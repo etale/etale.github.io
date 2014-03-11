@@ -36,9 +36,9 @@ _.lcm = function (a) {
   return _ * a / _.gcd(a)
 }
 _._inv = function (a) {
-  var _ = this.valueOf(), x = 1, z = 0, __, q, r
+  var _ = this.valueOf(), x = 1, z = 0, __, q, r, n
 
-  a = (a || 0).body()
+  n = a = (a || 0).body()
   if (a === 0 && _ === -1)
     return -1
 
@@ -47,7 +47,7 @@ _._inv = function (a) {
     __ = [a, r, z, x - q * z]
     _ = __[0]; a = __[1]; x = __[2]; z = __[3]
   }
-  return x.mod(a)
+  return x.mod(n)
 }
 _.unit = function () {
   return this < 0 ? -1 : 1
