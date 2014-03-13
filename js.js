@@ -71,10 +71,19 @@ _.ub = function (a) {
   }
   return [_, b]
 }
-_.factor = function (a) {
-  a = (a || 2).body()
-  while (this % a !== 0) a += 1
-  return a
+_.factor = function () {
+  var _ = this.body(), p = 3, bound = Math.sqrt(_)
+
+  if (!(_ % 2))
+    return 2
+
+  while (p < bound)
+    if (_ % p)
+      p += 2
+    else
+      return p
+
+  return _
 }
 
 _.toArray = function () {
@@ -329,11 +338,25 @@ _.isZero = function () {
 
   return _.eql(_.zero())
 }
+_.isUnity = function () {
+  var _ = this
+
+  return _.eql(_.unity())
+}
 _.isUnit = function () {
   var _ = this
 
   return _.eql(_.unit())
-} 
+}
+_.factor = function () {
+  var p = (this.r * this.s).factor()
+
+  if (this.r % p === 0) {
+    return [new Adele(p),    new Adele(this.r/p, this.s)]
+  } else {
+    return [new Adele(1, p), new Adele(this.r, this.s/r)]
+  }
+}
 
 _.toString = function () {
   var _ = this, __ = ''
