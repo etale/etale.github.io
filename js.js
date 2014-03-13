@@ -74,16 +74,17 @@ _.ub = function (a) {
 _.factor = function () {
   var _ = this.body(), p = 3, bound = Math.sqrt(_)
 
-  if (!(_ % 2))
+  if (_ % 2) {
+    while (p < bound)
+      if (_ % p)
+        p += 2
+      else
+        return p
+    return _
+  } else
+  {
     return 2
-
-  while (p < bound)
-    if (_ % p)
-      p += 2
-    else
-      return p
-
-  return _
+  }
 }
 
 _.toArray = function () {
@@ -226,13 +227,13 @@ Adele = function (r, s, n) {
 var _ = Adele.prototype, nil = new Adele(0, 0, 1)
 
 _.finalize = function () {
-  var _ = this, __, r, s
+  var _ = this, d, r, s
 
   if (_.n === 1 || _.s === 0) {
     return nil
   }
 
-  __ = _.r.gcd(_.s); r = _.r.div(__); s = _.s.div(__)
+  d = _.r.gcd(_.s); r = _.r.div(d); s = _.s.div(d)
 
   return new Adele(r, s, _.n)
 }
@@ -349,12 +350,12 @@ _.isUnit = function () {
   return _.eql(_.unit())
 }
 _.factor = function () {
-  var p = (this.r * this.s).factor()
+  var _ = this, p = (_.r * _.s).factor()
 
-  if (this.r % p === 0) {
-    return [new Adele(p),    new Adele(this.r/p, this.s)]
+  if (_.r % p) {
+    return [new Adele(1, p), new Adele(_.r, _.s/p)]
   } else {
-    return [new Adele(1, p), new Adele(this.r, this.s/r)]
+    return [new Adele(p, 1), new Adele(_.r/p, _.s)]
   }
 }
 
