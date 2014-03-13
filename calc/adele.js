@@ -140,15 +140,19 @@ func['⌈'] = function () {
   var _
 
   fix(); _ = e.value
-  set(_.body()); push()
-  set(_.unit())
+  if (!_.isUnit()) {
+    set(_.body()); push()
+    set(_.unit())
+  }
 }
 func['⌊'] = function () {
   var _
 
   fix(); _ = e.value
-  set(new Adele(_.r, _.s)); push()
-  set(new Adele(0, 1, _.n))
+  if (!_.isZero()) {
+    set(new Adele(_.r, _.s)); push()
+    set(new Adele(0, 1, _.n))
+  }
 }
 
 ;['tr', 'td', 'table'].forEach(function (a) {
