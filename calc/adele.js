@@ -81,13 +81,15 @@ func['←'] = function () {
   e.value ? reset() : bs()
 }
 func['⋮'] = function () {
-  var _, b, u
+  var _, b, u, p
 
   fix(); _ = pop()
   b = _.body(); u = _.unit()
+  p = b.factor(); b = b.mul(p.inv())
 
-  set(_.body()); push()
-  set(_.unit())
+  set(p); push()
+  set(b); push()
+  set(u)
 }
 func['↕'] = function () {
   fix()
@@ -96,7 +98,7 @@ func['↕'] = function () {
     e.nextSibling.focus()
   }
 }
-func['↺'] = function () {}
+func['↔'] = function () {}
 func['/'] = function () {
   fix(); set(e.value.inv())
 }
@@ -127,14 +129,14 @@ func['+'] = function () {
     fix(); _ = pop(); set(e.value ? e.value.add(_) : _)
   }
 }
-func['✃'] = function () {
+func['⌈'] = function () {
   var _
 
   fix(); _ = e.value
   set(_.body()); push()
   set(_.unit())
 }
-func['✁'] = function () {
+func['⌊'] = function () {
   var _
 
   fix(); _ = e.value
@@ -153,9 +155,9 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['⋮', '↕', '↺', '4', '5', '6'],
-  ['✃', ' ', '/', '1', '2', '3'],
-  ['✁', '+', '−', '0', '.', '\\']
+  ['⋮', '↕', '↔', '4', '5', '6'],
+  ['⌈', ' ', '/', '1', '2', '3'],
+  ['⌊', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
   var tr = html.tr()
 

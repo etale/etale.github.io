@@ -71,6 +71,11 @@ _.ub = function (a) {
   }
   return [_, b]
 }
+_.factor = function (a) {
+  a = (a || 2).body()
+  while (this % a !== 0) a += 1
+  return a
+}
 
 _.toArray = function () {
   var _ = [], i = 0, j = this
