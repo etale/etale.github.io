@@ -83,12 +83,12 @@ func['←'] = function () {
 func['⋮'] = function () {
   var _, b, u, __, p
 
-  fix(); _ = pop()
+  fix(); _ = e.value
   b = _.body()
   u = _.unit()
   if (!b.isUnit()) {
     __ = b.factor(); p = __[0]; b = __[1]
-    push(); set(p)
+    set(p)
 
     if (!b.isUnit()) {
       push(); set(b)  
