@@ -72,7 +72,7 @@ _.ub = function (a) {
   return [_, b]
 }
 _.factor = function () {
-  var _ = this.body(), p = 3, bound = Math.sqrt(_)
+  var _ = this.body(), p = 3, bound = Math.sqrt(_ + 1)
 
   if (_ % 2) {
     while (p < bound)
