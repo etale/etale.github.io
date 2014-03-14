@@ -129,7 +129,7 @@ func[':'] = function () {
 
   fix(); _ = e.value
 
-  if (_.isUnit()) {
+  if (_.isZero() || _.isUnit()) {
     // do nothing
   } else
   if (_.isBody()) {
