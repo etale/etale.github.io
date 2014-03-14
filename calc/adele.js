@@ -96,7 +96,10 @@ func['↕'] = function () {
 }
 func['↔'] = function () {}
 func['/'] = function () {
-  fix(); set(e.value.inv())
+  var _ 
+
+  fix(); _ = e.value
+  _.isZero() || set(_.inv())
 }
 func['−'] = function () {
   fix(); set(e.value.neg())
@@ -105,11 +108,7 @@ func['\\'] = function () {
   var _
 
   fix(); _ = e.value
-  set(
-    _.isZero() ? new Adele(_.n) :
-    _.isUnit() ? _              :
-                 _.res()
-  )
+  _.isUnit() || set(_.isZero() ? new Adele(_.n) : _.res())
 }
 func[' '] = function () {
   var _
