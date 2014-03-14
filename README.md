@@ -19,6 +19,7 @@ Series of calculators for minimalist.
   + `-` negate
   + `0` zero
   + `.` radix point
+
 ## calc/adele
 
 A calculator works on finite points.
@@ -29,7 +30,7 @@ A calculator works on finite points.
   + `:` split multiplicatively
   + `..` split additively
 + Residual and Rational representation
-  + n\r/s means r/s in n\Z which approximates \prod_{p|n} \mathbb{Z}_p \otimes \mathbb{Q}
+  + n\r/s means r/s in n\Z which approximates Π_{p|n} Z_p &otimes; Q
 
 ## calc/arch
 
