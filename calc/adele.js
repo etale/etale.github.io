@@ -80,7 +80,7 @@ func['↓'] = function () {
 func['←'] = function () {
   e.value ? reset() : bs()
 }
-func['°'] = function () {
+func['ˆ'] = function () {
   var _
 
   if (e.previousSibling) {
@@ -167,10 +167,9 @@ func['..'] = function () {
 
 calc.display = html.table()
 calc.keypad  = html.table()
-
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['°', '↕', '↔', '4', '5', '6'],
+  ['ˆ', '↕', '↔', '4', '5', '6'],
   [':', ' ', '/', '1', '2', '3'],
   ['..', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
@@ -186,9 +185,7 @@ calc.keypad  = html.table()
   calc.keypad.appendChild(tr)
 })
 calc.keypad.classList.add('keypad')
-
 e = makeCell()
-
 calc.display.appendChild(e)
 calc.display.classList.add('display')
 
