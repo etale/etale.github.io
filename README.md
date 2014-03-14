@@ -1,28 +1,47 @@
 etale.github.io
 ===============
 
-# calc/infty
+# calc/*
 
-A calculator for minimalist at infinity.
+Series of calculators for minimalist.
+
+## Keys
 
 + RPN
   + `↑` push
   + `↓` pop
   + `←` backspace
++ Arithmetics
+  + ` ` multiply
+  + `/` invert
+  + `1` unity
+  + `+` add
+  + `-` negate
+  + `0` zero
+  + `.` radix point
+## calc/adele
+
+A calculator works on finite points.
+
++ Arithmetics
+  + `\` reduce, i.e., set modulus
+  + `^` power
+  + `:` split multiplicatively
+  + `..` split additively
++ Residual and Rational representation
+  + n\r/s means r/s in n\Z which approximates \prod_{p|n} \mathbb{Z}_p \otimes \mathbb{Q}
+
+## calc/arch
+
+A calculator works at infinity point.
+
 + Planck Unit System
   + `g` gram
   + `m` meter
   + `s` second
 + Complex numbers
   + `log` logarithmic function
-  + ` ` multiply
-  + `/` invert
-  + `1` unity
   + `exp` exponential function
-  + `+` add
-  + `-` negate
-  + `0` zero
-  + `.` radix point
   + `†` conjugate
 + Logarithmic representation
   + a.b.c = a.b + 2πi × 0.c
