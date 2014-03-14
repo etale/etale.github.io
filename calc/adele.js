@@ -80,22 +80,11 @@ func['↓'] = function () {
 func['←'] = function () {
   e.value ? reset() : bs()
 }
-func['⋮'] = function () {
-  var _, b, u, __, p
+func['^'] = function () {
+  var _
 
-  fix(); _ = e.value
-  b = _.body()
-  u = _.unit()
-  if (!b.isUnit()) {
-    __ = b.factor(); p = __[0]; b = __[1]
-    set(p)
-
-    if (!b.isUnit()) {
-      push(); set(b)  
-    }
-  }
-  if (!u.isUnity()) {
-    push(); set(u)
+  if (e.previousSibling) {
+    fix(); _ = pop(); set(e.value ? e.value.pow(_) : _)
   }
 }
 func['↕'] = function () {
@@ -136,19 +125,34 @@ func['+'] = function () {
     fix(); _ = pop(); set(e.value ? e.value.add(_) : _)
   }
 }
-func['⌈'] = function () {
-  var _
+func[':'] = function () {
+  var _, __, p
 
   fix(); _ = e.value
-  if (!_.isUnit()) {
-    set(_.body()); push()
-    set(_.unit())
+
+  if (_.isUnit()) {
+    // do nothing
+  } else
+  if (_.isBody()) {
+    // prime factorization
+    __ = _.factor(); p = __[0]; _ = __[1]
+    set(p)
+    if (!_.isUnity()) {
+      push(); set(_)  
+    }
+  } else
+  {
+    // ub factorization
+    set(_.body()); push(); set(_.unit())
   }
 }
-func['⌊'] = function () {
+func['..'] = function () {
   var _
 
   fix(); _ = e.value
+  if (_.n === 0) {
+    // do nothing
+  } else
   if (!_.isZero()) {
     set(new Adele(_.r, _.s)); push()
     set(new Adele(0, 1, _.n))
@@ -166,9 +170,9 @@ calc.keypad  = html.table()
 
 ;[
   ['↑', '↓', '←', '7', '8', '9'],
-  ['⋮', '↕', '↔', '4', '5', '6'],
-  ['⌈', ' ', '/', '1', '2', '3'],
-  ['⌊', '+', '−', '0', '.', '\\']
+  ['^', '↕', '↔', '4', '5', '6'],
+  [':', ' ', '/', '1', '2', '3'],
+  ['..', '+', '−', '0', '.', '\\']
 ].forEach(function (tds) {
   var tr = html.tr()
 

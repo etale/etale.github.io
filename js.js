@@ -322,6 +322,16 @@ _.__mul = function (a) {
   return _.eql(nil) ? nil :
          new Adele(_.r * a.r, _.s * a.s, _.n)
 }
+_.pow = function (a) {
+  var _ = this, __ = _.unity()
+
+  a = a.r
+  while (a) {
+    a.mod(2) === 1 && (__ = __.mul(_))
+    _ = _.mul(_); a = a.div(2)
+  }
+  return __
+}
 _.unit = function () {
   var _ = this, __
 
@@ -348,6 +358,11 @@ _.isUnit = function () {
   var _ = this
 
   return _.eql(_.unit())
+}
+_.isBody = function () {
+  var _ = this
+
+  return _.eql(_.body())
 }
 _.factor = function () {
   var _ = this, p = (_.r * _.s).factor()
