@@ -101,6 +101,16 @@ _.map = function (a) {
   return this.toArray().map(a)
 }
 
+_._toString = _.toString
+_.toString = function () {
+  var _ = this.body()._toString(Number.radix).split('').reverse(), negative = this < 0
+
+  return (negative ? '-' : '') + (
+    Number.isLittle ? [_[0], '.'].concat(_.slice(1)) :
+                      _.reverse()
+  ).join('')
+}
+
 }()
 
 var

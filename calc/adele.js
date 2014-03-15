@@ -37,6 +37,14 @@ makeCell = function () {
 
   return cell
 },
+refresh = function () {
+  var _ = calc.display.firstChild
+
+  while (_) {
+    _.data.textContent = _.value.toString()
+    _ = _.nextSibling
+  }
+},
 push = function () {
   e.parentNode.insertBefore(makeCell(), e.nextSibling)
   e.nextSibling.focus()
@@ -94,7 +102,10 @@ func['↕'] = function () {
     e.nextSibling.focus()
   }
 }
-func['↔'] = function () {}
+func['↔'] = function () {
+  Number.isLittle = ! Number.isLittle
+  refresh()
+}
 func['/'] = function () {
   var _ 
 
@@ -191,3 +202,6 @@ calc.display.classList.add('display')
 }()
 
 onload = calc
+onhashchange = function () {
+  Number.radix = parseInt(location.hash.slice(1)) || 10
+}
