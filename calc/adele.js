@@ -1,6 +1,8 @@
 var calc = function () {
-  document.body.appendChild(calc.display)
-  document.body.appendChild(calc.keypad)
+  Number.radix = parseInt(location.hash.slice(1)) || 10
+  calc.refresh()
+  document.body === calc.display.parentNode || document.body.appendChild(calc.display)
+  document.body === calc.keypad .parentNode || document.body.appendChild(calc.keypad)
 }
 
 !function () {
@@ -41,7 +43,7 @@ refresh = function () {
   var _ = calc.display.firstChild
 
   while (_) {
-    _.data.textContent = _.value.toString()
+    _.value && (_.data.textContent = _.value.toString())
     _ = _.nextSibling
   }
 },
@@ -198,10 +200,8 @@ calc.keypad.classList.add('keypad')
 e = makeCell()
 calc.display.appendChild(e)
 calc.display.classList.add('display')
+calc.refresh = refresh
 
 }()
 
-onload = calc
-onhashchange = function () {
-  Number.radix = parseInt(location.hash.slice(1)) || 10
-}
+onload = onhashchange = calc
