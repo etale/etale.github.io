@@ -20,7 +20,7 @@ bs = function () {
   e.data.textContent = _ === '' ? '0' : _
 },
 fix = function () {
-  e.value = e.value || new Adele(parseInt(e.data.textContent))
+  e.value = e.value || new Adele(parseInt(e.data.textContent, Number.radix))
 },
 focus = function () {
   e.classList.remove('focus')
@@ -81,7 +81,7 @@ func['.'] = function() {
 func['↑'] = function () {
   var _ = e.value
 
-  _ ? push() : (_ = new Adele(parseInt(e.data.textContent)))
+  _ ? push() : (_ = new Adele(parseInt(e.data.textContent, Number.radix)))
   set(_)
 }
 func['↓'] = function () {
