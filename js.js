@@ -3,7 +3,7 @@
 Number.parse = function (a) {
   var ord, r, s
 
-  if (Number.isLittLe) {
+  if (Number.isLittle) {
     a = a.split('.')
     ord = a[0].length - 1
     r = parseInt((a[0] + a[1]).split('').reverse().join(''), Number.radix)
