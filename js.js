@@ -4,7 +4,7 @@ Number.parse = function (a) {
   var ord, r, s
 
   if (Number.isLittle) {
-    a = a.split('.')
+    a = a.split('.'); a[1] || (a[1] = '')
     ord = a[0].length - 1
     r = parseInt((a[0] + a[1]).split('').reverse().join(''), Number.radix)
     s = Math.pow(Number.radix, ord)
