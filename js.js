@@ -1,5 +1,21 @@
 !function () {
 
+Number.parse = function (a) {
+  var ord, r, s
+
+  if (Number.isLittLe) {
+    a = a.split('.')
+    ord = a[0].length - 1
+    r = parseInt((a[0] + a[1]).split('').reverse().join(''), Number.radix)
+    s = Math.pow(Number.radix, ord)
+  } else
+  {
+    r = parseInt(a, Number.radix)
+    s = 1
+  }
+  return new Adele(r, s).finalize()
+}
+
 var _ = Number.prototype
 
 _.divmod = function (a) {
