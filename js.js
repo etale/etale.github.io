@@ -1,18 +1,19 @@
 !function () {
 
 Number.parse = function (a) {
-  var ord, r, s
+  var ord, r, s, _
 
+  a = a.split('.'); a[1] || (a[1] = '')
+  _ = a[0] + a[1]
   if (Number.isLittle) {
-    a = a.split('.'); a[1] || (a[1] = '')
     ord = a[0].length - 1
-    r = parseInt((a[0] + a[1]).split('').reverse().join(''), Number.radix)
-    s = Math.pow(Number.radix, ord)
+    _ = _.split('').reverse().join('')
   } else
   {
-    r = parseInt(a, Number.radix)
-    s = 1
+    ord = a[1].length
   }
+  r = parseInt(_, Number.radix)
+  s = Math.pow(Number.radix, ord)
   return new Adele(r, s).finalize()
 }
 
