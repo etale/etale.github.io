@@ -1,6 +1,6 @@
 var calc = function () {
   Number.radix = parseInt(location.hash.slice(1)) || 10
-  calc.refresh()
+  calc.refresh(); calc.shrink()
   document.body === calc.display.parentNode || document.body.appendChild(calc.display)
   document.body === calc.keypad .parentNode || document.body.appendChild(calc.keypad)
 }
@@ -47,6 +47,26 @@ refresh = function () {
     _ = _.nextSibling
   }
 },
+expand = function () {
+  var _ = calc.keypad.firstChild, __
+
+  while (_) {
+    __ = parseInt(_.firstChild.textContent, 36)
+    __ && __ < Number.radix  && (_.style.display = '')
+    _ = _.nextSibling
+  }
+  calc.keypad.expanded = true
+},
+shrink = function () {
+  var _ = calc.keypad.firstChild, __
+
+  while (_) {
+    __ = parseInt(_.firstChild.textContent, 36)
+    __ && (_.style.display = 'none')
+    _ = _.nextSibling
+  }
+  calc.keypad.expanded = false
+},
 push = function () {
   e.parentNode.insertBefore(makeCell(), e.nextSibling)
   e.nextSibling.focus()
@@ -64,6 +84,9 @@ pop = function () {
 numeric = function () {
   var _ = this.textContent, __
   
+  if (parseInt(_, 36) >= Number.radix)
+    return
+
   e.value && push()
   __ = e.data
   __.textContent = (__.textContent === '0' ? '' : __.textContent) + _
@@ -71,7 +94,7 @@ numeric = function () {
 touch = document.createElement('div').hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup',
 html = {}, func = {}, e
 
-10 .forEach(function (i) {
+'0123456789abcdefghijklmnopqrstuvwxyz'.split('').forEach(function (i) {
   func[i] = numeric
 })
 func['.'] = function() {
@@ -105,8 +128,13 @@ func['↕'] = function () {
   }
 }
 func['↔'] = function () {
-  Number.isLittle = ! Number.isLittle
-  refresh()
+  if (e.value) {
+    Number.isLittle = ! Number.isLittle
+    refresh()
+  } else
+  {
+    calc.keypad.expanded ? shrink() : expand()
+  }
 }
 func['/'] = function () {
   var _ 
@@ -180,6 +208,11 @@ func['..'] = function () {
 calc.display = html.table()
 calc.keypad  = html.table()
 ;[
+  ['y', 'z', ' ', ' ', ' ', ' '],
+  ['s', 't', 'u', 'v', 'w', 'x'],
+  ['m', 'n', 'o', 'p', 'q', 'r'],
+  ['g', 'h', 'i', 'j', 'k', 'l'],
+  ['a', 'b', 'c', 'd', 'e', 'f'],
   ['↑', '↓', '←', '7', '8', '9'],
   ['ˆ', '↕', '↔', '4', '5', '6'],
   [':', ' ', '/', '1', '2', '3'],
@@ -201,6 +234,7 @@ e = makeCell()
 calc.display.appendChild(e)
 calc.display.classList.add('display')
 calc.refresh = refresh
+calc.shrink  = shrink
 
 }()
 
