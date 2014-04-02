@@ -89,19 +89,42 @@ _.ub = function (a) {
   return [_, b]
 }
 _.factor = function () {
-  var _ = this.body(), p = 3, bound = Math.sqrt(_ + 1)
+  var _ = this.body(), p = 7, bound = Math.sqrt(_) + 1
 
-  if (_ % 2) {
-    while (p < bound)
-      if (_ % p)
-        p += 2
-      else
-        return p
-    return _
-  } else
-  {
+  if (!(_ % 2))
     return 2
+  if (!(_ % 3))
+    return 3
+  if (!(_ % 5))
+    return 5
+
+  while (p < bound) {
+    if (!(_ % p)) //  7
+      return p
+    p += 4
+    if (!(_ % p)) // 11
+      return p
+    p += 2
+    if (!(_ % p)) // 13
+      return p
+    p += 4
+    if (!(_ % p)) // 17
+      return p
+    p += 2
+    if (!(_ % p)) // 19
+      return p
+    p += 4
+    if (!(_ % p)) // 23
+      return p
+    p += 6
+    if (!(_ % p)) // 29
+      return p
+    p += 2
+    if (!(_ % p)) //  1
+      return p
+    p += 6
   }
+  return _
 }
 
 _.toArray = function () {
