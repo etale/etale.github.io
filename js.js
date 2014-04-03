@@ -126,6 +126,17 @@ _.factor = function () {
   }
   return _
 }
+_.factorize = function() {
+  var _ = this.valueOf(), fs = {}, p
+
+  while (_ !== 1) {
+    p = _.factor()
+    fs[p] || (fs[p] = 0)
+    fs[p] += 1
+    _ /= p
+  }
+  return fs
+}
 
 _.toArray = function () {
   var _ = [], i = 0, j = this
