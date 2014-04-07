@@ -145,11 +145,11 @@ _.toArray = function () {
   while (i < j) _.push(i++)
   return _
 }
-_.forEach = function (a) {
-  this.toArray().forEach(a)
+_.forEach = function (a, b, c) {
+  this.toArray().forEach(a, b, c)
 }
-_.map = function (a) {
-  return this.toArray().map(a)
+_.map = function (a, b, c) {
+  return this.toArray().map(a, b, c)
 }
 
 _._toString = _.toString
@@ -447,6 +447,84 @@ _.toString = function () {
   _.s === 1 || (__ += '/' + _.s.toString())
 
   return __
+}
+
+}()
+
+var BigNum = function () {}
+
+!function () {
+
+var _ = BigNum.prototype
+
+_.__proto__ = Array.prototype
+
+BigNum.BASE = 1 << 26
+BigNum.HALF = 1 << 25
+BigNum.MASK = BigNum.BASE - 1
+BigNum.ZERO = new BigNum
+BigNum.UNITY = new BigNum; BigNum.UNITY.push(1)
+
+_._map = _.map
+_.map = function (a) {
+  var __ = this._map(a)
+
+  __.__proto__ = _
+  return __
+}
+_.clone = function () {
+  return this.map(function (a) {return a})
+}
+
+_.implicit = function () {
+  if (this.isZero()) return 0
+  return this[this.length - 1][0] < BigNum.HALF ? 0 : BigNum.MASK
+}
+_.add = function (a) {
+  var _ = new BigNum, __ = a.implicit(), carry
+
+  if (this.length < a.length) return a.add(this)
+  if (a.isZero()) return this
+  a = this.map(function (d, i) {
+    return a[i] || __
+  })
+  carry = this.map(function (d, i) {
+    return [d, a[i]]
+  }).reduce(function (carry, pair) {
+    var s = carry + pair[0] + pair[1]
+
+    _.push(s & BigNum.MASK)
+    return s >> 26
+  }, 0)
+  return _
+}
+_.neg = function () {
+  return this.complement().add(this.unity)
+}
+_.complement = function () {
+  return this.map(function (a) {
+    return BigNum.MASK - a
+  })
+}
+_.zero = BigNum.ZERO
+ 
+_.mul = function (a) {
+  var _ = this.clone()
+
+  if (this.isZero()) return this
+  if (a   .isZero()) return a
+
+}
+_.unity = BigNum.UNITY
+ 
+_.divmod = function (a) {
+}
+
+_.isZero = function () {
+  return this.length === 0
+}
+_.isUnity = function () {
+  return this.length === 1 && this[0] === 1
 }
 
 }()
