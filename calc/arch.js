@@ -14,6 +14,18 @@ var html = {};
 Complex.precision = 6
 
 var
+c = new Complex(Math.log(299792458)),
+G = new Complex(Math.log(6.67384e-11)),
+h = new Complex(Math.log(6.62606957e-34)),
+tau = new Complex(Math.log(2 * Math.PI), 0.25),
+two = new Complex(Math.log(2)),
+
+kg = c.inv()        .mul(G)      .mul(h.inv()).mul(tau).log().mul(two.inv()).exp(),
+m  = c.mul(c).mul(c).mul(G.inv()).mul(h.inv()).mul(tau).log().mul(two.inv()).exp(),
+s  = m.mul(c)
+
+
+var
 e, touch,
 isFixed = function() {
   return e.hasOwnProperty('value')
@@ -135,14 +147,14 @@ keys = {
       _.textContent === '' && (_.textContent = '0')
     }
   },
-  'g': function() {
-    e.value || set(parseComplex(e.data.textContent)); e.value && push(); set(new Complex(10.7352))
+  'kg': function() {
+    fix(); e.value && push(); set(kg)
   },
   'm': function() {
-    fix(); e.value && push(); set(new Complex(80.1104))
+    fix(); e.value && push(); set(m)
   },
   's': function() {
-    fix(); e.value && push(); set(new Complex(99.6290))
+    fix(); e.value && push(); set(s)
   },
   'exp': function() {
     fixAsIs()
@@ -195,7 +207,7 @@ calc.display.appendChild(e)
 calc.display.classList.add('display');
 
 [ ['↑'  , '↓', '←', '7', '8', '9'],
-  ['g'  , 'm', 's', '4', '5', '6'],
+  ['kg' , 'm', 's', '4', '5', '6'],
   ['log', ' ', '/', '1', '2', '3'],
   ['exp', '+', '−', '0', '.', '†'] ].forEach(function (tds) {
   var tr = html.tr()
