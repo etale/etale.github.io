@@ -14,16 +14,19 @@ var html = {};
 Complex.precision = 6
 
 var
-c = new Complex(Math.log(299792458)),
-G = new Complex(Math.log(6.67384e-11)),
-h = new Complex(Math.log(6.62606957e-34)),
+c = new Complex(Math.log(299792458)),      //         m   s^{-1}
+G = new Complex(Math.log(6.67384e-11)),    // kg^{-1} m^3 s^{-2}
+h = new Complex(Math.log(6.62606957e-34)), // kg      m^2 s^{-1}
+/*
+   2010 CODATA recommended values
+   http://physics.nist.gov/constants
+ */
 tau = new Complex(Math.log(2 * Math.PI), 0.25),
 two = new Complex(Math.log(2)),
 
 kg = c.inv()        .mul(G)      .mul(h.inv()).mul(tau).log().mul(two.inv()).exp(),
 m  = c.mul(c).mul(c).mul(G.inv()).mul(h.inv()).mul(tau).log().mul(two.inv()).exp(),
 s  = m.mul(c)
-
 
 var
 e, touch,
