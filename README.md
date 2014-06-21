@@ -36,8 +36,8 @@ A calculator works on finite points.
 
 A calculator works at infinity point.
 
-+ Planck Unit System
-  + `g` gram
++ Planck Unit System (c = h / 2πi = G = 1)
+  + `kg` kilogram
   + `m` meter
   + `s` second
 + Complex numbers
