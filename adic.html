@@ -9,7 +9,7 @@ var my = {}
 
 onload = function () {
   my.p = parseInt(location.hash.slice(1)) || 7
-  document.getElementsByTagName('title')[0].textContent = my.p.toString() + '-adic numbers'
+  document.querySelector('title').textContent = my.p.toString() + '-adic numbers'
   my.f = function (i) {return i * 2 * Math.PI / (my.p - 1)}
   my.s = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   my.s.setAttribute('viewBox', '-1.5 -1.5 3 3')
