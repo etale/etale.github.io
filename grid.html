@@ -14,13 +14,12 @@ onload = onhashchange = function () {
 
   document.querySelector('title').textContent = p.toString() + '-divided grid'
   s.setAttribute('viewBox', '-4 -4 8 8')
-  s.setAttribute('width', '1000px')
 
   l.x1.baseVal.value = 0
   l.y1.baseVal.value = 0
   l.x2.baseVal.value = 0
   l.y2.baseVal.value = 0
-  l.setAttribute('stroke-width', 1/128)
+  l.setAttribute('stroke-width', 1/(p*p))
   l.setAttribute('stroke', 'black')
   ;(p+1).forEach(function (i) {
     var _ = l.cloneNode()
