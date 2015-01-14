@@ -19,7 +19,7 @@ onload = onhashchange = function () {
   l.y1.baseVal.value = 0
   l.x2.baseVal.value = 0
   l.y2.baseVal.value = 0
-  l.setAttribute('stroke-width', 1/(Math.pow(p,1.25))
+  l.setAttribute('stroke-width', 1/Math.pow(p,1.25))
   l.setAttribute('stroke', 'black')
   ;(p+1).forEach(function (i) {
     var _ = l.cloneNode()
