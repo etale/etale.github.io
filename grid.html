@@ -1,0 +1,71 @@
+<!doctype html>
+<title>grid</title>
+<script>
+Number.prototype.forEach = function (a) { var i = 0; while (i < this) {a(i); i++} }
+
+onload = onhashchange = function () {
+  var
+  p = parseInt(location.hash.slice(1)) || 7,
+  f = function (i) { return (i<p/2 ? i : i-p)/p * 2 * Math.PI },
+  s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
+  l = document.createElementNS('http://www.w3.org/2000/svg', 'line'),
+  c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'),
+  _ = document.querySelector('svg')
+
+  document.querySelector('title').textContent = p.toString() + '-divided grid'
+  s.setAttribute('viewBox', '-4 -4 8 8')
+  s.setAttribute('width', '1000px')
+
+  l.x1.baseVal.value = 0
+  l.y1.baseVal.value = 0
+  l.x2.baseVal.value = 0
+  l.y2.baseVal.value = 0
+  l.setAttribute('stroke-width', 1/128)
+  l.setAttribute('stroke', 'black')
+  ;(p+1).forEach(function (i) {
+    var _ = l.cloneNode()
+
+    _.x1.baseVal.value = i/p
+    _.y1.baseVal.value = - Math.PI
+    _.x2.baseVal.value = i/p
+    _.y2.baseVal.value = Math.PI
+    s.appendChild(_)
+  })
+  ;(p+1).forEach(function (i) {
+    var _ = l.cloneNode()
+
+    _.x1.baseVal.value = 0
+    _.y1.baseVal.value = f(i)
+    _.x2.baseVal.value = 1
+    _.y2.baseVal.value = f(i)
+    s.appendChild(_)
+  })
+
+  c.cx.baseVal.value = 0
+  c.cy.baseVal.value = 0
+  c.r .baseVal.value = 1
+  c.setAttribute('stroke-width', 1/128)
+  c.setAttribute('stroke', 'blue')
+  l.setAttribute('stroke', 'blue')
+  c.setAttribute('fill', 'none')
+
+  ;(p+1).forEach(function (i) {
+    var _ = l.cloneNode()
+
+    _.x1.baseVal.value = Math.cos(f(i))
+    _.y1.baseVal.value = Math.sin(f(i))
+    _.x2.baseVal.value = Math.cos(f(i)) * Math.E
+    _.y2.baseVal.value = Math.sin(f(i)) * Math.E
+    s.appendChild(_)
+  })
+  ;(p+1).forEach(function (i) {
+    var _ = c.cloneNode()
+
+    _.r.baseVal.value = Math.exp(i/p)
+    s.appendChild(_)
+  })
+
+  _ && document.body.removeChild(_)
+  document.body.appendChild(s)
+}
+</script>
