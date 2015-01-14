@@ -5,7 +5,9 @@ Number.prototype.forEach = function (a) { var i = 0; while (i < this) {a(i); i++
 
 onload = onhashchange = function () {
   var
-  p = parseInt(location.hash.slice(1)) || 7,
+  __ = location.hash.slice(1).split(','),
+  p = parseInt(__[0]) || 7,
+  sw = Math.exp(-(parseFloat(__[1]) || 7)),
   f = function (i) { return (i<p/2 ? i : i-p)/p * 2 * Math.PI },
   s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
   l = document.createElementNS('http://www.w3.org/2000/svg', 'line'),
@@ -19,7 +21,7 @@ onload = onhashchange = function () {
   l.y1.baseVal.value = 0
   l.x2.baseVal.value = 0
   l.y2.baseVal.value = 0
-  l.setAttribute('stroke-width', 1/Math.pow(p,1.25))
+  l.setAttribute('stroke-width', sw)
   l.setAttribute('stroke', 'black')
   ;(p+1).forEach(function (i) {
     var _ = l.cloneNode()
@@ -43,7 +45,7 @@ onload = onhashchange = function () {
   c.cx.baseVal.value = 0
   c.cy.baseVal.value = 0
   c.r .baseVal.value = 1
-  c.setAttribute('stroke-width', 1/Math.pow(p,1.25))
+  c.setAttribute('stroke-width', sw)
   c.setAttribute('stroke', 'blue')
   l.setAttribute('stroke', 'blue')
   c.setAttribute('fill', 'none')
