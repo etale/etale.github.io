@@ -7,7 +7,7 @@ onload = onhashchange = function () {
   __ = location.hash.slice(1).split(','),
   p = parseInt(__[0]) || 7,
   sw = Math.exp(-(parseFloat(__[1]) || 7)),
-  f = function (i) { return (i<p/2 ? i : i-p)/p * 2 * Math.PI },
+  f = function (i) { return -(i<p/2 ? i : i-p)/p * 2 * Math.PI },
   create = function (a) { return document.createElementNS('http://www.w3.org/2000/svg', a) },
   s = create('svg'),
   l = create('line'),
