@@ -1,29 +1,47 @@
+// generics
 Object.prototype.eql = function (a) {
   return this.__proto__ === a.__proto__ && this._eql(a)
 }
+// specialized
 Object.prototype._eql = function (a) {
   return this === a
 }
+// specialized
 Array.prototype._eql = function (a) {
   return this.length === a.length && this.every(function (e, i) { return e === a[i] })
+}
+// generics
+Number.prototype.coerce = function (a) {
+  var _
+  if (Number.prototype === a.__proto__) {
+    return [a, this]
+  } else
+  {
+    _ = a.coerce(this)
+    return [_[1], _[0]]
+  }
+}
+Number.prototype.add = function (a) {
+  var _ = this.coerce(a)
+  return _[1]._add(_[0])
+}
+Number.prototype.mul = function (a) {
+  var _ = this.coerce(a)
+  return _[1]._mul(_[0])
+}
+Number.prototype.divmod = function (a) {
+  var _ = this.coerce(a)
+  return _[1]._divmod(_[0])
+}
+// specialized
+Number.prototype.finalize = function () {
+  return this.valueOf()
 }
 Number.prototype._eql = function (a) {
   return this == a
 }
-Number.prototype.coerce = function (a) {
-  if (Number.prototype === a.__proto__) {
-    return [this, a]
-  } else
-  {
-    return a.coerce(this)
-  }
-}
 Number.prototype.zero = function () {
   return 0
-}
-Number.prototype.add = function (a) {
-  var _ = this.coerce(a)
-  return _[0]._add(_[1])
 }
 Number.prototype._add = function (a) {
   return this + a
@@ -34,19 +52,11 @@ Number.prototype.neg = function () {
 Number.prototype.unity = function () {
   return 1
 }
-Number.prototype.mul = function (a) {
-  var _ = this.coerce(a)
-  return _[0]._mul(_[1])
-}
 Number.prototype._mul = function (a) {
   return this * a
 }
 Number.prototype.inv = function () {
   return new Adele(1, this.valueOf(), 0)
-}
-Number.prototype.divmod = function (a) {
-  var _ = this.coerce(a)
-  return _[0]._divmod(_[1])
 }
 Number.prototype._divmod = function (a) {
   var _ = this % a
@@ -54,6 +64,14 @@ Number.prototype._divmod = function (a) {
 }
 function Nums(a) {
   this._ = a || []
+  if (this._[0]) {
+    this._.zero = Number.prototype.zero
+    this._.unity = Number.prototype.unity
+  } else
+  {
+    this._.zero = this._[0].zero
+    this._.unity = this._[0].unity
+  }
 }
 Object.setPrototypeOf(Nums.prototype, Number.prototype)
 Nums.zero = new Nums([])
@@ -61,7 +79,7 @@ Nums.unity = new Nums([1])
 Nums.prototype.coerce = function (a) {
   var _
   if (a.__proto__ === Nums.prototype) {
-    return [this, a]
+    return [a, this]
   } else
   if (a.__proto__ === Number.prototype) {
     if (a >= 0) {
@@ -71,18 +89,19 @@ Nums.prototype.coerce = function (a) {
         a >>= 8
       }
       _[_.length - 1] & 0x80 && _.push(0)
-      return [this, new Nums(_)]
+      return [new Nums(_), this]
     } else
     {
-      return [this, this.coerce(-a)[1].neg()]
+      return [this.coerce(-a)[1].neg(), this]
     }
   } else
   {
-    return a.coerce(this)
+    _ = a.coerce(this)
+    return [_[1], _[0]]
   }
 }
 Nums.prototype._eql = function (a) {
-  return this._._eql(a._)
+  return this._.eql(a._)
 }
 Nums.prototype.zero = function () {
   return Nums.zero
@@ -114,6 +133,15 @@ Nums.prototype.finalize = function () {
     a.push(b & 0xff)
     return [a, b >> 8]
   }, [[], 0])[0])
+}
+Nums.prototype.finalize = function () {
+  var _ = this._.slice(0)
+
+  while (_[_.length - 1] === 0    && (_[_.length - 2] || 0) & 0x80 === 0)
+    _.pop()
+  while (_[_.length - 1] === 0xff && (_[_.length - 2] || 0) & 0x80 !== 0)
+    _.pop()
+  return new Nums(_)
 }
 Nums.prototype.__add = function (a) {
   var _ = 0
