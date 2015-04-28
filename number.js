@@ -33,6 +33,85 @@ Number.prototype.divmod = function (a) {
   var _ = this.coerce(a)
   return _[1]._divmod(_[0])
 }
+Number.prototype._divmod = function (a) {
+  var _ = this.valueOf(), q, r
+
+  a = (a || 0).body()
+  if (a === 0) {
+    return [0, _]
+  }
+
+  r = _ % a; r < 0 && (r += a)
+  q = (_ - r) / a
+  return [q, r]
+}
+Number.prototype.div =function (a) {
+  return this.divmod(a)[0]
+}
+Number.prototype.mod =function (a) {
+  return this.divmod(a)[1]
+}
+Number.prototype.gcd = function (a) {
+  var _ = this.body(), __
+
+  a = (a || 0).body()
+  while (a !== 0) {
+    __ = [a, _.mod(a)]; _ = __[0]; a = __[1]
+  }
+  return _
+}
+Number.prototype.lcm = function (a) {
+  var _ = this.body()
+
+  a = (a || 1).body()
+  return _ * a / _.gcd(a)
+}
+Number.prototype._inv = function (a) {
+  var _ = this.valueOf(), x = 1, z = 0, __, q, r, n
+
+  n = a = (a || 0).body()
+  if (a === 0 && _ === -1)
+    return -1
+
+  while (a !== 0) {
+    __ = _.divmod(a); q = __[0]; r = __[1]
+    __ = [a, r, z, x - q * z]
+    _ = __[0]; a = __[1]; x = __[2]; z = __[3]
+  }
+  return x.mod(n)
+}
+Number.prototype.ub = function (a) {
+  var _ = this.valueOf(), b = 1, d
+
+  a = (a || 0).body()
+  if (_ * a === 0) {
+    return [_.unit(), _.body()]
+  }
+  while (true) {
+    d = _.gcd(a)
+    if (d === 1) {
+      break
+    }
+    _ /= d; b *= d
+  }
+  return [_, b]
+}
+Number.prototype.isZero = function () {
+  return this._eql(this.zero())
+}
+Number.prototype.isUnity = function () {
+  return this._eql(this.unity())
+}
+Number.prototype.isUnit = function () {
+  var _ = this
+
+  return _.eql(_.unit())
+}
+Number.prototype.isBody = function () {
+  var _ = this
+
+  return _.eql(_.body())
+}
 // specialized
 Number.prototype.finalize = function () {
   return this.valueOf()
@@ -62,9 +141,15 @@ Number.prototype._divmod = function (a) {
   var _ = this % a
   return [(this - _)/a, _]
 }
+Number.prototype.unit = function () {
+  return this < 0 ? -1 : 1
+}
+Number.prototype.body = function () {
+  return Math.abs(this)
+}
 function Nums(a) {
   this._ = a || []
-  if (this._[0]) {
+  if (!this._[0]) {
     this._.zero = Number.prototype.zero
     this._.unity = Number.prototype.unity
   } else
@@ -164,4 +249,144 @@ Nums.prototype.__mul = function (a) {
     })
   })
   return new Nums(__)
+}
+function Adele(r, s, n) {
+  var _ = this, __, u
+
+  r = r || 0; s = s || 1; n = n || 0
+
+  n = n.body()
+  __ = s.ub(n); u = __[0]; s = __[1]
+  r = (r * u._inv(n)).mod(n * s)
+
+  _.r = r; _.s = s; _.n = n
+}
+Object.setPrototypeOf(Adele.prototype, Number.prototype)
+Adele.nil = new Adele(0, 0, 1)
+Adele.prototype.finalize = function () {
+  var _ = this, d, r, s
+
+  if (_.n.isUnity() || _.s.isZero) {
+    return nil
+  }
+
+  d = _.r.gcd(_.s); r = _.r.div(d); s = _.s.div(d)
+
+  return new Adele(r, s, _.n)
+}
+Adele.prototype.coerce = function (a) {
+  var _ = this, __, n, _u, _s, au, as, s, _r, ar
+
+  if (a.__proto__ === Array.prototype) {
+    n = _.n.gcd(a.n)
+
+    if (n.isUnity()) {
+      return [Adele.nil, Adele.nil]
+    }
+
+    __ = _.s.ub(n); _u = __[0]; _s = __[1]
+    __ = a.s.ub(n); au = __[0]; as = __[1]
+    s = _s.lcm(as)
+    _r = _.r * _u._inv(n) * s.div(_s)
+    ar = a.r * au._inv(n) * s.div(as)
+    _ = new Adele(_r, s, n)
+    a = new Adele(ar, s, n)
+  } else
+  if (a.__proto__ === Number.prototype) {
+    a = new Adele(a, 1, _.n)
+  }
+
+  return [a, _]
+}
+Adele.prototype._eql = function (a) {
+  var _ = this
+
+  return _.n.eql(a.n) && _.r.eql(a.r) && _.s.eql(a.s)
+}
+Adele.prototype.zero = function () {
+  var _ = this
+
+  return new Adele(0, _.s, _.n)
+}
+Adele.prototype.neg = function () {
+  var _ = this
+
+  return _.eql(Adele.nil) ? Adele.nil : new Adele(-_.r, _.s, _.n)
+}
+Adele.prototype.res = function () {
+  var _ = this, __, u, n
+
+  // return if unit? in ruby
+  __ = _.r.ub(_.n); u = __[0]; n = __[1]
+  return new Adele(0, 1, n)
+}
+Adele.prototype._add = function (a) {
+  var _ = this
+
+  return new Adele(_.r.add(a.r), _.s, _.n)
+}
+Adele.prototype.unity = function () {
+  var _ = this
+
+  return new Adele(_.s, _.s, _.n)
+}
+Adele.prototype.inv = function () {
+  var _ = this, r, s, __, u
+
+  if (_.r === 0) {
+    return nil
+  }
+  __ = _.r.ub(_.n); u = __[0]; s = __[1]
+  r = _.s.mul(u._inv(_.n))
+  return new Adele(r, s, _.n)
+}
+Adele.prototype._mul = function (a) {
+  var _ = this
+
+  return new Adele(_.r.mul(a.r), _.s.mul(a.s), _.n)
+}
+Adele.prototype.pow = function (a) {
+  var _ = this, __ = _.unity()
+
+  a = a.r
+  while (a) {
+    a.mod(2) === 1 && (__ = __.mul(_))
+    _ = _.mul(_); a = a.div(2)
+  }
+  return __
+}
+Adele.prototype.unit = function () {
+  var _ = this, __
+
+  __ = _.r.ub(_.n); r = __[0]
+  return new Adele(r, 1, _.n)
+}
+Adele.prototype.body = function () {
+  var _ = this, __
+
+  __ = _.r.ub(_.n); r = __[1]
+  return new Adele(r, _.s, 0)
+}
+Adele.prototype.factor = function () {
+  var _ = this, p = (_.r * _.s).factor()
+
+  if (_.r % p) {
+    return [new Adele(1, p), new Adele(_.r, _.s/p)]
+  } else {
+    return [new Adele(p, 1), new Adele(_.r/p, _.s)]
+  }
+}
+
+Adele.prototype.toString = function () {
+  var _ = this, __ = ''
+
+  if (_.eql(nil)) {
+    return 'nil'
+  }
+
+  _.n === 0 || (__ +=       _.n.toString() + '\\')
+                __ +=       _.r.toString()
+  _.s === 1 || (__ += '/' + _.s.toString())
+
+  return __
 }
