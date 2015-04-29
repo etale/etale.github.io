@@ -51,7 +51,7 @@ Number.prototype.mul = function (a) {
 Number.prototype.divmod = function (a) {
   var _ = this.coerce(a)
   return _[1]._divmod(_[0]).map(function (a) {
-    a.finalize()
+    return a.finalize()
   })
 }
 Number.prototype.div =function (a) {
@@ -251,7 +251,7 @@ Nums.prototype._mul = function (a) {
   })
   return new Nums(__, this.type)
 }
-Adele.nil = new Adele(0, 0, 1)
+//Adele.nil = new Adele(0, 0, 1)
 Adele.prototype.finalize = function () {
   var _ = this, d, r, s
 
