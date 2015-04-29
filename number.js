@@ -11,15 +11,16 @@ function Adele(r, s, n) {
   r = u._inv(n).mul(r).mod(n.mul(s))
   this.r = r; this.s = s; this.n = n
 }
-function Adic(body, unit) {
-  this.body = body
-  this.unit = unit
+function Adic(b, u) {
+  var _ = new Adele(0, 1, 7*7*7*7*7*7*7)
+  b || (b = _.unity())
+  u || (u = _.unity())
+  this.b = b; this.u = u
 }
 function Arch(ord, arg) {
   ord || (ord = 0)
   arg || (arg = 0)
-  arg = arg.mod(arg.unity()) // arg < 0 is bad
-//  arg %= 1; arg < 0 && (arg += 1)
+  arg = arg.mod(arg.unity())
   this.ord = ord; this.arg = arg
 }
 ;[Nums, Adele, Adic, Arch].forEach(function (a) {
@@ -32,7 +33,6 @@ Object.prototype.eq = function (a) {
 Object.prototype.eql = function (a) {
   return this.eq(a) && this._eql(a)
 }
-// generics
 Number.prototype.coerce = function (a) {
   var _
   if (this.eq(a)) {
@@ -94,6 +94,52 @@ Number.prototype.ub = function (a) {
 Number.prototype.sgn = function () {
   return this.isZero() ? this : this.unit()
 }
+Number.prototype.factor = function () {
+  var _ = this.body(), p = 7, bound = Math.sqrt(_) + 1
+  if (!(_ % 2))
+    return 2
+  if (!(_ % 3))
+    return 3
+  if (!(_ % 5))
+    return 5
+  while (p < bound) {
+    if (!(_ % p)) //  7
+      return p
+    p += 4
+    if (!(_ % p)) // 11
+      return p
+    p += 2
+    if (!(_ % p)) // 13
+      return p
+    p += 4
+    if (!(_ % p)) // 17
+      return p
+    p += 2
+    if (!(_ % p)) // 19
+      return p
+    p += 4
+    if (!(_ % p)) // 23
+      return p
+    p += 6
+    if (!(_ % p)) // 29
+      return p
+    p += 2
+    if (!(_ % p)) //  1
+      return p
+    p += 6
+  }
+  return _
+}
+Number.prototype.factorize = function() {
+  var _ = this.valueOf(), fs = {}, p
+  while (_ !== 1) {
+    p = _.factor()
+    fs[p] || (fs[p] = 0)
+    fs[p] += 1
+    _ /= p
+  }
+  return fs
+}
 Number.prototype.isZero = function () {
   return this._eql(this.zero())
 }
@@ -101,10 +147,13 @@ Number.prototype.isUnity = function () {
   return this._eql(this.unity())
 }
 Number.prototype.isUnit = function () {
-  return this.eql(this.unit())
+  return this._eql(this.unit())
 }
 Number.prototype.isBody = function () {
-  return this.eql(this.body())
+  return this._eql(this.body())
+}
+Number.prototype.isSgn = function () {
+  return this._eql(this.sgn())
 }
 Number.prototype.lt = function (a) {
   var _ = this.coerce(a)
@@ -210,6 +259,7 @@ Number.prototype.cos = function () {
 Number.prototype.sin = function () {
   return Math.sin(this)
 }
+
 Nums.prototype.coerce = function (a) {
   var _ = this
   if (a.eq(this)) {
@@ -288,7 +338,7 @@ Nums.prototype._add = function (a) {
   a[a.length - 1] & 0x80 && (_ = 0xff)
   return new Nums(this._.map(function (e, i) {
     return e._add(a[i] || _)
-  }), this.type)
+  }))
 }
 Nums.prototype._mul = function (a) {
   var _ = this, __ = []
@@ -298,7 +348,7 @@ Nums.prototype._mul = function (a) {
       __[j] = (__[j] || _.zero())._add(_.mul(a))
     })
   })
-  return new Nums(__, this.type)
+  return new Nums(__)
 }
 //Adele.nil = new Adele(0, 0, 1)
 Adele.prototype.finalize = function () {
@@ -315,13 +365,11 @@ Adele.prototype.finalize = function () {
 Adele.prototype.coerce = function (a) {
   var _ = this, __, n, _u, _s, au, as, s, _r, ar
 
-  if (a.__proto__ === Array.prototype) {
+  if (a.eq(this)) {
     n = _.n.gcd(a.n)
-
     if (n.isUnity()) {
       return [Adele.nil, Adele.nil]
     }
-
     __ = _.s.ub(n); _u = __[0]; _s = __[1]
     __ = a.s.ub(n); au = __[0]; as = __[1]
     s = _s.lcm(as)
@@ -330,48 +378,54 @@ Adele.prototype.coerce = function (a) {
     _ = new Adele(_r, s, n)
     a = new Adele(ar, s, n)
   } else
-  if (a.__proto__ === Number.prototype) {
+  if (a.eq(0)) {
     a = new Adele(a, 1, _.n)
+  } else
+  if (a.eq(Nums.zero)) {
+    throw new Error('implement later')
+  } else
+  if (a.eq(Adic.zero)) {
+    throw new Error('implement later')
+  } else
+  if (a.eq(Arch.zero)) {
+    throw new Error('implement later')
+  } else
+  {
+    __ = a.coerce(this)
+    _ = __[0]
+    a = __[1]
   }
-
   return [a, _]
 }
 Adele.prototype._eql = function (a) {
   var _ = this
-
   return _.n.eql(a.n) && _.r.eql(a.r) && _.s.eql(a.s)
 }
 Adele.prototype.zero = function () {
   var _ = this
-
   return new Adele(0, _.s, _.n)
 }
 Adele.prototype.neg = function () {
   var _ = this
-
   return _.eql(Adele.nil) ? Adele.nil : new Adele(-_.r, _.s, _.n)
 }
 Adele.prototype.res = function () {
   var _ = this, __, u, n
-
   // return if unit? in ruby
   __ = _.r.ub(_.n); u = __[0]; n = __[1]
   return new Adele(0, 1, n)
 }
 Adele.prototype._add = function (a) {
   var _ = this
-
   return new Adele(_.r.add(a.r), _.s, _.n)
 }
 Adele.prototype.unity = function () {
   var _ = this
-
   return new Adele(_.s, _.s, _.n)
 }
 Adele.prototype.inv = function () {
   var _ = this, r, s, __, u
-
-  if (_.r === 0) {
+  if (_.r.isZero()) {
     return nil
   }
   __ = _.r.ub(_.n); u = __[0]; s = __[1]
@@ -380,12 +434,10 @@ Adele.prototype.inv = function () {
 }
 Adele.prototype._mul = function (a) {
   var _ = this
-
   return new Adele(_.r.mul(a.r), _.s.mul(a.s), _.n)
 }
 Adele.prototype.pow = function (a) {
   var _ = this, __ = _.unity()
-
   a = a.r
   while (a) {
     a.mod(2) === 1 && (__ = __.mul(_))
@@ -395,19 +447,16 @@ Adele.prototype.pow = function (a) {
 }
 Adele.prototype.unit = function () {
   var _ = this, __
-
   __ = _.r.ub(_.n); r = __[0]
   return new Adele(r, 1, _.n)
 }
 Adele.prototype.body = function () {
   var _ = this, __
-
   __ = _.r.ub(_.n); r = __[1]
   return new Adele(r, _.s, 0)
 }
 Adele.prototype.factor = function () {
   var _ = this, p = (_.r * _.s).factor()
-
   if (_.r % p) {
     return [new Adele(1, p), new Adele(_.r, _.s/p)]
   } else {
@@ -416,17 +465,15 @@ Adele.prototype.factor = function () {
 }
 Adele.prototype.toString = function (a) {
   var _ = this, __ = ''
-
   if (_.eql(nil)) {
     return 'nil'
   }
-
   _.n === 0 || (__ +=       _.n.toString(a) + '\\')
                 __ +=       _.r.toString(a)
   _.s === 1 || (__ += '/' + _.s.toString(a))
-
   return __
 }
+
 Adic.prototype.zero = function () {
   return new Adic(this.b, this.u.zero())
 }
@@ -561,7 +608,6 @@ Arch.prototype.conjugate = function () {
 }
 Arch.prototype.toString = function () {
   var _ = this, ord, arg
-
   ord = _.ord.toFixed(parseArch.precision).split('.')
   arg = _.arg.toFixed(parseArch.precision).split('.')
   ord[1] = ord[1] || '0'
@@ -570,7 +616,6 @@ Arch.prototype.toString = function () {
 }
 function parseArch(a) {
   var _ = a.split('.'), ord, arg
-
   _ = [0, 1, 2].map(function (i) {
     return _[i] || '0'
   })
