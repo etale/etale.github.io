@@ -16,8 +16,11 @@ function Adic(body, unit) {
   this.unit = unit
 }
 function Arch(ord, arg) {
-  this.ord = ord
-  this.arg = arg
+  ord || (ord = 0)
+  arg || (arg = 0)
+  arg = arg.mod(arg.unity()) // arg < 0 is bad
+//  arg %= 1; arg < 0 && (arg += 1)
+  this.ord = ord; this.arg = arg
 }
 ;[Nums, Adele, Adic, Arch].forEach(function (a) {
   Object.setPrototypeOf(a.prototype, Number.prototype)
@@ -88,6 +91,9 @@ Number.prototype.ub = function (a) {
   }
   return [_, b]
 }
+Number.prototype.sgn = function () {
+  return this.isZero() ? this : this.unit()
+}
 Number.prototype.isZero = function () {
   return this._eql(this.zero())
 }
@@ -99,6 +105,22 @@ Number.prototype.isUnit = function () {
 }
 Number.prototype.isBody = function () {
   return this.eql(this.body())
+}
+Number.prototype.lt = function (a) {
+  var _ = this.coerce(a)
+  return _[1]._lt(_[0])
+}
+Number.prototype.gt = function (a) {
+  var _ = this.coerce(a)
+  return _[1]._gt(_[0])
+}
+Number.prototype.lte = function (a) {
+  var _ = this.coerce(a)
+  return _[1]._lte(_[0])
+}
+Number.prototype.gte = function (a) {
+  var _ = this.coerce(a)
+  return _[1]._gte(_[0])
 }
 
 // specialized
@@ -160,6 +182,33 @@ Number.prototype._inv = function (a) {
     _ = __[0]; a = __[1]; x = __[2]; z = __[3]
   }
   return x.mod(n)
+}
+Number.prototype._lt = function (a) {
+  return this < a
+}
+Number.prototype._gt = function (a) {
+  return this > a
+}
+Number.prototype._lte = function (a) {
+  return this <= a
+}
+Number.prototype._gte = function (a) {
+  return this >= a
+}
+Number.prototype.log = function () {
+  return Math.log(this)
+}
+Number.prototype.atan2 = function (a) {
+  return Math.atan2(this, a)
+}
+Number.prototype.exp = function () {
+  return Math.exp(this)
+}
+Number.prototype.cos = function () {
+  return Math.cos(this)
+}
+Number.prototype.sin = function () {
+  return Math.sin(this)
 }
 Nums.prototype.coerce = function (a) {
   var _ = this
@@ -365,16 +414,16 @@ Adele.prototype.factor = function () {
     return [new Adele(p, 1), new Adele(_.r/p, _.s)]
   }
 }
-Adele.prototype.toString = function () {
+Adele.prototype.toString = function (a) {
   var _ = this, __ = ''
 
   if (_.eql(nil)) {
     return 'nil'
   }
 
-  _.n === 0 || (__ +=       _.n.toString() + '\\')
-                __ +=       _.r.toString()
-  _.s === 1 || (__ += '/' + _.s.toString())
+  _.n === 0 || (__ +=       _.n.toString(a) + '\\')
+                __ +=       _.r.toString(a)
+  _.s === 1 || (__ += '/' + _.s.toString(a))
 
   return __
 }
@@ -412,6 +461,43 @@ Adic.prototype.exp =
 Adic.prototype.sgn = function () {
   throw new Error('implement later')
 }
+
+Arch.prototype._arg = function () {
+  var _ = this.arg
+  _.lt(0.5) || (_ = _.add(-1).mul(Math.PI * 2))
+  return _
+}
+Arch.prototype.coerce = function (a) {
+  var _ = this, ord, arg
+  if (a.eq(this)) {
+    ord = _.ord.coerce(a.ord) // a.ord, _.ord
+    arg = _.arg.coerce(a.arg) // a.arg, _.arg
+    _ = new Arch(ord[1], arg[1])
+    a = new Arch(ord[0], arg[0])
+  } else
+  if (a.eq(0)) {
+    if (a == 0) {
+      ord = -Infinity
+      arg = 0
+    } else
+    if (a > 0) {
+      ord = a.log()
+      arg = 0
+    } else
+    {
+      ord = (-a).log()
+      arg = 0.5
+    }
+    a = new Arch(ord, arg)
+  }
+  return [a, _]
+}
+Arch.prototype.finalize = function () {
+  return this
+}
+Arch.prototype._eql = function (a) {
+  return this.ord.eql(a.ord) && this.arg.eql(a.arg)
+}
 Arch.prototype.zero = function () {
   return new Arch(-Infinity, this.arg)
 }
@@ -419,24 +505,79 @@ Arch.prototype.neg = function () {
   return this.isZero() ? this : new Arch(this.ord, this.arg.add(0.5))
 }
 Arch.prototype._add = function (a) {
-  throw new Error('implement later')
+  var _ = this
+  return _.isZero()      ? a        :
+         a.isZero()      ? _        :
+         _.neg().eql(a)  ? 0        :
+         _.ord.lt(a.ord) ? a.add(_) :
+         _.mul(_.inv().mul(a).succ())
 }
 Arch.prototype.unity = function () {
   return new Arch(this.ord.zero(), this.arg.zero())
 }
+Arch.prototype.inv = function () {
+  return new Arch(this.ord.neg(), this.arg.neg())
+}
 Arch.prototype._mul = function (a) {
   var _ = this
+  if (_.isZero()) {
+    return _
+  } else
+  if (a.isZero()) {
+    return a
+  }
   return new Arch(_.ord.add(a.ord), _.arg.add(a.arg))
 }
 Arch.prototype.log = function () {
-  //
+  var _ = this
+  return _.isUnity() ?
+    this.zero() :
+    new Arch(
+      _.ord.mul(_.ord).add(_._arg().mul(_._arg())).log().mul(0.5),
+      _._arg().atan2(_.ord).mul(1/(Math.PI*2))
+    )
 }
 Arch.prototype.exp = function () {
-  //
+  var _ = this, __ = _.ord.exp()
+  return new Arch(
+    __.mul(_._arg().cos()),
+    __.mul(_._arg().sin()).mul(1/(Math.PI*2))
+  )
 }
-Arch.prototype.sgn = function () {
-  //
+Arch.prototype.unit = function () {
+  return new Arch(this.ord.zero(), this.arg)
 }
 Arch.prototype.abs = function () {
   return new Arch(this.ord, this.arg.zero())
 }
+Arch.prototype.shift = function () {
+  return new Arch(this.ord.add(1), this.arg)
+}
+Arch.prototype.succ = function () {
+  return this.exp().shift().log()
+}
+Arch.prototype.conjugate = function () {
+  return new Arch(this.ord, this.arg.neg())
+}
+Arch.prototype.toString = function () {
+  var _ = this, ord, arg
+
+  ord = _.ord.toFixed(parseArch.precision).split('.')
+  arg = _.arg.toFixed(parseArch.precision).split('.')
+  ord[1] = ord[1] || '0'
+  arg[1] = arg[1] || '0'
+  return ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
+}
+function parseArch(a) {
+  var _ = a.split('.'), ord, arg
+
+  _ = [0, 1, 2].map(function (i) {
+    return _[i] || '0'
+  })
+  ord = parseFloat(_[0] + '.' + _[1])
+  arg = parseFloat(      '0.' + _[2])
+  _ = new Arch(ord, arg)
+  return a.indexOf('X') === -1 ? _.log() : _
+}
+parseArch.precision = 8
+var nil = new Adele(0, 0, 1)
