@@ -1,8 +1,8 @@
 function implement() { throw new Error('implement it later') }
 
 function Nums(a) {
-  a || (a = [])
-  a._ || (a._ = a[0] !== undefined ? a[0].constructor : Number)
+  a || (a = [0])
+  a.length || (a[0] = 0)
   this._ = a
 }
 function Adele(r, s, n) {
@@ -37,16 +37,6 @@ Object.prototype.eql = function (a) {
   return this.eq(a) && this._eql(a)
 }
 
-Number.prototype.coerce = function (a) {
-  var _
-  if (this.eq(a)) {
-    return [a, this.valueOf()]
-  } else
-  {
-    _ = a.coerce(this)
-    return [_[1], _[0]]
-  }
-}
 Number.prototype.cast = function (a) {
   return this.coerce(a)[0]
 }
@@ -98,8 +88,24 @@ Number.prototype.ub = function (a) {
   }
   return [_, b]
 }
+Number.prototype.pow = function (a) {
+  var _ = this, __ = _.unity()
+  if (Number.isInteger(a)) {
+    if (a < 0) {
+      return this.inv().pow(-a)
+    }
+    while (a) {
+      a.mod(2) === 1 && (__ = __.mul(_))
+      _ = _.mul(_); a = a.div(2)
+    }
+  } else
+  {
+    __ = _.log().mul(a).exp()
+  }
+  return __
+}
 Number.prototype.sgn = function () {
-  return this.isZero() ? this : this.unit()
+  return this.isZero() ? this.finalize() : this.unit()
 }
 Number.prototype.isZero = function () {
   return this._eql(this.zero())
@@ -151,6 +157,16 @@ Number.prototype.finalize = function () {
 Number.prototype._eql = function (a) {
   return this == a
 }
+Number.prototype.coerce = function (a) {
+  var _
+  if (this.eq(a)) {
+    return [a, this.valueOf()]
+  } else
+  {
+    _ = a.coerce(this)
+    return [_[1], _[0]]
+  }
+}
 Number.prototype.zero = function () {
   return 0
 }
@@ -158,7 +174,12 @@ Number.prototype._add = function (a) {
   return this + a
 }
 Number.prototype.neg = function () {
-  return - this
+  return -this
+}
+Number.prototype.res = function () {
+  var _ = this.valueOf()
+  return Number.isInteger(_) ?
+  new Adele(0, 1, this.valueOf()) : implement()
 }
 Number.prototype.unity = function () {
   return 1
@@ -170,11 +191,6 @@ Number.prototype.inv = function () {
   var _ = this.valueOf()
   return Number.isInteger(_) ?
   new Adele(1, _.valueOf(), 0) : 1/_
-}
-Number.prototype.res = function () {
-  var _ = this.valueOf()
-  return Number.isInteger(_) ?
-  new Adele(0, 1, this.valueOf()) : implement()
 }
 Number.prototype.unit = function () {
   return this < 0 ? -1 : 1
@@ -194,7 +210,7 @@ Number.prototype._divmod = function (a) {
   return [q, r]
 }
 Number.prototype._inv = function (a) {
-  var _ = this.valueOf(), x = _.unity(), z = _.zero(), __, q, r, n
+  var _ = this, x = _.unity(), z = _.zero(), __, q, r, n
   n = a = (a || _.zero()).body()
   if (a.isZero() && _.isUnit())
     return _.unit()
@@ -283,78 +299,58 @@ Number.prototype.sin = function () {
 }
 
 Nums.prototype.coerce = function (a) {
-  var _ = this
-  if (a.eq(this)) {
-    if (a._._ !== _._._) {
-      a = a._.map(function (a) {
-        return _._._.prototype.coerce(a)[0]
-      }); a._ = _._._; a = new Nums(a)
+  var _ = this, __, a_
+  if (a.eq(_)) {
+    if (!a._[0].eq(this._[0])) {
+      __ = _._[0].cast(a._[0])
+      a = new Nums(a._.map(function (a) {
+        return __.cast(a)
+      }))
+      _ = new Nums(_._.map(function (a) {
+        return __.cast(a)
+      }))
     }
-    return [a, this]
+    return [a, _]
   } else
-  if (a.eq(0)) {
-    if (a >= 0) {
-      _ = []
-      while (a) {
-        _.push(a & 0xff)
-        a >>= 8
-      }
-      _[_.length - 1] & 0x80 && _.push(0)
-      _._ = Number
-      a = new Nums(_)
-    } else
-    {
-      a = this.coerce(-a)[0].neg()
-    }
-    return [a, this]
+  if (a.__proto__ === Number.prototype) {
+    a = new Nums([a])
+    return [a, _]
   } else
   {
-    _ = a.coerce(this)
+    _ = a.coerce(_)
     return [_[1], _[0]]
   }
 }
 Nums.prototype._eql = function (a) {
-  return this._._ === a._._ && this._.eql(a._)
+  return this._.eql(a._)
 }
 Nums.prototype.zero = function () {
-  var _ = []
-  _._ = this._._
-  return new Nums(_)
+  return new Nums([this._[0].zero()])
 }
 Nums.prototype.neg = function () {
-  return this.isZero() ? this : this.complement()._add(this.unity())
+  return new Nums(this._.map(function (a) {
+    return a.neg()
+  }))
 }
 Nums.prototype.unity = function () {
-  var _ = this._, __ = [_._.prototype.unity()]
-  __._ = _._
-  return new Nums(__)
+  return new Nums([this._[0].unity()])
 }
 Nums.prototype._divmod = function (a) {
   implement()
 }
-Nums.prototype.complement = function () {
-  var _ = this._, __ = _.map(function (a) {
-    return 0xff - a
-  })
-  __._ = _._
-  return new Nums(__)
+reduce = function (a) {
+  return [a & 0xff, a >> 8]
 }
 Nums.prototype.finalize = function () {
-  return new Nums(this._.reduce(function (a, b) {
-    b += a[1]
-    a = a[0]
-    a.push(b & 0xff)
-    return [a, b >> 8]
-  }, [[], 0])[0])
-}
-Nums.prototype.finalize = function () {
-  var _ = this._.slice(0)
+  var _ = this._.slice(0), r = [], __
 
-  while (_[_.length - 1] === 0    && (_[_.length - 2] || 0) & 0x80 === 0)
-    _.pop()
-  while (_[_.length - 1] === 0xff && (_[_.length - 2] || 0) & 0x80 !== 0)
-    _.pop()
-  return new Nums(_)
+  while (_.length) {
+    __ = reduce(_.shift())
+    r.push(__[0])
+    __[1] && (_[0] = (_[0] || 0) + __[1])
+  }
+
+  return new Nums(r)
 }
 Nums.prototype._add = function (a) {
   var _ = 0
@@ -462,15 +458,6 @@ Adele.prototype.inv = function () {
 Adele.prototype._mul = function (a) {
   var _ = this
   return new Adele(_.r.mul(a.r), _.s.mul(a.s), _.n)
-}
-Adele.prototype.pow = function (a) {
-  var _ = this, __ = _.unity()
-  a = a.r
-  while (a) {
-    a.mod(2) === 1 && (__ = __.mul(_))
-    _ = _.mul(_); a = a.div(2)
-  }
-  return __
 }
 Adele.prototype.unit = function () {
   var _ = this, __
