@@ -371,7 +371,7 @@ Nums.prototype._add = function (a) {
   a = a._
   console.log(['+', _, a])
   Math.max(_.length, a.length).forEach(function (i) {
-    __.push((_[i] || _[0].zero())._add(a[i] || a[0].zero()))
+    __.push((_[i] || _[0].zero()).add(a[i] || a[0].zero()))
   })
   return new Nums(__)
 }
