@@ -1,5 +1,6 @@
 function implement() { throw new Error('implement it later') }
 
+function Algebraic() {}
 function Nums(a) {
   a || (a = [0])
   a.length || (a[0] = 0)
@@ -25,8 +26,8 @@ function Arch(ord, arg) {
   arg = arg.mod(arg.unity())
   this.ord = ord; this.arg = arg
 }
-;[Nums, Adele, Adic, Arch].forEach(function (a) {
-  Object.setPrototypeOf(a.prototype, Number.prototype)
+;[Number, Nums, Adele, Adic, Arch].forEach(function (a) {
+  Object.setPrototypeOf(a.prototype, Algebraic.prototype)
 })
 
 // generics
@@ -37,30 +38,30 @@ Object.prototype.eql = function (a) {
   return this.eq(a) && this._eql(a)
 }
 
-Number.prototype.cast = function (a) {
+Algebraic.prototype.cast = function (a) {
   return this.coerce(a)[0]
 }
-Number.prototype.add = function (a) {
+Algebraic.prototype.add = function (a) {
   var _ = this.coerce(a)
   return _[1]._add(_[0]).finalize()
 }
-Number.prototype.mul = function (a) {
+Algebraic.prototype.mul = function (a) {
   var _ = this.coerce(a)
   return _[1]._mul(_[0]).finalize()
 }
-Number.prototype.divmod = function (a) {
+Algebraic.prototype.divmod = function (a) {
   var _ = this.coerce(a)
   return _[1]._divmod(_[0]).map(function (a) {
     return a.finalize()
   })
 }
-Number.prototype.div =function (a) {
+Algebraic.prototype.div =function (a) {
   return this.divmod(a)[0]
 }
-Number.prototype.mod =function (a) {
+Algebraic.prototype.mod =function (a) {
   return this.divmod(a)[1]
 }
-Number.prototype.gcd = function (a) {
+Algebraic.prototype.gcd = function (a) {
   var _ = this.body(), __
   a = (a || _.zero()).body()
   while (!a.isZero()) {
@@ -68,12 +69,12 @@ Number.prototype.gcd = function (a) {
   }
   return _
 }
-Number.prototype.lcm = function (a) {
+Algebraic.prototype.lcm = function (a) {
   var _ = this.body()
   a = (a || _.unity()).body()
   return _.mul(a).div(_.gcd(a))
 }
-Number.prototype.ub = function (a) {
+Algebraic.prototype.ub = function (a) {
   var _ = this, b = _.unity(), d
   a = (a || _.zero()).body()
   if (_.mul(a).isZero()) {
@@ -88,7 +89,7 @@ Number.prototype.ub = function (a) {
   }
   return [_, b]
 }
-Number.prototype.pow = function (a) {
+Algebraic.prototype.pow = function (a) {
   var _ = this, __ = _.unity()
   if (Number.isInteger(a)) {
     if (a < 0) {
@@ -104,37 +105,37 @@ Number.prototype.pow = function (a) {
   }
   return __
 }
-Number.prototype.sgn = function () {
+Algebraic.prototype.sgn = function () {
   return this.isZero() ? this.finalize() : this.unit()
 }
-Number.prototype.isZero = function () {
+Algebraic.prototype.isZero = function () {
   return this._eql(this.zero())
 }
-Number.prototype.isUnity = function () {
+Algebraic.prototype.isUnity = function () {
   return this._eql(this.unity())
 }
-Number.prototype.isUnit = function () {
+Algebraic.prototype.isUnit = function () {
   return this._eql(this.unit())
 }
-Number.prototype.isBody = function () {
+Algebraic.prototype.isBody = function () {
   return this._eql(this.body())
 }
-Number.prototype.isSgn = function () {
+Algebraic.prototype.isSgn = function () {
   return this._eql(this.sgn())
 }
-Number.prototype.lt = function (a) {
+Algebraic.prototype.lt = function (a) {
   var _ = this.coerce(a)
   return _[1]._lt(_[0])
 }
-Number.prototype.gt = function (a) {
+Algebraic.prototype.gt = function (a) {
   var _ = this.coerce(a)
   return _[1]._gt(_[0])
 }
-Number.prototype.lte = function (a) {
+Algebraic.prototype.lte = function (a) {
   var _ = this.coerce(a)
   return _[1]._lte(_[0])
 }
-Number.prototype.gte = function (a) {
+Algebraic.prototype.gte = function (a) {
   var _ = this.coerce(a)
   return _[1]._gte(_[0])
 }
@@ -151,8 +152,20 @@ Array.prototype._eql = function (a) {
     this.every(function (e, i) { return e === a[i] })
 }
 
+Number.prototype.reduce = function () {
+  return [this & 0xff, this >> 8]
+}
 Number.prototype.finalize = function () {
-  return this.valueOf()
+  var _ = this.valueOf(), r = []
+  if (Number.isInteger(_) && _ > 0xff) {
+    while (_) {
+      __ = _.reduce()
+      r.push(__[0])
+      _ = __[1]
+    }
+    _ = new Nums(r)
+  }
+  return _
 }
 Number.prototype._eql = function (a) {
   return this == a
@@ -209,7 +222,7 @@ Number.prototype._divmod = function (a) {
   q = (_ - r) / a
   return [q, r]
 }
-Number.prototype._inv = function (a) {
+Algebraic.prototype._inv = function (a) {
   var _ = this, x = _.unity(), z = _.zero(), __, q, r, n
   n = a = (a || _.zero()).body()
   if (a.isZero() && _.isUnit())
@@ -297,9 +310,15 @@ Number.prototype.cos = function () {
 Number.prototype.sin = function () {
   return Math.sin(this)
 }
+Number.prototype.forEach = function (a) {
+  var _ = 0
+  while (_ < this) {
+    a(_++)
+  }
+}
 
 Nums.prototype.coerce = function (a) {
-  var _ = this, __, a_
+  var _ = this, __
   if (a.eq(_)) {
     if (!a._[0].eq(this._[0])) {
       __ = _._[0].cast(a._[0])
@@ -312,13 +331,9 @@ Nums.prototype.coerce = function (a) {
     }
     return [a, _]
   } else
-  if (a.__proto__ === Number.prototype) {
+  {
     a = new Nums([a])
     return [a, _]
-  } else
-  {
-    _ = a.coerce(_)
-    return [_[1], _[0]]
   }
 }
 Nums.prototype._eql = function (a) {
@@ -338,38 +353,34 @@ Nums.prototype.unity = function () {
 Nums.prototype._divmod = function (a) {
   implement()
 }
-reduce = function (a) {
-  return [a & 0xff, a >> 8]
-}
 Nums.prototype.finalize = function () {
-  var _ = this._.slice(0), r = [], __
-
-  while (_.length) {
-    __ = reduce(_.shift())
-    r.push(__[0])
-    __[1] && (_[0] = (_[0] || 0) + __[1])
+  var _ = this, a, r, __
+  if (_._[0].reduce) {
+    a = _._.slice(0), r = [], __
+    while (a.length) {
+      __ = a[0].reduce(a.shift())
+      r.push(__[0])
+      __[1] && (a[0] = (a[0] || 0) + __[1])
+    }
+    _ = new Nums(r)
   }
-
-  return new Nums(r)
+  return _
 }
 Nums.prototype._add = function (a) {
-  var _ = 0
-
-  if (this._.length < a._.length) {
-    return a._add(this)
-  }
+  var _ = this._, __ = []
   a = a._
-  a[a.length - 1] & 0x80 && (_ = 0xff)
-  return new Nums(this._.map(function (e, i) {
-    return e._add(a[i] || _)
-  }))
+  console.log(['+', _, a])
+  Math.max(_.length, a.length).forEach(function (i) {
+    __.push((_[i] || _[0].zero())._add(a[i] || a[0].zero()))
+  })
+  return new Nums(__)
 }
 Nums.prototype._mul = function (a) {
   var _ = this, __ = []
   _._.forEach(function (_, i) {
     a._.forEach(function (a, j) {
       j += i
-      __[j] = (__[j] || _.zero())._add(_.mul(a))
+      __[j] = (__[j] || _.zero()).add(_.mul(a))
     })
   })
   return new Nums(__)
