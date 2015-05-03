@@ -1,4 +1,5 @@
 function implement() { throw new Error('implement it later') }
+function bad() { throw new Error('bad invocation') }
 
 function Algebraic() {}
 function Nums(a) {
@@ -38,6 +39,9 @@ Object.prototype.eql = function (a) {
   return this.eq(a) && this._eql(a)
 }
 
+Algebraic.prototype.finalize = function () {
+  return this
+}
 Algebraic.prototype.cast = function (a) {
   return this.coerce(a)[0]
 }
@@ -155,17 +159,25 @@ Array.prototype.last = function () {
   var _ = this
   return _[_.length - 1]
 }
-
-Number.prototype.reduce = function () {
-  return [this & 0xff, this >> 8]
+Number.prototype.base = 1 << 26
+Number.prototype.split = function () {
+  var _ = this, r = _ % _.base
+  return [r.valueOf(), (_ - r)/_.base]
+}
+Number.prototype.join = function (a) {
+  var _ = this
+  return _ * _.base + a
 }
 Number.prototype.finalize = function () {
-  var _ = this.valueOf(), r = [], __
-  if (Number.isInteger(_) && _ > 0xff) {
+  var _ = this, base = _.base, r = [], __, u
+  _ = _.valueOf()
+  if (Number.isInteger(_) && _.body() >= base) {
+    u = _.unit(); _ = _.body()
     while (_) {
-      __ = _.reduce()
-      r.push(__[0])
-      _ = __[1]
+      __ = _.split(); r.push(__[0]); _ = __[1]
+    }
+    if (u < 0) {
+      r = r.map(function (a) { return -a })
     }
     _ = new Nums(r)
   }
@@ -206,8 +218,10 @@ Number.prototype._mul = function (a) {
 }
 Number.prototype.inv = function () {
   var _ = this.valueOf()
-  return Number.isInteger(_) ?
-  new Adele(1, _.valueOf(), 0) : 1/_
+  return _.isZero()     ? nil
+  : _.isUnit()          ? _.unit()
+  : Number.isInteger(_) ? new Adele(1, _.valueOf())
+  : 1/_
 }
 Number.prototype.unit = function () {
   return this < 0 ? -1 : 1
@@ -353,13 +367,15 @@ Nums.prototype.neg = function () {
 }
 Nums.prototype.inv = function () {
   var _ = this
-  return new Adele(_.unity(), _, _.zero())
+  return _.isZero() ? nil
+  : _.isUnit()      ? _.unit()
+  : new Adele(_.unity(), _, _.zero())
 }
 Nums.prototype.unity = function () {
   return new Nums([this._[0].unity()])
 }
 Nums.prototype._divmod = function (a) {
-  var _ = this, q, r, __
+  var _ = this, q, r
   // big or little
   // first, treat big
   // a.length === 1 or a.length > 1
@@ -370,7 +386,7 @@ Nums.prototype._divmod = function (a) {
     a = a._[0]
     q = []
     r = _.reduce(function (prev, curr) {
-      var __ = (prev * 0x100 + curr).divmod(a)
+      var __ = prev.join(curr).divmod(a)
       q.push(__[0])
       return __[1]
     })
@@ -385,10 +401,10 @@ Nums.prototype._divmod = function (a) {
 }
 Nums.prototype.finalize = function () {
   var _ = this, a, r, __
-  if (_._[0].reduce) {
+  if (_._[0].split) {
     a = _._.slice(0), r = [], __
     while (a.length) {
-      __ = a[0].reduce(a.shift())
+      __ = a[0].split(a.shift())
       r.push(__[0])
       __[1] && (a[0] = (a[0] || 0) + __[1])
     }
@@ -413,6 +429,18 @@ Nums.prototype._mul = function (a) {
     })
   })
   return new Nums(__)
+}
+Nums.prototype.unit = function () {
+  // big or little
+  // first, treat big
+  return new Nums([this._.last().unit()])
+}
+Nums.prototype.body = function () {
+  // big or little
+  // first, treat big
+  var _ = this._, sgn = _.last().unit()
+
+  return this
 }
 
 Adele.prototype.finalize = function () {
