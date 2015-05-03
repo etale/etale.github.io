@@ -75,7 +75,7 @@ Algebraic.prototype.lcm = function (a) {
   return _.mul(a).div(_.gcd(a))
 }
 Algebraic.prototype.ub = function (a) {
-  var _ = this, b = _.unity(), d
+  var _ = this.finalize(), b = _.unity(), d
   a = (a || _.zero()).body()
   if (_.mul(a).isZero()) {
     return [_.unit(), _.body()]
@@ -96,8 +96,8 @@ Algebraic.prototype.pow = function (a) {
       return this.inv().pow(-a)
     }
     while (a) {
-      a.mod(2) === 1 && (__ = __.mul(_))
-      _ = _.mul(_); a = a.div(2)
+      a % 2 === 1 && (__ = __.mul(_))
+      _ = _.mul(_); a >>= 1
     }
   } else
   {
@@ -151,12 +151,16 @@ Array.prototype._eql = function (a) {
     this.length === a.length &&
     this.every(function (e, i) { return e === a[i] })
 }
+Array.prototype.last = function () {
+  var _ = this
+  return _[_.length - 1]
+}
 
 Number.prototype.reduce = function () {
   return [this & 0xff, this >> 8]
 }
 Number.prototype.finalize = function () {
-  var _ = this.valueOf(), r = []
+  var _ = this.valueOf(), r = [], __
   if (Number.isInteger(_) && _ > 0xff) {
     while (_) {
       __ = _.reduce()
@@ -347,11 +351,37 @@ Nums.prototype.neg = function () {
     return a.neg()
   }))
 }
+Nums.prototype.inv = function () {
+  var _ = this
+  return new Adele(_.unity(), _, _.zero())
+}
 Nums.prototype.unity = function () {
   return new Nums([this._[0].unity()])
 }
 Nums.prototype._divmod = function (a) {
-  implement()
+  var _ = this, q, r, __
+  // big or little
+  // first, treat big
+  // a.length === 1 or a.length > 1
+  if (a.length === 1) {
+    _ = _._.slice(0)
+    _.push(0)
+    _.reverse()
+    a = a._[0]
+    q = []
+    r = _.reduce(function (prev, curr) {
+      var __ = (prev * 0x100 + curr).divmod(a)
+      q.push(__[0])
+      return __[1]
+    })
+    q.reverse()
+    q = new Nums(q)
+    r = new Nums([r])
+    return [q, r]
+  } else
+  {
+    implement()
+  }
 }
 Nums.prototype.finalize = function () {
   var _ = this, a, r, __
@@ -369,7 +399,6 @@ Nums.prototype.finalize = function () {
 Nums.prototype._add = function (a) {
   var _ = this._, __ = []
   a = a._
-  console.log(['+', _, a])
   Math.max(_.length, a.length).forEach(function (i) {
     __.push((_[i] || _[0].zero()).add(a[i] || a[0].zero()))
   })
@@ -380,7 +409,7 @@ Nums.prototype._mul = function (a) {
   _._.forEach(function (_, i) {
     a._.forEach(function (a, j) {
       j += i
-      __[j] = (__[j] || _.zero()).add(_.mul(a))
+      __[j] = (__[j] || _.zero())._add(_._mul(a))
     })
   })
   return new Nums(__)
