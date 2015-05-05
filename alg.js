@@ -139,7 +139,8 @@ Object.prototype.eql = function (a) {
   var _ = this; return _.eq(a) && _._eql(a)
 }
 Array.prototype._eql = function (a) {
-  var _ = this; return _.every(function (_, i) {
+  var _ = this
+  return _.length === a.length && _.every(function (_, i) {
     return _.eql(a[i])
   })
 }
@@ -223,7 +224,7 @@ Number.prototype._divmod = function (a) {
 }
 // relation
 Number.prototype._eql = function (a) {
-  var _ = this; return _ === a
+  var _ = this; return _ == a
 }
 Number.prototype._cmp = function (a) {
   var _ = this; return (_ - a).sgn()
@@ -270,20 +271,12 @@ Number.prototype.forEach = function (a) {
 
 // generation
 Numbers.prototype.finalize = function () {
-  var _ = this._, r = []
-  _.reduce(function (prev, curr) {
-    var __ = (prev + curr).split()
-    r.push(__[0]); return __[1]
-  }, 0)
-  r = new Numbers(r)
-  while (r.isRedundant()) {
-    r._.pop()
+  var _ = this
+  if (_._.length === 1) {
+    _ = _._[0]
+    _ > _.base/2 && (_ -= _.base)
   }
-  if (r._.length === 1) {
-    r = r._[0]
-    r > r.base/2 && (r -= r.base)
-  }
-  return r
+  return _
 }
 Numbers.prototype.coerce = function (a) {
   var _ = this, r = []
@@ -305,12 +298,12 @@ Numbers.prototype._unity = function () {
   return new Numbers([_[0].unity()])
 }
 Numbers.prototype._unit = function () {
-  var _ = this._
-  return new Numbers([_[0].unit ()])
+  var _ = this
+  return _.implicit().isZero() ? _._unity() : new Numbers([_.implicit()])
 }
 Numbers.prototype._body = function () {
   var _ = this
-  return _ < 0 ? -_ : _.valueOf()
+  return _._mul(_._unit())
 }
 Numbers.prototype.complement = function () {
   var _ = this
@@ -332,19 +325,41 @@ Numbers.prototype._add = function (a) {
   _ = _._.slice(0); a = a._.slice(0)
   _.push(_i); a.push(ai)
   Math.max(_.length, a.length).forEach(function (i) {
-    r[i] = (_[i] || _i) + (a[i] || ai)
+    var __
+    r[i] === undefined && (r[i] = 0)
+    _[i] === undefined && (_[i] = _i)
+    a[i] === undefined && (a[i] = ai)
+    __ = (r[i] + _[i] + a[i]).split()
+    r[i] = __[0]; r[i+1] = __[1]
   })
-  return new Numbers(r)
+  r.pop()
+  r = new Numbers(r)
+  while (r.isRedundant()) {
+    r._.pop()
+  }
+  return r
 }
 Numbers.prototype._mul = function (a) {
-  var _ = this, r = []
-  _ = _._; a = a._
+  var _ = this, r = [], _i = _.implicit(), ai = a.implicit()
+  _ = _._.slice(0); a = a._.slice(0)
+  _.push(_i); a.push(ai)
   _.forEach(function (_, i) {
     a.forEach(function (a, j) {
-      r[i+j] = (r[i+j] || 0) + _ * a
+      j += i
+      r[j] = (r[j] || 0) + _ * a
     })
   })
-  return new Numbers(r)
+  var tmp = []
+  r.reduce(function (prev, curr) {
+    var __ = (prev + curr).split()
+    tmp.push(__[0])
+    return __[1]
+  }, 0)
+  r = new Numbers(tmp)
+  while (r.isRedundant()) {
+    r._.pop()
+  }
+  return r
 }
 Numbers.prototype.q = function (a) {
   var _ = this, _0, _1, a0, q, s
