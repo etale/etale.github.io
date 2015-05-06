@@ -376,8 +376,8 @@ Numbers.prototype.__divmod = function (a) {
   a = a._
   q = _[_.length - 1].join(_[_.length - 2]).div(a[a.length - 1] || a[a.length - 2])
   q.__proto__ === Numbers.prototype && (q = Number.prototype.base - 1)
-  _ = _.slice(   _.length - a.length - 1)
-  r = _.slice(0, _.length - a.length - 1)
+  _ = _.slice(   _.length - a.length)
+  r = _.slice(0, _.length - a.length)
   _ = new Numbers(_)
   a = new Numbers(a)
   aq = a.mul(q)
