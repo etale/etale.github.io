@@ -372,31 +372,30 @@ Numbers.prototype._mul = function (a) {
   return this.__mul(a).removeRedundancy()
 }
 Numbers.prototype.__divmod = function (a) {
-  var _ = this, q, r, aq
-  _ = _._.slice(0); while (!_[_.length - 1]) _.pop()
-  a = a._.slice(0); while (!a[a.length - 1]) a.pop()
-  q = _[_.length - 1].join(_[_.length - 2]).div(a[a.length - 1])
+  var _ = this._, q, r, aq
+  a = a._
+  q = _[_.length - 1].join(_[_.length - 2]).div(a[a.length - 1] || a[a.length - 2])
   q.__proto__ === Numbers.prototype && (q = Number.prototype.base - 1)
-  _ = _.slice(   _.length - a.length - 1, _.length + 1)
+  _ = _.slice(   _.length - a.length - 1)
   r = _.slice(0, _.length - a.length - 1)
-  _.push(0); _ = new Numbers(_)
-  a.push(0); a = new Numbers(a)
+  _ = new Numbers(_)
+  a = new Numbers(a)
   aq = a.mul(q)
   while (_.lt(aq)) {
     q--
     aq = a.mul(q)
   }
-  _._.pop()
-  _ = _.__add(aq.__neg())
+  aq && (_ = _.__add(aq.__neg()))
   return [q, new Numbers(r.concat(_._))]
 }
 Numbers.prototype._divmod = function (a) {
-  var _ = this, d, q = [], __, _a
+  var _ = this, al, d, q = [], __, _a
   if (a.isZero()) {
     return [_.zero(), _]
   } else
   {
-    d = _._[0].base.div(a._[a._.length - 1].succ())
+    al = a._[a._.length - 1] || a._[a._.length - 2]
+    d = _._[0].base.div(al.succ())
     _ = _.mul(d); _a = a; a = a.mul(d)
     while (_.gt(a)) {
       __ = _.__divmod(a)
