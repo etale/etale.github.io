@@ -344,7 +344,7 @@ Numbers.prototype._inv = error
 Numbers.prototype.__add = function (a) {
   var _ = this, _i = _.implicit(), ai = a.implicit()
   if (_._.length < a._.length) {
-    return a._add(_)
+    return a.__add(_)
   }
   _ = _._.slice(0); a = a._
   _.push(_i)
