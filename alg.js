@@ -342,24 +342,26 @@ Numbers.prototype._neg = function () {
 }
 Numbers.prototype._inv = error
 Numbers.prototype.__add = function (a) {
-  var _ = this, _i = _.implicit(), ai = a.implicit()
+  var _ = this, ai = a.implicit()
   if (_._.length < a._.length) {
     return a.__add(_)
   }
   _ = _._.slice(0); a = a._
-  _.push(_i)
   return new Numbers(_.reduce(function (prev, curr, i) {
     prev.push(curr._add(a[i] || ai))
     return prev
   }, [])).canonicalize()
 }
 Numbers.prototype._add = function (a) {
-  return this.__add(a).removeRedundancy()
-}
-Numbers.prototype.__mul = function (a) {
-  var _ = this, r = [], _i = _.implicit(), ai = a.implicit()
+  var _ = this, _i = _.implicit(), ai = a.implicit()
   _ = _._.slice(0); a = a._.slice(0)
   _.push(_i); a.push(ai)
+  _ = new Numbers(_); a = new Numbers(a)
+  return _.__add(a).removeRedundancy()
+}
+Numbers.prototype.__mul = function (a) {
+  var _ = this, r = []
+  _ = _._.slice(0); a = a._.slice(0)
   _.forEach(function (_, i) {
     a.forEach(function (a, j) {
       j += i
@@ -369,7 +371,11 @@ Numbers.prototype.__mul = function (a) {
   return new Numbers(r).canonicalize()
 }
 Numbers.prototype._mul = function (a) {
-  return this.__mul(a).removeRedundancy()
+  var _ = this, _i = _.implicit(), ai = a.implicit()
+  _ = _._.slice(0); a = a._.slice(0)
+  _.push(_i); a.push(ai)
+  _ = new Numbers(_); a = new Numbers(a)
+  return _.__mul(a).removeRedundancy()
 }
 Numbers.prototype.__divmod = function (a) {
   var _ = this._, q, r, aq
