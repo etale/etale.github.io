@@ -288,23 +288,21 @@ Numbers.prototype.finalize = function () {
   return _._.length === 1 ? _._[0].toSigned() : _
 }
 Numbers.prototype.canonicalize = function () {
-  var _ = this
-  _._ = _._.reduce(function (prev, curr) {
-    var __ = prev[1]._add(curr).split()
-    prev[0].push(__[0])
-    return [prev[0], __[1]]
-  }, [[], 0])[0]
-  return _
+  var _ = this._, c = _[0]._zero(), __
+  _.forEach(function (a, i) {
+    __ = c._add(a).split(); _[i] = __[0]; c = __[1]
+  })
+  return this
 }
 Numbers.prototype.removeRedundancy = function () {
-  var _ = this, a, b
-  if (_._.length > 1) {
-    a = _._[_._.length - 1], b = _._[_._.length - 2]
+  var _ = this._, a, b
+  if (_.length > 1) {
+    a = _[_.length - 1], b = _[_.length - 2]
     while (a.isRedundant(b)) {
-      _._.pop(); a = b; b = _._[_._.length - 2]
+      _.pop(); a = b; b = _[_.length - 2]
     }
   }
-  return _
+  return this
 }
 Numbers.prototype.coerce = function (a) {
   var _ = this, r = []
@@ -319,11 +317,11 @@ Numbers.prototype.coerce = function (a) {
 // operation
 Numbers.prototype._zero = function () {
   var _ = this._
-  return new Numbers([_[0].zero()])
+  return new Numbers([_[0]._zero()])
 }
 Numbers.prototype._unity = function () {
   var _ = this._
-  return new Numbers([_[0].unity()])
+  return new Numbers([_[0]._unity()])
 }
 Numbers.prototype._unit = function () {
   var _ = this
@@ -346,11 +344,10 @@ Numbers.prototype.__add = function (a) {
   if (_._.length < a._.length) {
     return a.__add(_)
   }
-  _ = _._.slice(0); a = a._
-  return new Numbers(_.reduce(function (prev, curr, i) {
-    prev.push(curr._add(a[i] || ai))
-    return prev
-  }, [])).canonicalize()
+  _._.forEach(function (e, i) {
+    _._[i] = e._add(a._[i] || ai)
+  })
+  return _.canonicalize()
 }
 Numbers.prototype._add = function (a) {
   var _ = this, _i = _.implicit(), ai = a.implicit()
@@ -378,14 +375,12 @@ Numbers.prototype._mul = function (a) {
   return _.__mul(a).removeRedundancy()
 }
 Numbers.prototype.__divmod = function (a) {
-  var _ = this._, q, r, aq
-  a = a._
-  q = _[_.length - 1].join(_[_.length - 2]).div(a[a.length - 1] || a[a.length - 2])
+  var _ = this, q, r, aq, i
+  q = _.last().join(_.next()).div(a.last() || a.next())
   q.__proto__ === Numbers.prototype && (q = Number.prototype.base - 1)
-  _ = _.slice(   _.length - a.length)
-  r = _.slice(0, _.length - a.length)
+  i = _._.length - a._.length
+  r = _._.slice(0, i); _ = _._.slice(i)
   _ = new Numbers(_)
-  a = new Numbers(a)
   aq = a.mul(q)
   while (_.lt(aq)) {
     q--
@@ -400,17 +395,16 @@ Numbers.prototype._divmod = function (a) {
     return [_.zero(), _]
   } else
   {
-    al = a._[a._.length - 1] || a._[a._.length - 2]
-    d = _._[0].base.div(al.succ())
+    al = a.last() || a.next()
+    d = _.first().base.div(al.succ())
     _ = _.mul(d); _a = a; a = a.mul(d)
     while (_.gt(a)) {
       __ = _.__divmod(a)
-      q.push(__[0])
-      _ = __[1]
+      q.push(__[0]); _ = __[1]
     }
     q.reverse()
     q = new Numbers(q)
-    _ = this.sub(_a.mul(q))
+    _ = this.sub(_a.mul(q)) //
     return [q, _]
   }
 }
@@ -427,6 +421,17 @@ Numbers.prototype.complement = function () {
   }))
 }
 Numbers.prototype.implicit = function () {
+  return this.last().implicit()
+}
+Numbers.prototype.first = function () {
   var _ = this._
-  return _[_.length - 1].implicit()
+  return _[0]
+}
+Numbers.prototype.last = function () {
+  var _ = this._
+  return _[_.length - 1]
+}
+Numbers.prototype.next = function () {
+  var _ = this._
+  return _[_.length - 2]
 }
