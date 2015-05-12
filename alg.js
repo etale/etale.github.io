@@ -395,9 +395,19 @@ Seq.prototype.__divmod = function (a) {
   return [q, new Seq(r.concat(_._))]
 }
 Seq.prototype._divmod = function (a) {
-  var _ = this, al, d, q = [], __, _a
+  var _ = this, al, d, q = [], __, _a, b
   if (a.isZero()) {
     return [_.zero(), _]
+  } else
+  if (a._.length === 1) {
+    a = a.first()
+    _ = new Seq([_._.reduce(function(prev, curr) {
+      __ = prev.join(curr).divmod(a)
+      q.push(__[0]); return __[1]
+    }, 0)])
+    q.reverse()
+    q = new Seq(q)
+    return [q, _]
   } else
   {
     al = a.last() || a.next()
