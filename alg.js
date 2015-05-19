@@ -1,6 +1,4 @@
-function error() {
-  throw new Error
-}
+function error() { throw new Error }
 function assert(a, msg) {
   if (!a) {
     throw new Error(msg || 'assertion failed')
@@ -55,8 +53,7 @@ error
 
 // generation
 Algebraic.prototype.cast = function (a) {
-  var _ = this
-  return _.coerce(a)[0]
+  return this.coerce(a)[0]
 }
 // operation
 Algebraic.prototype.zero = function () {
@@ -166,7 +163,7 @@ Algebraic.prototype.pow = function (a) {
 }
 Algebraic.prototype.succ = function () {
   var _ = this
-  return _._add(_.unity())
+  return _._add(_._unity())
 }
 // relation
 Object.prototype.eq = function (a) {
@@ -182,19 +179,19 @@ Array.prototype._eql = function (a) {
   })
 }
 Algebraic.prototype.isZero = function () {
-  var _ = this; return _.eql(_._zero())
+  var _ = this; return _._eql(_._zero())
 }
 Algebraic.prototype.isUnity = function () {
-  var _ = this; return _.eql(_._unity())
+  var _ = this; return _._eql(_._unity())
 }
 Algebraic.prototype.isUnit = function () {
-  var _ = this; return _.eql(_._unit())
+  var _ = this; return _._eql(_._unit())
 }
 Algebraic.prototype.isBody = function () {
-  var _ = this; return _.eql(_._body())
+  var _ = this; return _._eql(_._body())
 }
 Algebraic.prototype.isSgn = function () {
-  var _ = this; return _.eql(_._sgn())
+  var _ = this; return _._eql(_._sgn())
 }
 Algebraic.prototype.cmp = function (a) {
   var _ = this, __ = _.coerce(a)
@@ -213,7 +210,7 @@ Algebraic.prototype.gte = function (a) {
   var _ = this; return _.cmp(a) >= 0
 }
 Algebraic.prototype.isRedundant = function (a) {
-  return isZero()
+  return a.isZero()
 }
 // generation
 Number.prototype.finalize = function () {
@@ -247,17 +244,13 @@ Number.prototype._neg = function () {
 Number.prototype._res = function () {
   var _ = this.valueOf()
   return Number.isInteger(_) ?
-  new Adele(0, 1, this.valueOf()) : implement()
-}
-Number.prototype._inv = function () {
-  throw new Error
-  return 1/this
+  new Adele(0, 1, this.valueOf()) : error()
 }
 Number.prototype._inv = function () {
   var _ = this.valueOf()
   return _.isZero()     ? nil
   : _.isUnit()          ? _.unit()
-  : Number.isInteger(_) ? new Adele(1, _.valueOf())
+  : Number.isInteger(_) ? new Adele(1, _)
   : 1/_
 }
 Number.prototype._add = function (a) {
@@ -354,8 +347,7 @@ Number.prototype._cmp = function (a) {
   var _ = this; return (_ - a).sgn()
 }
 // misc
-//Number.prototype.base = 1 << 26
-Number.prototype.base = 10
+Number.prototype.base = 1 << 26
 Number.prototype.split = function () {
   var _ = this.valueOf()
   return _._divmod(_.base).reverse()
