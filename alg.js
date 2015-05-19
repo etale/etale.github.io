@@ -510,7 +510,7 @@ Seq.prototype._divmod = function (a) {
   if (a._.length === 1) {
     a = a.first()
     _ = new Seq([_._.slice(0).reverse().reduce(function(prev, curr) {
-      __ = prev.join(curr).divmod(a)
+      __ = prev.join(curr)._divmod(a)
       q.push(__[0]); return __[1]
     }, 0)])
     q.reverse()
