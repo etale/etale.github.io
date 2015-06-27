@@ -1,0 +1,23 @@
+<!doctype html>
+<style>
+div {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background-color: silver;
+}
+</style>
+<script>
+var div = function (px, textContent, color) {
+  var _ = document.createElement('div')
+  _.textContent = textContent
+  _.setAttribute('style', 'top: ' + px.toString() + 'px;')
+  return _
+}
+onload = function () {
+  var i
+  for (i = 0; i < 1024; i++) {
+    document.body.appendChild(div(i*100, (i-512).toString()))
+  }
+}
+</script>
