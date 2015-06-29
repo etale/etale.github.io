@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width">
+<meta charset="UTF-8">
+<style>
+div {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background-color: silver;
+}
+</style>
+<script src="js.js"></script>
+<script>
+var div = function (px, textContent, color) {
+  var _ = document.createElement('div')
+  px *= 100; px = Math.round(px)
+  _.textContent = textContent
+  _.setAttribute('style', 'top: ' + px.toString() + 'px;')
+  return _
+}
+, vals = [
+  { k: 'kg', v: ' 17.642958.125X' }
+, { k: 'm' , v: ' 80.110401.125X' }
+, { k: 's' , v: ' 99.629002.125X' }
+, { k: 'K' , v: '-74.031148.125X' }
+, { k: 'A' , v: '-57.545858X' }
+, { k: 'b' , v: ' -0.366513X' }
+, { k: 'B' , v: '  1.712929X' }
+, { k: 'mass Earth', v: '74.6290.125X' }
+, { k: 'mass Sun', v: '87.4081.125X' }
+, { k: 'radius Earth', v: '95.7776.125X' }
+, { k: 'radius Sun', v: '100.4705.125X' }
+, { k: 'orbit radius Earth', v: '105.8416.125X' }
+, { k: 'orbit radius Plute', v: '109.5165.125X' }
+, { k: 'life Universe', v: '140.242228.125X'}
+].map(function (a) {
+  a.v = parseComplex(a.v)
+  return a
+}).sort(function (a, b) {
+  return a.v.ord - b.v.ord
+})
+
+Complex.precision = 6
+onload = function () {
+  var label = function (item) {
+    return div(item.v.ord - delta, item.v.toString() + ' ' +  item.k)
+  }
+  var append = document.body.appendChild.bind(document.body)
+  var delta = vals[0].v.ord
+
+  vals.forEach(function (item) {
+    append(label(item))
+  })
+
+}
+</script>
+</head>
+<body></body>
+</html>
