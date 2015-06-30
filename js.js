@@ -174,8 +174,6 @@ Complex = function (ord, arg) {
   ord = ord || 0; arg = arg || 0
   arg %= 1; arg < 0 && (arg += 1)
   _.ord = ord; _.arg = arg
-  __ = arg; __ < 0.5 || (__ -= 1); __ *= this.pi2
-  _._arg = __
   ord === 0 && arg === 0 && (_.isUnity = true)
 },
 parseComplex = function (a) {
@@ -241,20 +239,20 @@ _.add = function (a) {
          _.mul(_.inv().mul(a).succ())
 }
 _.log = function () {
-  var _ = this
-
+  var _ = this, arg = _.arg
+  arg < 0.5 || (arg -= 1); arg *= this.pi2
   return _.isUnity ? 0 :
          new Complex(
-           Math.log  (_.ord * _.ord + _._arg * _._arg) * 0.5,
-           Math.atan2(_._arg, _.ord) / _.pi2
+           Math.log  (_.ord * _.ord + arg * arg) * 0.5,
+           Math.atan2(arg, _.ord) / _.pi2
          )
 }
 _.exp = function () {
-  var _ = this, __ = Math.exp(_.ord)
-
+  var _ = this, __ = Math.exp(_.ord), arg = _.arg
+  arg < 0.5 || (arg -= 1); arg *= this.pi2
   return new Complex(
-           __ * Math.cos(_._arg),
-           __ * Math.sin(_._arg) / _.pi2
+           __ * Math.cos(arg),
+           __ * Math.sin(arg) / _.pi2
          )
 }
 _.toString = function () {
@@ -545,7 +543,7 @@ _.mul = function (a) {
   }, new BigNum)
 }
 _.unity = BigNum.UNITY
- 
+
 _.divmod = function (a) {
 }
 

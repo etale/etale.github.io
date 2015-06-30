@@ -52,11 +52,13 @@ var _ = function (a, b) { return new Complex(Math.log(a), b) }
 , kg = c.inv()        .mul(G)      .mul(h.inv()).mul(tau).log().mul(half).exp()
 , m  = c.mul(c).mul(c).mul(G.inv()).mul(h.inv()).mul(tau).log().mul(half).exp()
 , s  = m.mul(c)
-, Hz = s.inv(), kHz = k.mul(Hz), MHz = k.mul(kHz), GHz = k.mul(MHz)
+kg.arg = m.arg = s.arg = 0.125
+var Hz = s.inv(), kHz = k.mul(Hz), MHz = k.mul(kHz), GHz = k.mul(MHz)
 , N  = kg.mul(m).mul(Hz).mul(Hz)
 , J  = N.mul(m)
 , A  = mu0.mul(N).log().mul(half).exp()
-, K  = Boltzmann.mul(J)
+A.arg = 0
+var K  = Boltzmann.mul(J)
 , C  = A.mul(s)
 
 , W  = J.mul(Hz)
