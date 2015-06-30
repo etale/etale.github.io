@@ -3,6 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width">
 <meta charset="UTF-8">
+<title>Quantities</title>
 <style>
 div {
   font-size: 1.5rem;
@@ -27,8 +28,13 @@ c = new Complex(Math.log(299792458))      //         m   s^{-1}
  */
 , tau = new Complex(Math.log(2 * Math.PI), 0.25)
 , two = new Complex(Math.log(2))
+, Ki = new Complex(Math.log(1024))
 , b = two.log()
 , B = b.mul(new Complex(Math.log(8)))
+, KiB = B.mul(Ki)
+, MiB = KiB.mul(Ki)
+, GiB = MiB.mul(Ki)
+, TiB = GiB.mul(Ki)
 
 , kg = c.inv()        .mul(G)      .mul(h.inv()).mul(tau).log().mul(two.inv()).exp()
 , m  = c.mul(c).mul(c).mul(G.inv()).mul(h.inv()).mul(tau).log().mul(two.inv()).exp()
@@ -46,6 +52,8 @@ c = new Complex(Math.log(299792458))      //         m   s^{-1}
 , min = s.mul(new Complex(Math.log(60)))
 , hour = s.mul(new Complex(Math.log(3600)))
 , day = s.mul(new Complex(Math.log(3600*24)))
+, _0dc = K.mul(new Complex(Math.log(273.15)))
+, _100dc = K.mul(new Complex(Math.log(273.15 + 100)))
 
 var div = function (px, textContent, color) {
   var _ = document.createElement('div')
@@ -73,12 +81,18 @@ var div = function (px, textContent, color) {
 , [day, 'day']
 , [b, 'b' ]
 , [B, 'B' ]
+, [KiB, 'KiB']
+, [MiB, 'MiB']
+, [GiB, 'GiB']
+, [TiB, 'TiB']
+, [_0dc, '0 °C']
+, [_100dc, '100 °C']
 , [parseComplex(' 74.692083.125X'), 'mass Earth']
 , [parseComplex(' 87.407841.125X'), 'mass Sun']
 , [parseComplex(' 95.7776.125X'), 'radius Earth']
 , [parseComplex('100.4705.125X'), 'radius Sun' ]
-, [parseComplex('105.8416.125X'), 'orbit radius Earth',  ]
-, [parseComplex('109.5165.125X'), 'orbit radius Plute',  ]
+, [parseComplex('105.8416.125X'), 'orbit Earth',  ]
+, [parseComplex('109.5165.125X'), 'orbit Plute',  ]
 , [parseComplex('140.242228.125X'), 'time Universe', ]
 ].sort(function (a, b) {
   return a[0].ord - b[0].ord
