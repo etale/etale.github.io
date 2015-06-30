@@ -15,6 +15,15 @@ div {
 </style>
 <script src="js.js"></script>
 <script>
+Complex.prototype.toString = function () {
+  var _ = this, ord, arg
+  ord = _.ord.toFixed(Complex.precision).split('.')
+  arg = _.arg.toFixed(3).split('.')
+  ord[1] = ord[1] || '0'
+  arg[1] = arg[1] || '0'
+  return ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
+}
+
 var
 c = new Complex(Math.log(299792458))      //         m   s^{-1}
 , G = new Complex(Math.log(6.67384e-11))    // kg^{-1} m^3 s^{-2}
