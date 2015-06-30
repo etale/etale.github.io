@@ -65,6 +65,7 @@ var K  = Boltzmann.mul(J)
 , V  = W.mul(A.inv())
 , Ω  = V.mul(A.inv())
 , eV = _(1.60217657e-19).mul(J)
+, keV = k.mul(eV), MeV = k.mul(keV), GeV = k.mul(MeV)
 , min = _(60).mul(s), hour = _(60).mul(min), day = _(24).mul(hour)
 , week = _(7).mul(day), year = _(365.25).mul(day)
 , kyear = k.mul(year), Myear = k.mul(kyear), Gyear = k.mul(Myear)
@@ -72,7 +73,8 @@ var K  = Boltzmann.mul(J)
 , ec = _(1.60217657e-19).mul(C)
 , mm = _(1e-3).mul(m), μm = _(1e-3).mul(mm), nm = _(1e-3).mul(μm)
 , pm = _(1e-3).mul(nm), fm = _(1e-3).mul(pm)
-, ms = _(1e-3).mul(s)
+, ms = _(1e-3).mul(s), μs = _(1e-3).mul(ms), ns = _(1e-3).mul(μs)
+, ps = _(1e-3).mul(ns), fs = _(1e-3).mul(ps)
 , g = _(1e-3).mul(kg)
 , mg = _(1e-3).mul(g)
 , km = k.mul(m)
@@ -93,11 +95,12 @@ var div = function (px, textContent, color) {
   [kg, 'kg'], [m, 'm' ], [s, 's' ]
 , [mm, 'mm'], [ms, 'ms'], [g, 'g'], [mg, 'mg']
 , [μm, 'μm'], [nm, 'nm'], [pm, 'pm'], [fm, 'fm']
+, [μs, 'μs'], [ns, 'ns'], [ps, 'ps'], [fs, 'fs']
 , [N, 'N'], [J, 'J']
 , [A, 'A' ], [K, 'K' ], [C, 'C']
 , [Hz, 'Hz'], [kHz, 'kHz'], [MHz, 'MHz'], [GHz, 'GHz']
 , [W, 'W'], [V, 'V'], [Ω, 'Ω']
-, [eV, 'eV']
+, [eV, 'eV'], [keV, 'keV'], [MeV, 'MeV'], [GeV, 'GeV']
 , [min, 'min'], [hour, 'hour'], [day, 'day'], [week, 'week'], [year, 'year']
 , [kyear, 'Thousand years'], [Myear, 'Million years'], [Gyear, 'Billion years']
 , [b, 'b' ], [B, 'B' ]
