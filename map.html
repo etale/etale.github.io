@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <style>
 div {
+  font-size: 1.5rem;
   position: absolute;
   width: 100%;
   height: 1px;
@@ -13,42 +14,83 @@ div {
 </style>
 <script src="js.js"></script>
 <script>
+var
+c = new Complex(Math.log(299792458))      //         m   s^{-1}
+, G = new Complex(Math.log(6.67384e-11))    // kg^{-1} m^3 s^{-2}
+, h = new Complex(Math.log(6.62606957e-34)) // kg      m^2 s^{-1}
+, Boltzmann = new Complex(Math.log(1.3806488e-23)) // J K^{-1}
+, mu0 = new Complex(Math.log(4 * Math.PI * 1e-7))  // N A^{-2}
+
+/*
+   2010 CODATA recommended values
+   http://physics.nist.gov/constants
+ */
+, tau = new Complex(Math.log(2 * Math.PI), 0.25)
+, two = new Complex(Math.log(2))
+, b = two.log()
+, B = b.mul(new Complex(Math.log(8)))
+
+, kg = c.inv()        .mul(G)      .mul(h.inv()).mul(tau).log().mul(two.inv()).exp()
+, m  = c.mul(c).mul(c).mul(G.inv()).mul(h.inv()).mul(tau).log().mul(two.inv()).exp()
+, s  = m.mul(c)
+, N  = kg.mul(m).mul(s.inv()).mul(s.inv())
+, J  = N.mul(m)
+, A  = mu0.mul(N).log().mul(two.inv()).exp()
+, K  = Boltzmann.mul(J)
+, C  = A.mul(s)
+, Hz = s.inv()
+, W  = J.mul(Hz)
+, V  = W.mul(A.inv())
+, Ω  = V.mul(A.inv())
+, eV = J.mul(new Complex(Math.log(1.60217657e-19)))
+, min = s.mul(new Complex(Math.log(60)))
+, hour = s.mul(new Complex(Math.log(3600)))
+, day = s.mul(new Complex(Math.log(3600*24)))
+
 var div = function (px, textContent, color) {
   var _ = document.createElement('div')
-  px *= 100; px = Math.round(px)
+  px *= 33; px = Math.round(px)
   _.textContent = textContent
   _.setAttribute('style', 'top: ' + px.toString() + 'px;')
   return _
 }
 , vals = [
-  { k: 'kg', v: ' 17.642958.125X' }
-, { k: 'm' , v: ' 80.110401.125X' }
-, { k: 's' , v: ' 99.629002.125X' }
-, { k: 'K' , v: '-74.031148.125X' }
-, { k: 'A' , v: '-57.545858X' }
-, { k: 'b' , v: ' -0.366513X' }
-, { k: 'B' , v: '  1.712929X' }
-, { k: 'mass Earth', v: '74.6290.125X' }
-, { k: 'mass Sun', v: '87.4081.125X' }
-, { k: 'radius Earth', v: '95.7776.125X' }
-, { k: 'radius Sun', v: '100.4705.125X' }
-, { k: 'orbit radius Earth', v: '105.8416.125X' }
-, { k: 'orbit radius Plute', v: '109.5165.125X' }
-, { k: 'life Universe', v: '140.242228.125X'}
-].map(function (a) {
-  a.v = parseComplex(a.v)
-  return a
-}).sort(function (a, b) {
-  return a.v.ord - b.v.ord
+  [kg, 'kg']
+, [m, 'm' ]
+, [s, 's' ]
+, [N, 'N']
+, [J, 'J']
+, [A, 'A' ]
+, [K, 'K' ]
+, [C, 'C']
+, [Hz, 'Hz']
+, [W, 'W']
+, [V, 'V']
+, [Ω, 'Ω']
+, [eV, 'eV']
+, [min, 'min']
+, [hour, 'hour']
+, [day, 'day']
+, [b, 'b' ]
+, [B, 'B' ]
+, [parseComplex(' 74.692083.125X'), 'mass Earth']
+, [parseComplex(' 87.407841.125X'), 'mass Sun']
+, [parseComplex(' 95.7776.125X'), 'radius Earth']
+, [parseComplex('100.4705.125X'), 'radius Sun' ]
+, [parseComplex('105.8416.125X'), 'orbit radius Earth',  ]
+, [parseComplex('109.5165.125X'), 'orbit radius Plute',  ]
+, [parseComplex('140.242228.125X'), 'time Universe', ]
+].sort(function (a, b) {
+  return a[0].ord - b[0].ord
 })
 
 Complex.precision = 6
 onload = function () {
   var label = function (item) {
-    return div(item.v.ord - delta, item.v.toString() + ' ' +  item.k)
+    return div(item[0].ord - delta, item[0].toString() + ' ' +  item[1])
   }
   var append = document.body.appendChild.bind(document.body)
-  var delta = vals[0].v.ord
+  var delta = vals[0][0].ord
 
   vals.forEach(function (item) {
     append(label(item))
