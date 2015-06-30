@@ -36,7 +36,9 @@ var _c = function (a, b) { return new Complex(Math.log(a), b) }
    http://physics.nist.gov/constants
  */
 , tau = _c(2 * Math.PI, 0.25)
+, e = new Complex(1)
 , two = _c(2)
+, one = _c(1)
 , Ki = _c(1024)
 , k = _c(1000)
 , b = two.log()
@@ -63,12 +65,19 @@ var _c = function (a, b) { return new Complex(Math.log(a), b) }
 , hour = min.mul(_c(60))
 , day = hour.mul(_c(24))
 , week = day.mul(_c(7))
+, year = day.mul(_c(365.25))
+, kyear = year.mul(k)
+, Myear = kyear.mul(k)
+, Gyear = Myear.mul(k)
 , _0dc = K.mul(_c(273.15))
 , _100dc = K.mul(_c(273.15 + 100))
-, e = C.mul(_c(1.60217657e-19))
+, ec = C.mul(_c(1.60217657e-19))
 , km = k.mul(m)
 , mps = m.mul(Hz)
 , kmph = km.mul(hour.inv())
+, me = kg.mul(_c(9.10938291e-31))
+, mp = kg.mul(_c(1.672621777e-27))
+, Mg = kg.mul(k)
 
 var div = function (px, textContent, color) {
   var _ = document.createElement('div')
@@ -84,11 +93,12 @@ var div = function (px, textContent, color) {
 , [Hz, 'Hz']
 , [W, 'W'], [V, 'V'], [Ω, 'Ω']
 , [eV, 'eV']
-, [min, 'min'], [hour, 'hour'], [day, 'day'], [week, 'week']
+, [min, 'min'], [hour, 'hour'], [day, 'day'], [week, 'week'], [year, 'year']
+, [kyear, 'Thousand years'], [Myear, 'Million years'], [Gyear, 'Billion years']
 , [b, 'b' ], [B, 'B' ]
 , [KiB, 'KiB'], [MiB, 'MiB'], [GiB, 'GiB'], [TiB, 'TiB']
 , [_0dc, '0 °C'], [_100dc, '100 °C']
-, [e, 'e']
+, [ec, 'elementary charge']
 , [km, 'km']
 , [mps, 'm/s'], [kmph, 'km/hour']
 , [parseComplex(' 74.692083.125X'), 'mass Earth']
@@ -98,6 +108,10 @@ var div = function (px, textContent, color) {
 , [parseComplex('105.8416.125X'), 'orbit Earth',  ]
 , [parseComplex('109.5165.125X'), 'orbit Plute',  ]
 , [parseComplex('140.242228.125X'), 'time Universe', ]
+, [tau, '2πi'], [one, '1'], [e, 'e']
+, [me, 'mass electron']
+, [mp, 'mass proton']
+, [Mg, 'Mg']
 ].sort(function (a, b) {
   return a[0].ord - b[0].ord
 })
