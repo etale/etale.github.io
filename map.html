@@ -24,22 +24,23 @@ Complex.prototype.toString = function () {
   return ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
 }
 
-var
-c = new Complex(Math.log(299792458))      //         m   s^{-1}
-, G = new Complex(Math.log(6.67384e-11))    // kg^{-1} m^3 s^{-2}
-, h = new Complex(Math.log(6.62606957e-34)) // kg      m^2 s^{-1}
-, Boltzmann = new Complex(Math.log(1.3806488e-23)) // J K^{-1}
-, mu0 = new Complex(Math.log(4 * Math.PI * 1e-7))  // N A^{-2}
+var _c = function (a, b) { return new Complex(Math.log(a), b) }
+, c = _c(299792458)      //         m   s^{-1}
+, G = _c(6.67384e-11)    // kg^{-1} m^3 s^{-2}
+, h = _c(6.62606957e-34) // kg      m^2 s^{-1}
+, Boltzmann = _c(1.3806488e-23) // J K^{-1}
+, mu0 = _c(4 * Math.PI * 1e-7)  // N A^{-2}
 
 /*
    2010 CODATA recommended values
    http://physics.nist.gov/constants
  */
-, tau = new Complex(Math.log(2 * Math.PI), 0.25)
-, two = new Complex(Math.log(2))
-, Ki = new Complex(Math.log(1024))
+, tau = _c(2 * Math.PI, 0.25)
+, two = _c(2)
+, Ki = _c(1024)
+, k = _c(1000)
 , b = two.log()
-, B = b.mul(new Complex(Math.log(8)))
+, B = b.mul(_c(8))
 , KiB = B.mul(Ki)
 , MiB = KiB.mul(Ki)
 , GiB = MiB.mul(Ki)
@@ -57,45 +58,39 @@ c = new Complex(Math.log(299792458))      //         m   s^{-1}
 , W  = J.mul(Hz)
 , V  = W.mul(A.inv())
 , Ω  = V.mul(A.inv())
-, eV = J.mul(new Complex(Math.log(1.60217657e-19)))
-, min = s.mul(new Complex(Math.log(60)))
-, hour = s.mul(new Complex(Math.log(3600)))
-, day = s.mul(new Complex(Math.log(3600*24)))
-, _0dc = K.mul(new Complex(Math.log(273.15)))
-, _100dc = K.mul(new Complex(Math.log(273.15 + 100)))
+, eV = J.mul(_c(1.60217657e-19))
+, min = s.mul(_c(60))
+, hour = min.mul(_c(60))
+, day = hour.mul(_c(24))
+, week = day.mul(_c(7))
+, _0dc = K.mul(_c(273.15))
+, _100dc = K.mul(_c(273.15 + 100))
+, e = C.mul(_c(1.60217657e-19))
+, km = k.mul(m)
+, mps = m.mul(Hz)
+, kmph = km.mul(hour.inv())
 
 var div = function (px, textContent, color) {
   var _ = document.createElement('div')
-  px *= 33; px = Math.round(px)
+  px *= 100; px = Math.round(px)
   _.textContent = textContent
   _.setAttribute('style', 'top: ' + px.toString() + 'px;')
   return _
 }
 , vals = [
-  [kg, 'kg']
-, [m, 'm' ]
-, [s, 's' ]
-, [N, 'N']
-, [J, 'J']
-, [A, 'A' ]
-, [K, 'K' ]
-, [C, 'C']
+  [kg, 'kg'], [m, 'm' ], [s, 's' ]
+, [N, 'N'], [J, 'J']
+, [A, 'A' ], [K, 'K' ], [C, 'C']
 , [Hz, 'Hz']
-, [W, 'W']
-, [V, 'V']
-, [Ω, 'Ω']
+, [W, 'W'], [V, 'V'], [Ω, 'Ω']
 , [eV, 'eV']
-, [min, 'min']
-, [hour, 'hour']
-, [day, 'day']
-, [b, 'b' ]
-, [B, 'B' ]
-, [KiB, 'KiB']
-, [MiB, 'MiB']
-, [GiB, 'GiB']
-, [TiB, 'TiB']
-, [_0dc, '0 °C']
-, [_100dc, '100 °C']
+, [min, 'min'], [hour, 'hour'], [day, 'day'], [week, 'week']
+, [b, 'b' ], [B, 'B' ]
+, [KiB, 'KiB'], [MiB, 'MiB'], [GiB, 'GiB'], [TiB, 'TiB']
+, [_0dc, '0 °C'], [_100dc, '100 °C']
+, [e, 'e']
+, [km, 'km']
+, [mps, 'm/s'], [kmph, 'km/hour']
 , [parseComplex(' 74.692083.125X'), 'mass Earth']
 , [parseComplex(' 87.407841.125X'), 'mass Sun']
 , [parseComplex(' 95.7776.125X'), 'radius Earth']
