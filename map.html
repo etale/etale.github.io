@@ -68,7 +68,8 @@ var _ = function (a, b) { return new Complex(Math.log(a), b) }
 , kyear = k.mul(year), Myear = k.mul(kyear), Gyear = k.mul(Myear)
 , _0dc = _(273.15).mul(K), _100dc = _(273.15 + 100).mul(K)
 , ec = _(1.60217657e-19).mul(C)
-, mm = _(1e-3).mul(m)
+, mm = _(1e-3).mul(m), μm = _(1e-3).mul(mm), nm = _(1e-3).mul(μm)
+, pm = _(1e-3).mul(nm), fm = _(1e-3).mul(pm)
 , ms = _(1e-3).mul(s)
 , g = _(1e-3).mul(kg)
 , mg = _(1e-3).mul(g)
@@ -89,6 +90,7 @@ var div = function (px, textContent, color) {
 , vals = [
   [kg, 'kg'], [m, 'm' ], [s, 's' ]
 , [mm, 'mm'], [ms, 'ms'], [g, 'g'], [mg, 'mg']
+, [μm, 'μm'], [nm, 'nm'], [pm, 'pm'], [fm, 'fm']
 , [N, 'N'], [J, 'J']
 , [A, 'A' ], [K, 'K' ], [C, 'C']
 , [Hz, 'Hz'], [kHz, 'kHz'], [MHz, 'MHz'], [GHz, 'GHz']
