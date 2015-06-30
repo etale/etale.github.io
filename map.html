@@ -24,60 +24,60 @@ Complex.prototype.toString = function () {
   return ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
 }
 
-var _c = function (a, b) { return new Complex(Math.log(a), b) }
-, c = _c(299792458)      //         m   s^{-1}
-, G = _c(6.67384e-11)    // kg^{-1} m^3 s^{-2}
-, h = _c(6.62606957e-34) // kg      m^2 s^{-1}
-, Boltzmann = _c(1.3806488e-23) // J K^{-1}
-, mu0 = _c(4 * Math.PI * 1e-7)  // N A^{-2}
+var _ = function (a, b) { return new Complex(Math.log(a), b) }
+, c = _(299792458)      //         m   s^{-1}
+, G = _(6.67384e-11)    // kg^{-1} m^3 s^{-2}
+, h = _(6.62606957e-34) // kg      m^2 s^{-1}
+, Boltzmann = _(1.3806488e-23) // J K^{-1}
+, mu0 = _(4 * Math.PI * 1e-7)  // N A^{-2}
 
 /*
    2010 CODATA recommended values
    http://physics.nist.gov/constants
  */
-, tau = _c(2 * Math.PI, 0.25)
+, tau = _(2 * Math.PI, 0.25)
 , e = new Complex(1)
-, two = _c(2)
-, one = _c(1)
-, Ki = _c(1024)
-, k = _c(1000)
+, one = _(1)
+, two = _(2)
+, half = two.inv()
+, k = _(1000)
+, Ki = _(1024)
 , b = two.log()
-, B = b.mul(_c(8))
-, KiB = B.mul(Ki)
-, MiB = KiB.mul(Ki)
-, GiB = MiB.mul(Ki)
-, TiB = GiB.mul(Ki)
+, B = _(8).mul(b)
+, KiB = Ki.mul(B)
+, MiB = Ki.mul(KiB)
+, GiB = Ki.mul(MiB)
+, TiB = Ki.mul(GiB)
 
-, kg = c.inv()        .mul(G)      .mul(h.inv()).mul(tau).log().mul(two.inv()).exp()
-, m  = c.mul(c).mul(c).mul(G.inv()).mul(h.inv()).mul(tau).log().mul(two.inv()).exp()
+, kg = c.inv()        .mul(G)      .mul(h.inv()).mul(tau).log().mul(half).exp()
+, m  = c.mul(c).mul(c).mul(G.inv()).mul(h.inv()).mul(tau).log().mul(half).exp()
 , s  = m.mul(c)
-, N  = kg.mul(m).mul(s.inv()).mul(s.inv())
+, Hz = s.inv(), kHz = k.mul(Hz), MHz = k.mul(kHz), GHz = k.mul(MHz)
+, N  = kg.mul(m).mul(Hz).mul(Hz)
 , J  = N.mul(m)
-, A  = mu0.mul(N).log().mul(two.inv()).exp()
+, A  = mu0.mul(N).log().mul(half).exp()
 , K  = Boltzmann.mul(J)
 , C  = A.mul(s)
-, Hz = s.inv()
+
 , W  = J.mul(Hz)
 , V  = W.mul(A.inv())
 , Ω  = V.mul(A.inv())
-, eV = J.mul(_c(1.60217657e-19))
-, min = s.mul(_c(60))
-, hour = min.mul(_c(60))
-, day = hour.mul(_c(24))
-, week = day.mul(_c(7))
-, year = day.mul(_c(365.25))
-, kyear = year.mul(k)
-, Myear = kyear.mul(k)
-, Gyear = Myear.mul(k)
-, _0dc = K.mul(_c(273.15))
-, _100dc = K.mul(_c(273.15 + 100))
-, ec = C.mul(_c(1.60217657e-19))
+, eV = _(1.60217657e-19).mul(J)
+, min = _(60).mul(s), hour = _(60).mul(min), day = _(24).mul(hour)
+, week = _(7).mul(day), year = _(365.25).mul(day)
+, kyear = k.mul(year), Myear = k.mul(kyear), Gyear = k.mul(Myear)
+, _0dc = _(273.15).mul(K), _100dc = _(273.15 + 100).mul(K)
+, ec = _(1.60217657e-19).mul(C)
+, mm = _(1e-3).mul(m)
+, ms = _(1e-3).mul(s)
+, g = _(1e-3).mul(kg)
+, mg = _(1e-3).mul(g)
 , km = k.mul(m)
 , mps = m.mul(Hz)
 , kmph = km.mul(hour.inv())
-, me = kg.mul(_c(9.10938291e-31))
-, mp = kg.mul(_c(1.672621777e-27))
-, Mg = kg.mul(k)
+, me = _(9.10938291e-31).mul(kg)
+, mp = _(1.672621777e-27).mul(kg)
+, Mg = k.mul(kg)
 
 var div = function (px, textContent, color) {
   var _ = document.createElement('div')
@@ -88,9 +88,10 @@ var div = function (px, textContent, color) {
 }
 , vals = [
   [kg, 'kg'], [m, 'm' ], [s, 's' ]
+, [mm, 'mm'], [ms, 'ms'], [g, 'g'], [mg, 'mg']
 , [N, 'N'], [J, 'J']
 , [A, 'A' ], [K, 'K' ], [C, 'C']
-, [Hz, 'Hz']
+, [Hz, 'Hz'], [kHz, 'kHz'], [MHz, 'MHz'], [GHz, 'GHz']
 , [W, 'W'], [V, 'V'], [Ω, 'Ω']
 , [eV, 'eV']
 , [min, 'min'], [hour, 'hour'], [day, 'day'], [week, 'week'], [year, 'year']
@@ -98,7 +99,7 @@ var div = function (px, textContent, color) {
 , [b, 'b' ], [B, 'B' ]
 , [KiB, 'KiB'], [MiB, 'MiB'], [GiB, 'GiB'], [TiB, 'TiB']
 , [_0dc, '0 °C'], [_100dc, '100 °C']
-, [ec, 'charge']
+, [ec, 'e']
 , [km, 'km']
 , [mps, 'm/s'], [kmph, 'km/hour']
 , [parseComplex(' 74.692083.125X'), 'mass Earth']
@@ -106,9 +107,10 @@ var div = function (px, textContent, color) {
 , [parseComplex(' 95.7776.125X'), 'radius Earth']
 , [parseComplex('100.4705.125X'), 'radius Sun' ]
 , [parseComplex('105.8416.125X'), 'orbit Earth',  ]
+, [_(384400).mul(km), 'orbit Moon']
 , [parseComplex('109.5165.125X'), 'orbit Plute',  ]
-, [parseComplex('140.242228.125X'), 'time Universe', ]
-, [tau, '2πi = h'], [one, '1 = c = G'], [e, 'e']
+, [parseComplex('140.242228.125X'), 'age Universe', ]
+, [tau, ''], [one, ''], [e, '']
 , [me, 'mass electron']
 , [mp, 'mass proton']
 , [Mg, 'Mg']
