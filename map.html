@@ -26,13 +26,12 @@ Complex.prototype.toString = function () {
 
 var _ = function (a, b) { return new Complex(Math.log(a), b) }
 , c = _(299792458)      //         m   s^{-1}
-, G = _(6.67384e-11)    // kg^{-1} m^3 s^{-2}
-, h = _(6.62606957e-34) // kg      m^2 s^{-1}
-, Boltzmann = _(1.3806488e-23) // J K^{-1}
+, G = _(6.67408e-11)    // kg^{-1} m^3 s^{-2}
+, h = _(6.626070040e-34) // kg      m^2 s^{-1}
+, Boltzmann = _(1.38064852e-23) // J K^{-1}
 , mu0 = _(4 * Math.PI * 1e-7)  // N A^{-2}
-
 /*
-   2010 CODATA recommended values
+   2014 CODATA recommended values
    http://physics.nist.gov/constants
  */
 , tau = _(2 * Math.PI, 0.25)

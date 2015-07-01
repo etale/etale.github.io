@@ -15,10 +15,9 @@ Complex.precision = 6
 
 var
 c = new Complex(Math.log(299792458)),      //         m   s^{-1}
-G = new Complex(Math.log(6.67384e-11)),    // kg^{-1} m^3 s^{-2}
-h = new Complex(Math.log(6.62606957e-34)), // kg      m^2 s^{-1}
-Boltzmann = new Complex(Math.log(1.3806488e-23)), // J K^{-1}
-
+G = new Complex(Math.log(6.67408e-11)),    // kg^{-1} m^3 s^{-2}
+h = new Complex(Math.log(6.626070040e-34)), // kg      m^2 s^{-1}
+Boltzmann = new Complex(Math.log(1.38064852e-23)), // J K^{-1}
 /*
    2010 CODATA recommended values
    http://physics.nist.gov/constants
@@ -52,14 +51,14 @@ makeCell = function() {
   label = html.td(),
   input = html.input(),
   data  = html.td()
-  
+
   label.appendChild(input)
   cell.appendChild(label)
   cell.appendChild(data)
 
   cell.label = input
   cell.data = data
-  
+
   input.cell = cell
   input.onchange = function() {
     if (this.value === '') {
@@ -98,10 +97,10 @@ push = function() {
 },
 pop = function() {
   var _ = e.value
-  
+
   e.previousSibling &&
   (e.previousSibling.data[touch](), calc.display.removeChild(e.nextSibling))
-  
+
   return _
 },
 set = function(a) {
@@ -109,7 +108,7 @@ set = function(a) {
 },
 numeric = function() {
   var label = this.textContent, _
-  
+
   e.value && push()
   _ = e.data
   _.textContent = (_.textContent === '0' ? '' : _.textContent) + label
@@ -206,7 +205,7 @@ touch = html.div().hasOwnProperty('ontouchend') ? 'ontouchend' : 'onmouseup';
 
 calc.display = html.table()
 calc.keypad  = html.table()
-  
+
 e = makeCell()
 calc.display.appendChild(e)
 calc.display.classList.add('display');
@@ -219,7 +218,7 @@ calc.display.classList.add('display');
 
   tds.forEach(function (td) {
     var _ = html.td()
-              
+
     _.textContent = td
     _[touch] = keys[td]
     tr.appendChild(_)
