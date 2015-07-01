@@ -19,7 +19,7 @@ G = new Complex(Math.log(6.67408e-11)),    // kg^{-1} m^3 s^{-2}
 h = new Complex(Math.log(6.626070040e-34)), // kg      m^2 s^{-1}
 Boltzmann = new Complex(Math.log(1.38064852e-23)), // J K^{-1}
 /*
-   2010 CODATA recommended values
+   2014 CODATA recommended values
    http://physics.nist.gov/constants
  */
 tau = new Complex(Math.log(2 * Math.PI), 0.25),
