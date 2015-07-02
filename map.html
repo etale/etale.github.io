@@ -22,10 +22,7 @@ div.v {
 div.p {
   font-size: 1.5rem;
   position: absolute;
-  color: #eee;
-  background-color: #444;
-  padding: 0.25rem;
-  border: 0;
+  background-color: #eee;
 }
 </style>
 <script src="js.js"></script>
@@ -103,8 +100,9 @@ var lineh = function (ord, textContent, color) {
   var _ = document.createElement('div')
   ord -= delta
   ord *= 100; ord = Math.round(ord)
+  color = color || 'silver'
   _.textContent = textContent
-  _.setAttribute('style', 'top: ' + ord.toString() + 'px;')
+  _.setAttribute('style', 'top: ' + ord.toString() + 'px;' + 'background-color: ' + color)
   _.setAttribute('class', 'h')
   return _
 }
@@ -153,7 +151,6 @@ var lineh = function (ord, textContent, color) {
 , [_(384400).mul(km), 'orbit Moon']
 , [_(39.445 * 149600000).mul(km), 'orbit Plute',  ]
 , [_(13.772e9).mul(year), 'age Universe', ]
-, [tau, ''], [one, ''], [e, '']
 , [me, 'mass electron']
 , [mp, 'mass proton']
 , [Mg, 'Mg']
@@ -169,9 +166,15 @@ onload = function () {
   var append = document.body.appendChild.bind(document.body)
   delta = vals[0][0].ord - 1
 
+  var i = Math.floor(vals[0][0].ord)
+  while (i < vals[vals.length - 1][0].ord + 1) {
+    append(lineh(i, i.toString()))
+    i++
+  }
+
   vals.forEach(function (item) {
-    append(label(item))
     append(point(item[0], item[1]))
+    append(lineh(item[0].ord, '', 'black'))
   })
   ;[0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875].forEach(function (arg) {
     append(linev(arg, arg.toString()))
