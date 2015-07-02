@@ -38,63 +38,63 @@ Complex.prototype.toString = function () {
 
 var delta
 , _ = function (a, b) { return new Complex(Math.log(a), b) }
-, c = _(299792458)      //         m   s^{-1}
-, G = _(6.67408e-11)    // kg^{-1} m^3 s^{-2}
-, h = _(6.626070040e-34) // kg      m^2 s^{-1}
-, Boltzmann = _(1.38064852e-23) // J K^{-1}
-, mu0 = _(4 * Math.PI * 1e-7)  // N A^{-2}
+, _c = _(299792458)              //         m   s^{-1}
+, _G = _(6.67408e-11)            // kg^{-1} m^3 s^{-2}
+, _h = _(6.626070040e-34)        // kg      m^2 s^{-1}
+, _Boltzmann = _(1.38064852e-23) // J K^{-1}
+, _mu0 = _(4 * Math.PI * 1e-7)   // N A^{-2}
 /*
    2014 CODATA recommended values
    http://physics.nist.gov/constants
  */
+, prefix = {}, unit = {}
 , tau = _(2 * Math.PI, 0.25)
-, e = new Complex(1)
 , one = _(1)
 , two = _(2)
 , half = two.inv()
-, k = _(1000)
 , Ki = _(1024)
+, Mi = Ki.mul(Ki)
+, Gi = Mi.mul(Ki)
+, Ti = Gi.mul(Ki)
 , b = two.log()
 , B = _(8).mul(b)
 , KiB = Ki.mul(B)
-, MiB = Ki.mul(KiB)
-, GiB = Ki.mul(MiB)
-, TiB = Ki.mul(GiB)
-
-, kg = c.inv()        .mul(G)      .mul(h.inv()).mul(tau).log().mul(half).exp()
-, m  = c.mul(c).mul(c).mul(G.inv()).mul(h.inv()).mul(tau).log().mul(half).exp()
-, s  = m.mul(c)
-kg.arg = m.arg = s.arg = 0.125
-var Hz = s.inv(), kHz = k.mul(Hz), MHz = k.mul(kHz), GHz = k.mul(MHz)
-, N  = kg.mul(m).mul(Hz).mul(Hz)
-, J  = N.mul(m)
-, A  = mu0.mul(N).log().mul(half).exp()
-A.arg = 0
-var K  = Boltzmann.mul(J)
-, C  = A.mul(s)
-
-, W  = J.mul(Hz)
-, V  = W.mul(A.inv())
-, Ω  = V.mul(A.inv())
-, eV = _(1.60217657e-19).mul(J)
-, keV = k.mul(eV), MeV = k.mul(keV), GeV = k.mul(MeV)
-, min = _(60).mul(s), hour = _(60).mul(min), day = _(24).mul(hour)
+, MiB = Mi.mul(B)
+, GiB = Gi.mul(B)
+, TiB = Ti.mul(B)
+, c_ = _c.inv(), G_ = _G.inv(), h_ = _h.inv()
+prefix[''] = new Complex
+prefix.k = _(1000)
+prefix.M = prefix.k.mul(prefix.k)
+prefix.G = prefix.M.mul(prefix.k)
+prefix.T = prefix.G.mul(prefix.k)
+prefix.m = prefix.k.inv()
+prefix.μ = prefix.m.mul(prefix.m)
+prefix.n = prefix.μ.mul(prefix.m)
+prefix.p = prefix.n.mul(prefix.m)
+var kg = c_                .mul(_G).mul(h_).mul(tau).log().mul(half).exp()
+unit.m = _c.mul(_c).mul(_c).mul(G_).mul(h_).mul(tau).log().mul(half).exp()
+unit.s = unit.m.mul(_c)
+kg.arg = unit.m.arg = unit.s.arg = 0.125
+unit.g = prefix.m.mul(kg)
+unit.Hz = unit.s.inv()
+unit.N  = kg.mul(unit.m).mul(unit.Hz).mul(unit.Hz)
+unit.J  = unit.N.mul(unit.m)
+unit.A  = _mu0.mul(unit.N).log().mul(half).exp()
+unit.A.arg = 0
+unit.K  = _Boltzmann.mul(unit.J)
+unit.C  = unit.A.mul(unit.s)
+unit.W  = unit.J.mul(unit.Hz)
+unit.V  = unit.W.mul(unit.A.inv())
+unit.Ω  = unit.V.mul(unit.A.inv())
+var eV = _(1.60217657e-19).mul(unit.J)
+, km = prefix.k.mul(unit.m)
+, min = _(60).mul(unit.s), hour = _(60).mul(min), day = _(24).mul(hour)
 , week = _(7).mul(day), year = _(365.25).mul(day)
-, kyear = k.mul(year), Myear = k.mul(kyear), Gyear = k.mul(Myear)
-, _0dc = _(273.15).mul(K), _100dc = _(273.15 + 100).mul(K)
-, ec = _(1.60217657e-19).mul(C)
-, mm = _(1e-3).mul(m), μm = _(1e-3).mul(mm), nm = _(1e-3).mul(μm)
-, pm = _(1e-3).mul(nm), fm = _(1e-3).mul(pm)
-, ms = _(1e-3).mul(s), μs = _(1e-3).mul(ms), ns = _(1e-3).mul(μs)
-, ps = _(1e-3).mul(ns), fs = _(1e-3).mul(ps)
-, g = _(1e-3).mul(kg)
-, mg = _(1e-3).mul(g)
-, km = k.mul(m)
-, mps = m.mul(Hz)
-, kmph = km.mul(hour.inv())
+, _0dc = _(273.15).mul(unit.K), _100dc = _(273.15 + 100).mul(unit.K)
+, e = _(1.60217657e-19).mul(unit.C)
 , me = _(9.10938291e-31).mul(kg)
 , mp = _(1.672621777e-27).mul(kg)
-, Mg = k.mul(kg)
 
 var lineh = function (ord, textContent, color) {
   var _ = document.createElement('div')
@@ -125,24 +125,22 @@ var lineh = function (ord, textContent, color) {
   _.setAttribute('class', 'p')
   return _
 }
-, vals = [
-  [kg, 'kg'], [m, 'm' ], [s, 's' ]
-, [mm, 'mm'], [ms, 'ms'], [g, 'g'], [mg, 'mg']
-, [μm, 'μm'], [nm, 'nm'], [pm, 'pm'], [fm, 'fm']
-, [μs, 'μs'], [ns, 'ns'], [ps, 'ps'], [fs, 'fs']
-, [N, 'N'], [J, 'J']
-, [A, 'A' ], [K, 'K' ], [C, 'C']
-, [Hz, 'Hz'], [kHz, 'kHz'], [MHz, 'MHz'], [GHz, 'GHz']
-, [W, 'W'], [V, 'V'], [Ω, 'Ω']
-, [eV, 'eV'], [keV, 'keV'], [MeV, 'MeV'], [GeV, 'GeV']
+, vals = ['g', 'm', 's', 'N', 'J', 'A', 'K', 'C', 'Hz', 'W', 'V', 'Ω'].reduce(function (prev, u) {
+  return prev.concat(['', 'k', 'M', 'G', 'T', 'm', 'μ', 'n', 'p'].map(function (p) {
+    return [prefix[p].mul(unit[u]), p + u]
+  }))
+}, []).concat([
+  [eV, 'eV']
 , [min, 'min'], [hour, 'hour'], [day, 'day'], [week, 'week'], [year, 'year']
-, [kyear, 'Thousand years'], [Myear, 'Million years'], [Gyear, 'Billion years']
+, [prefix.k.mul(year), 'Thousand years']
+, [prefix.M.mul(year), 'Million years']
+, [prefix.G.mul(year), 'Billion years']
 , [b, 'b' ], [B, 'B' ]
 , [KiB, 'KiB'], [MiB, 'MiB'], [GiB, 'GiB'], [TiB, 'TiB']
 , [_0dc, '0 °C'], [_100dc, '100 °C']
-, [ec, 'e']
-, [km, 'km']
-, [mps, 'm/s'], [kmph, 'km/hour']
+, [e, 'e']
+, [unit.m.mul(unit.Hz), 'm/s'],
+, [prefix.k.mul(unit.m).mul(hour.inv()), 'km/hour']
 , [_(5.972e24).mul(kg), 'mass Earth']
 , [_(1.989e30).mul(kg), 'mass Sun']
 , [_(6371).mul(km), 'radius Earth']
@@ -153,8 +151,7 @@ var lineh = function (ord, textContent, color) {
 , [_(13.772e9).mul(year), 'age Universe', ]
 , [me, 'mass electron']
 , [mp, 'mass proton']
-, [Mg, 'Mg']
-].sort(function (a, b) {
+]).sort(function (a, b) {
   return a[0].ord - b[0].ord
 })
 
@@ -167,11 +164,11 @@ onload = function () {
   delta = vals[0][0].ord - 1
 
   var i = Math.floor(vals[0][0].ord)
-  while (i < vals[vals.length - 1][0].ord + 1) {
+  while (i < vals[vals.length - 2][0].ord + 1) {
     append(lineh(i, i.toString()))
     i++
   }
-  ;[0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875].forEach(function (arg) {
+  ;[0, 0.125, 0.25, 0.375, 0.625, 0.75, 0.875].forEach(function (arg) {
     append(linev(arg, arg.toString()))
   })
   vals.forEach(function (item) {
