@@ -139,16 +139,16 @@ var lineh = function (ord, textContent, color) {
 , [KiB, 'KiB'], [MiB, 'MiB'], [GiB, 'GiB'], [TiB, 'TiB']
 , [_0dc, '0 °C'], [_100dc, '100 °C']
 , [e, 'e']
-, [unit.m.mul(unit.Hz), 'm/s'],
+, [unit.m.mul(unit.Hz), 'm/s']
 , [prefix.k.mul(unit.m).mul(hour.inv()), 'km/hour']
 , [_(5.972e24).mul(kg), 'mass Earth']
 , [_(1.989e30).mul(kg), 'mass Sun']
 , [_(6371).mul(km), 'radius Earth']
 , [_(695800).mul(km), 'radius Sun' ]
-, [_(149600000).mul(km), 'orbit Earth',  ]
+, [_(149600000).mul(km), 'orbit Earth']
 , [_(384400).mul(km), 'orbit Moon']
-, [_(39.445 * 149600000).mul(km), 'orbit Plute',  ]
-, [_(13.772e9).mul(year), 'age Universe', ]
+, [_(39.445 * 149600000).mul(km), 'orbit Plute']
+, [_(13.772e9).mul(year), 'age Universe']
 , [me, 'mass electron']
 , [mp, 'mass proton']
 ]).sort(function (a, b) {
@@ -164,7 +164,7 @@ onload = function () {
   delta = vals[0][0].ord - 1
 
   var i = Math.floor(vals[0][0].ord)
-  while (i < vals[vals.length - 2][0].ord + 1) {
+  while (i < vals[vals.length - 1][0].ord + 1) {
     append(lineh(i, i.toString()))
     i++
   }
