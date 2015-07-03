@@ -68,10 +68,18 @@ prefix.k = _(1000)
 prefix.M = prefix.k.mul(prefix.k)
 prefix.G = prefix.M.mul(prefix.k)
 prefix.T = prefix.G.mul(prefix.k)
+prefix.P = prefix.T.mul(prefix.k)
+prefix.E = prefix.P.mul(prefix.k)
+prefix.Z = prefix.E.mul(prefix.k)
+prefix.Y = prefix.Z.mul(prefix.k)
 prefix.m = prefix.k.inv()
 prefix.μ = prefix.m.mul(prefix.m)
 prefix.n = prefix.μ.mul(prefix.m)
 prefix.p = prefix.n.mul(prefix.m)
+prefix.f = prefix.p.mul(prefix.m)
+prefix.a = prefix.f.mul(prefix.m)
+prefix.z = prefix.a.mul(prefix.m)
+prefix.y = prefix.z.mul(prefix.m)
 var kg = c_                .mul(_G).mul(h_).mul(tau).log().mul(half).exp()
 unit.m = _c.mul(_c).mul(_c).mul(G_).mul(h_).mul(tau).log().mul(half).exp()
 unit.s = unit.m.mul(_c)
@@ -87,7 +95,14 @@ unit.C  = unit.A.mul(unit.s)
 unit.W  = unit.J.mul(unit.Hz)
 unit.V  = unit.W.mul(unit.A.inv())
 unit.Ω  = unit.V.mul(unit.A.inv())
+unit.Pa  = unit.N.mul(unit.m.mul(unit.m).inv())
+// unit.F  = unit.C.mul(unit.V.inv())
+// unit.S  = unit.A.mul(unit.V.inv())
+unit.Wb = unit.V.mul(unit.s)
+unit.T  = unit.Wb.mul(unit.m.mul(unit.m).inv())
+// unit.H  = unit.Wb.mul(unit.A.inv())
 var eV = _(1.60217657e-19).mul(unit.J)
+, atm = _(101325).mul(unit.Pa)
 , km = prefix.k.mul(unit.m)
 , min = _(60).mul(unit.s), hour = _(60).mul(min), day = _(24).mul(hour)
 , week = _(7).mul(day), year = _(365.25).mul(day)
@@ -125,12 +140,12 @@ var lineh = function (ord, textContent, color) {
   _.setAttribute('class', 'p')
   return _
 }
-, vals = ['g', 'm', 's', 'N', 'J', 'A', 'K', 'C', 'Hz', 'W', 'V', 'Ω'].reduce(function (prev, u) {
-  return prev.concat(['', 'k', 'M', 'G', 'T', 'm', 'μ', 'n', 'p'].map(function (p) {
+, vals = Object.keys(unit).reduce(function (prev, u) {
+  return prev.concat(Object.keys(prefix).map(function (p) {
     return [prefix[p].mul(unit[u]), p + u]
   }))
 }, []).concat([
-  [eV, 'eV']
+  [eV, 'eV'], [atm, 'atm']
 , [min, 'min'], [hour, 'hour'], [day, 'day'], [week, 'week'], [year, 'year']
 , [prefix.k.mul(year), 'Thousand years']
 , [prefix.M.mul(year), 'Million years']
