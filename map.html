@@ -5,23 +5,27 @@
 <meta charset="UTF-8">
 <title>Quantities</title>
 <style>
-div.h {
+div {
   font-size: 1rem;
   position: absolute;
-  width: 100%;
-  height: 1px;
   background-color: silver;
 }
-div.v {
-  font-size: 1rem;
+.h {
+  width: 100%;
+  height: 1px;
+}
+.g {
+  width: 100%;
+  height: 1px;
+  background-color: black;
+}
+.v {
   position: fixed;
   width: 1px;
   height: 100%;
-  background-color: silver;
 }
-div.p {
+.label {
   font-size: 1.5rem;
-  position: absolute;
   background-color: #eee;
 }
 </style>
@@ -110,26 +114,25 @@ var eV = _(1.60217657e-19).mul(unit.J)
 , e = _(1.60217657e-19).mul(unit.C)
 , me = _(9.10938291e-31).mul(kg)
 , mp = _(1.672621777e-27).mul(kg)
-
-var lineh = function (ord, textContent, color) {
+, lineh = function (ord, textContent, klass) {
   var _ = document.createElement('div')
   ord -= delta
   ord *= 100; ord = Math.round(ord)
-  color = color || 'silver'
+  klass = klass || 'h'
   _.textContent = textContent
-  _.setAttribute('style', 'top: ' + ord.toString() + 'px;' + 'background-color: ' + color)
-  _.setAttribute('class', 'h')
+  _.setAttribute('style', 'top: ' + ord.toString() + 'px;')
+  _.setAttribute('class', klass)
   return _
 }
-, linev = function (arg, textContent, color) {
+, linev = function (arg, textContent, klass) {
   var _ = document.createElement('div')
   arg += 0.5; arg %= 1; arg *= 100
   _.textContent = textContent
   _.setAttribute('style', 'left: ' + arg.toString() + '%;')
-  _.setAttribute('class', 'v')
+  _.setAttribute('class', klass)
   return _
 }
-, point = function (z, textContent, color) {
+, label = function (z, textContent, klass) {
   var _ = document.createElement('div')
     , ord = z.ord, arg = z.arg
   ord -= delta
@@ -137,7 +140,7 @@ var lineh = function (ord, textContent, color) {
   arg += 0.5; arg %= 1; arg *= 100
   _.textContent = textContent
   _.setAttribute('style', 'top: ' + ord.toString() + 'px;' + 'left: ' + arg.toString() + '%;')
-  _.setAttribute('class', 'p')
+  _.setAttribute('class', 'label')
   return _
 }
 , vals = Object.keys(unit).reduce(function (prev, u) {
@@ -172,9 +175,9 @@ var lineh = function (ord, textContent, color) {
 
 Complex.precision = 6
 onload = function () {
-  var label = function (item) {
-    return lineh(item[0].ord, item[0].toString())
-  }
+//  var label = function (item) {
+//    return lineh(item[0].ord, item[0].toString())
+//  }
   var append = document.body.appendChild.bind(document.body)
   delta = vals[0][0].ord - 1
 
@@ -184,11 +187,13 @@ onload = function () {
     i++
   }
   ;[0, 0.125, 0.25, 0.375, 0.625, 0.75, 0.875].forEach(function (arg) {
-    append(linev(arg, arg.toString()))
+    append(linev(arg, arg.toString(), 'v'))
   })
   vals.forEach(function (item) {
-    append(point(item[0], item[1]))
-    append(lineh(item[0].ord, '', 'black'))
+    append(lineh(item[0].ord, '', 'g'))
+  })
+  vals.forEach(function (item) {
+    append(label(item[0], item[1]))
   })
 }
 </script>
