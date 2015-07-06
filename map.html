@@ -15,6 +15,7 @@ div {
   height: 1px;
 }
 .g {
+  left: 2.5em;
   width: 100%;
   height: 1px;
   background-color: black;
@@ -187,10 +188,10 @@ onload = function () {
     i++
   }
   ;[0, 0.125, 0.25, 0.375, 0.625, 0.75, 0.875].forEach(function (arg) {
-    append(linev(arg, arg.toString(), 'v'))
+    append(linev(arg, '.' + arg.toFixed(3).split('.')[1], 'v'))
   })
   vals.forEach(function (item) {
-    append(lineh(item[0].ord, '', 'g'))
+    append(lineh(item[0].ord, '.' + item[0].ord.toFixed(3).split('.')[1], 'g'))
   })
   vals.forEach(function (item) {
     append(label(item[0], item[1]))
