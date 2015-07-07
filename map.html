@@ -160,25 +160,25 @@ var eV = _(1.60217657e-19).mul(unit.J)
 , [e, 'e']
 , [unit.m.mul(unit.Hz), 'm/s']
 , [prefix.k.mul(unit.m).mul(hour.inv()), 'km/hour']
+, [_(7.347673e22).mul(kg), 'mass Moon']
 , [_(5.972e24).mul(kg), 'mass Earth']
 , [_(1.989e30).mul(kg), 'mass Sun']
+, [_(3474.3).mul(km), 'radius Moon']
 , [_(6371).mul(km), 'radius Earth']
 , [_(695800).mul(km), 'radius Sun' ]
-, [_(149600000).mul(km), 'orbit Earth']
 , [_(384400).mul(km), 'orbit Moon']
+, [_(149600000).mul(km), 'orbit Earth']
 , [_(39.445 * 149600000).mul(km), 'orbit Plute']
 , [_(13.772e9).mul(year), 'age Universe']
 , [me, 'mass electron']
 , [mp, 'mass proton']
+, [_(12 * 1.660538921e-27).mul(kg), 'mass C12']
 ]).sort(function (a, b) {
   return a[0].ord - b[0].ord
 })
 
 Complex.precision = 6
 onload = function () {
-//  var label = function (item) {
-//    return lineh(item[0].ord, item[0].toString())
-//  }
   var append = document.body.appendChild.bind(document.body)
   delta = vals[0][0].ord - 1
 
