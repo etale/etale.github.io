@@ -1,0 +1,36 @@
+<!doctype html>
+<title>scale</title>
+<script>
+var a = []
+  , i = 0
+  , svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  , g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  , lines = []
+svg.setAttribute('viewBox', '0 0 1 1')
+g.setAttribute('stroke', 'black')
+svg.appendChild(g)
+while (i < 1024) {
+  var l = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+  l.setAttribute('x1', '0'); l.setAttribute('y1', '0')
+  l.setAttribute('x2', '1'); l.setAttribute('y2', '0')
+  g.appendChild(l); lines.push(l); a.push(i++)
+}
+onload = function () {
+  document.body.appendChild(svg)
+  onhashchange()
+}
+onhashchange = function () {
+  var n = parseInt(location.hash.slice(1)) || 100
+  g.setAttribute('stroke-width', (0.05/n).toString())
+  lines.forEach(function (l, i) {
+    var a = (Math.exp(i/n) - 1)/(Math.E - 1)
+    if (i < n) {
+      l.setAttribute('y1', a.toString())
+      l.setAttribute('y2', a.toString())
+    } else {
+      l.setAttribute('y1', '0')
+      l.setAttribute('y2', '0')
+    }
+  })
+}
+</script>
