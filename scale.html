@@ -1,16 +1,15 @@
 <!doctype html>
 <title>scale</title>
 <script>
-var a = []
-  , i = 0
-  , svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  , g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+var a = [], i = 0
+  , create = document.createElementNS.bind(document, 'http://www.w3.org/2000/svg')
+  , svg = create('svg'), g = create('g')
   , lines = []
 svg.setAttribute('viewBox', '0 0 1 1')
 g.setAttribute('stroke', 'black')
 svg.appendChild(g)
 while (i < 1024) {
-  var l = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+  var l = create('line')
   l.setAttribute('x1', '0'); l.setAttribute('y1', '0')
   l.setAttribute('x2', '1'); l.setAttribute('y2', '0')
   g.appendChild(l); lines.push(l); a.push(i++)
