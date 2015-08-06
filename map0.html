@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
 <meta charset="UTF-8">
-<title>Quantities</title>
+<title>Scale</title>
 <style>
 div {
   font-size: 1rem;
@@ -25,7 +25,27 @@ div {
 </style>
 <script src="js.js"></script>
 <script>
-
+var pinching = false, d0 = 1, d1 = 1
+document.addEventListener('touchmove', function (e){
+  if (e.touches.length == 2) {
+    if (!pinching) {
+      pinching = true;
+      d0 = Math.sqrt(
+        Math.pow(e.touches[1].screenX - e.touches[0].screenX, 2) +
+        Math.pow(e.touches[1].screenY - e.touches[0].screenY, 2)
+      );
+    } else {
+      d1 = Math.sqrt(
+        Math.pow(e.touches[1].screenX - e.touches[0].screenX, 2) +
+        Math.pow(e.touches[1].screenY - e.touches[0].screenY, 2)
+      );
+      document.querySelector("#b").style.zoom = d1 / d0;
+    }
+  }
+});
+document.addEventListener("touchend", function(e){
+  pinching = false;
+});
 onload = onhashchange = function () {
   var append = document.body.appendChild.bind(document.body)
   , v = function (a) {
