@@ -184,7 +184,7 @@ var eV = _(1.60217657e-19).mul(unit.J)
   ord *= 100; ord = Math.round(ord)
   arg += 0.5; arg %= 1; arg *= 100
   _.textContent = textContent
-  _.setAttribute('style', 'top: ' + ord.toString() + 'px;' + 'left: ' + arg.toString() + '%;')
+  _.setAttribute('style', 'top: ' + ord.toString() + 'px; left: ' + arg.toString() + '%;')
   _.setAttribute('class', 'label')
   return _
 }
