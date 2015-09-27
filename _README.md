@@ -1,7 +1,7 @@
 etale.github.io
 ===============
 
-[Render TeX](javascript:alert('hello'))
+[Render TeX](//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML.js)
 
 Everyone knows
 the rationals $\mathbb{Q} = \varinjlim \mathbb{Z}/s$,
