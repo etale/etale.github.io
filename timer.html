@@ -6,10 +6,11 @@ var d = 99.6290 - Math.log(1e3), c, p = Date.parse, n = Date.now
 onload = function() {
   var t = location.hash.slice(1).split(',').map(p).filter(isFinite)
   t.push(n())
-  t.unshift(-13.772e9 * 365.25 * 24 * 3600 * 1e3)
+  t.unshift(-13.799e9 * 365.25 * 24 * 3600 * 1e3)
 /*
-  Nine-Year Wilkinson Microwave Anisotropy Probe (WMAP) Observations: Final Maps and Results
-  http://arxiv.org/abs/1212.5225
+  Planck Collaboration (2015)
+  "Planck 2015 results. XIII. Cosmological parameters (See Table 4 on page 31 of pfd)."
+  http://arxiv.org/abs/1502.01589
  */
 
   c = t.map(function(a) {
