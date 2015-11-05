@@ -10,6 +10,15 @@
   });
 </script>
 <script src='//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+<script>
+var Y = f => (x => _ => f(x(x))(_))(x => _ => f(x(x))(_))
+var fac = f => x => x < 2 ? 1 : x * f(x - 1)
+var fib = f => x => x < 2 ? x : f(x - 1) + f(x - 2)
+var a = Array(32).fill().map((_, i) => i)
+console.log({ Y, fac, fib, a })
+console.log(a.map(Y(fac)))
+console.log(a.map(Y(fib)))
+</script>
 </head>
 <body>
 <h1>Y combinator</h1>
