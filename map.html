@@ -61,12 +61,20 @@ var delta
 , Mi = Ki.mul(Ki)
 , Gi = Mi.mul(Ki)
 , Ti = Gi.mul(Ki)
+, Pi = Ti.mul(Ki)
+, Ei = Pi.mul(Ki)
+, Zi = Ei.mul(Ki)
+, Yi = Zi.mul(Ki)
 , b = two.log()
 , B = _(8).mul(b)
 , KiB = Ki.mul(B)
 , MiB = Mi.mul(B)
 , GiB = Gi.mul(B)
 , TiB = Ti.mul(B)
+, PiB = Pi.mul(B)
+, EiB = Ei.mul(B)
+, ZiB = Zi.mul(B)
+, YiB = Yi.mul(B)
 , c_ = _c.inv(), G_ = _G.inv(), h_ = _h.inv()
 prefix[''] = new Complex
 prefix.k = _(1000)
@@ -127,6 +135,7 @@ var eV = _(1.6021766208e-19).mul(unit.J)
 , [prefix.G.mul(year), 'Billion years']
 , [b, 'b' ], [B, 'B' ]
 , [KiB, 'KiB'], [MiB, 'MiB'], [GiB, 'GiB'], [TiB, 'TiB']
+, [PiB, 'PiB'], [EiB, 'EiB'], [ZiB, 'ZiB'], [YiB, 'YiB']
 , [_0dc, '0 °C'], [_100dc, '100 °C']
 , [e, 'e']
 , [unit.m.mul(unit.Hz), 'm/s']
