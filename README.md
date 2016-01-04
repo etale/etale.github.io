@@ -36,7 +36,9 @@ A calculator works on finite points.
 
 A calculator works at infinity point.
 
-+ Planck Unit System (c = h / 2πi = G = 1)
++ Planck Unit System (
+![c=h/2πi=G=1](https://latex.codecogs.com/svg.latex?c=h/2\pi%20i=G=1)
+)
   + `kg` kilogram
   + `m` meter
   + `s` second
@@ -46,9 +48,9 @@ A calculator works at infinity point.
   + `†` conjugate
 + Logarithmic representation
   + a.b.c = a.b + 2πi × 0.c
-    + `.``.``5``↑` =  0.0 + 2πi × 0.5 = πi
+    + `.` `.` `5` `↑` =  0.0 + 2πi × 0.5 = πi
   + z X = exp z
-    + `0``exp` = 1
-    + `1``exp` = e
-    + `.``.``2``5``exp` = i
-    + `.``.``5``exp` = -1
+    + `0` `exp` = 1
+    + `1` `exp` = e
+    + `.` `.` `2` `5` `exp` = i
+    + `.` `.` `5` `exp` = -1
