@@ -30,15 +30,14 @@ A calculator works on finite points.
   + `:` split multiplicatively
   + `..` split additively
 + Residual and Rational representation
-  + n\r/s means r/s in n\Z which approximates Π_{p|n} Z_p &otimes; Q
+  + ![n\r/s](https://etale.github.io/svg/triple.svg)
 
 ## calc/arch
 
 A calculator works at infinity point.
 
-+ Planck Unit System (
-![c=h/2πi=G=1](https://etale.github.io/svg/unit.svg)
-)
++ Natural Unit System
+  + ![c=h/2πi=G=1](https://etale.github.io/svg/unit.svg)
   + `kg` kilogram
   + `m` meter
   + `s` second
