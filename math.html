@@ -8,8 +8,17 @@
   });
 </script>
 <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG'></script>
-
-$$\log\colon\mathrm{G_m}(\mathbb{Q}_p)\to 1+p\mathbb{Z}_p\stackrel{\sim}{\to}p\mathbb{Z}_p\to\mathrm{G_a}(\mathbb{Q}_p)$$
-$$\exp\colon\mathrm{G_a}(\mathbb{Q}_p)\to p\mathbb{Z}_p\stackrel{\sim}{\to}1+p\mathbb{Z}_p\to\mathrm{G_m}(\mathbb{Q}_p)$$
-$$\log\colon\mathrm{G_m}(\mathbb{C})\stackrel{\sim}{\to}\tau \backslash\mathrm{G_a}(\mathbb{C})\to\mathrm{G_a}(\mathbb{C})$$
-$$\exp\colon\mathrm{G_a}(\mathbb{C})\to\tau \backslash\mathrm{G_a}(\mathbb{C})\stackrel{\sim}{\to}\mathrm{G_m}(\mathbb{C})$$
+$
+\def\Gm{\mathrm{G_m}}
+\def\Ga{\mathrm{G_a}}
+\def\Z{\mathbb{Z}}
+\def\Q{\mathbb{Q}}
+\def\R{\mathbb{R}}
+\def\C{\mathbb{C}}
+\def\iso{\stackrel{\sim}{\to}}
+\def\quasi{\stackrel{!}{\to}}
+$
+$$\log\colon \Gm(\Q_p) \to    1+p\Z_p \iso p\Z_p   \to \Ga(\Q_p)$$
+$$\exp\colon \Ga(\Q_p) \quasi p\Z_p   \iso 1+p\Z_p \to \Gm(\Q_p)$$
+$$\log\colon \Gm(\C)   \iso \tau\backslash\Ga(\C) \quasi \Ga(\C)$$
+$$\exp\colon \Ga(\C)   \to  \tau\backslash\Ga(\C) \iso   \Gm(\C)$$
