@@ -1,14 +1,14 @@
 <!doctype doc>
 <meta name="viewport" content="width=device-width">
-<script src="//cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
-var _, n, a, x, y, id = a => a
-
+var _, n, a, x, y, id = a => a, u1 = a => 2 * a / n - 1
+Object.getOwnPropertyNames(Math).forEach(a => { this[a] = Math[a] })
 onload = onhashchange = () => {
   _ = eval('['+location.hash.slice(1)+']')
   n = _[2] || 256
   a = Array(n).fill().map((x, i) => i)
-  x = a.map(_[1] || id)
+  x = a.map(_[1] || u1)
   y = x.map(_[0] || id)
   Plotly.plot(document.body, [{ x, y }])
 }
