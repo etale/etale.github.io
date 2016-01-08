@@ -1,0 +1,15 @@
+<!doctype doc>
+<meta name="viewport" content="width=device-width">
+<script src="//cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+var _, n, a, x, y, id = a => a
+
+onload = onhashchange = () => {
+  _ = eval('['+location.hash.slice(1)+']')
+  n = _[2] || 256
+  a = Array(n).fill().map((x, i) => i)
+  x = a.map(_[1] || id)
+  y = x.map(_[0] || id)
+  Plotly.plot(document.body, [{ x, y }])
+}
+</script>
