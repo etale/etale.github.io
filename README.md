@@ -1,6 +1,3 @@
-etale.github.io
-===============
-
 # calc/*
 
 Series of calculators for minimalist.
@@ -30,14 +27,14 @@ A calculator works on finite points.
   + `:` split multiplicatively
   + `..` split additively
 + Residual and Rational representation
-  + ![n\r/s](https://etale.github.io/svg/triple.svg)
+  + _n_ \ _r_ / _s_ = _r_ / _s_ ∈ ∏<sub>_p_|_n_</sub> __Z__<sub>_p_</sub> ⊗ __Q__ ← __A<sub>Q</sub>__
 
 ## calc/arch
 
 A calculator works at infinity point.
 
 + Natural Unit System
-  + ![c=h/2πi=G=1](https://etale.github.io/svg/unit.svg)
+  + _G_ = _c_ = ε<sub>0</sub> = μ<sub>0</sub> = _k_ = _h_ / 2π _i_ = 1
   + `kg` kilogram
   + `m` meter
   + `s` second
@@ -46,10 +43,10 @@ A calculator works at infinity point.
   + `exp` exponential function
   + `†` conjugate
 + Logarithmic representation
-  + a.b.c = a.b + 2πi × 0.c
-    + `.` `.` `5` `↑` =  0.0 + 2πi × 0.5 = πi
-  + z X = exp z
+  + _a.b.c_ = _a.b_ + 2π _i_ × 0 _.c_
+    + `.` `.` `5` `↑` = τ \ (0.0 + 2π _i_ × 0.5) = −π _i_
+  + _z_ X = exp _z_
     + `0` `exp` = 1
-    + `1` `exp` = e
-    + `.` `.` `2` `5` `exp` = i
-    + `.` `.` `5` `exp` = -1
+    + `1` `exp` = _e_
+    + `.` `.` `2` `5` `exp` = _i_
+    + `.` `.` `5` `exp` = −1
