@@ -45,6 +45,7 @@ A calculator works at infinity point.
 + Logarithmic representation
   + _a.b.c_ = _a.b_ + 2π _i_ × 0 _.c_
     + `.` `.` `5` `↑` = τ \ (0.0 + 2π _i_ × 0.5) = −π _i_
+    + `.` `.` `5` `−` = −(−π _i_) = π _i_
   + _z_ X = exp _z_
     + `0` `exp` = 1
     + `1` `exp` = _e_
