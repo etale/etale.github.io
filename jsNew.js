@@ -192,8 +192,15 @@ Object.setPrototypeOf(Arch.prototype, Number.prototype)
 
 Arch.precision = 8
 
+var PI2 = Math.PI * 2
+
 Object.defineProperties(Arch.prototype, {
-  eql:   { value: function (a) { return a !== 0 && this.ord === a.ord && this.arg === a.arg } }
+  amp: { get: function () {
+    var _ = this.arg
+    _ < 0.5 || (_ -= 1); _ *= PI2
+    return _
+  } }
+, eql:   { value: function (a) { return a !== 0 && this.ord === a.ord && this.arg === a.arg } }
 , shift: { get: function () { return new Arch(this.ord + 1, this.arg) } }
 , succ:  { get: function () { return this.exp.shift.log } }
 , conj:  { get: function () { return new Arch(this.ord, - this.arg) } }
@@ -202,14 +209,14 @@ Object.defineProperties(Arch.prototype, {
 , neg:   { get: function () { return new Arch(this.ord, this.arg + 0.5) } }
 , add:   { value: function (a) { return a === 0 ? this : this.neg.eql(a) ? 0 : this.ord < a.ord ? a.add(this) : this.mul(this.inv.mul(a).succ) } }
 , log:   { get: function () {
-  var _ = this, arg = _.arg
-  arg < 0.5 || (arg -= 1); arg *= Math.PI * 2
-  return _.isUnity ? 0 : new Arch(Math.log(_.ord * _.ord + arg * arg) * 0.5, Math.atan2(arg, _.ord) / (Math.PI * 2))
+  var _ = this
+  return _.isUnity
+  ? 0
+  : new Arch((_.ord * _.ord + _.amp * _.amp).log * 0.5, _.amp.atan2(_.ord) / PI2)
 } }
 , exp:   { get: function () {
-  var _ = this, __ = Math.exp(_.ord), arg = _.arg
-  arg < 0.5 || (arg -= 1); arg *= Math.PI * 2
-  return new Arch(__ * Math.cos(arg), Math.sin(arg) / (Math.PI * 2))
+  var _ = this
+  return new Arch(_.ord.exp * _.amp.cos, _.ord.exp * _.amp.sin / PI2)
 } }
 , toString: { value: function () {
   var _ = this, ord, arg
