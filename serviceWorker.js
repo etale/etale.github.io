@@ -6,5 +6,4 @@ self.addEventListener('fetch', event =>
       .then(response =>
         response ||
         fetch(event.request.clone()).then(response =>
-          cache.put(event.request, response.clone())
-        )))))
+          cache.put(event.request, response.clone()))))))
