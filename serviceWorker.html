@@ -1,0 +1,7 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>sw test</title>
+<script>
+navigator.serviceWorker && navigator.serviceWorker.register('/serviceWorker.js')
+.then(reg => console.log(reg), err => console.log(err))
+</script>
