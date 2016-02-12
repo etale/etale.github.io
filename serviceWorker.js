@@ -8,4 +8,4 @@ addEventListener('fetch', event =>
         fetch(event.request.clone())
         .then(response =>
           cache.put(event.request, response.clone())
-        .then(() => response))))))
+          .then(() => response))))))
