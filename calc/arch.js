@@ -15,7 +15,7 @@ Complex.precision = 6
 
 var
 c = new Complex(Math.log(299792458)),      //         m   s^{-1}
-G = new Complex(Math.log(6.67408e-11)),    // kg^{-1} m^3 s^{-2}
+G = new Complex(Math.log(4 * Math.PI * 6.67408e-11)),    // kg^{-1} m^3 s^{-2}
 h = new Complex(Math.log(6.626070040e-34)), // kg      m^2 s^{-1}
 Boltzmann = new Complex(Math.log(1.38064852e-23)), // J K^{-1}
 /*
