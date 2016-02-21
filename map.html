@@ -19,19 +19,19 @@ div {
   padding: 0px;
 }
 .h {
-  width: 100%;
+  width: 100vh;
   height: 1px;
 }
 .g {
   left: 2.5rem;
-  width: 100%;
+  width: 100vh;
   height: 2px;
   background-color: black;
 }
 .v {
   position: fixed;
   width: 1px;
-  height: 100%;
+  height: 100vh;
 }
 .label {
   font-size: 1.25rem;
@@ -192,7 +192,7 @@ var atm = _(101325).mul(unit.Pa)
   var _ = document.createElement('div')
   arg += 0.5; arg %= 1; arg *= 100
   _.textContent = textContent
-  _.setAttribute('style', 'left: ' + arg.toString() + '%;')
+  _.setAttribute('style', 'left: ' + arg.toString() + 'vh;')
   _.setAttribute('class', klass)
   return _
 }
@@ -203,7 +203,7 @@ var atm = _(101325).mul(unit.Pa)
   ord *= 100; ord = Math.round(ord)
   arg += 0.5; arg %= 1; arg *= 100
   _.textContent = textContent
-  _.setAttribute('style', 'top: ' + ord.toString() + 'px; left: ' + arg.toString() + '%;')
+  _.setAttribute('style', 'top: ' + ord.toString() + 'px; left: ' + arg.toString() + 'vh;')
   _.setAttribute('class', 'label')
   return _
 }
