@@ -23,7 +23,7 @@ div {
   width: 100vw;
   height: 2px;
   background-color: black;
-  padding-left: 1.75rem;
+/*  padding-left: 1.75rem;*/
 }
 .v {
   position: fixed;
@@ -180,7 +180,6 @@ var atm = _(101325).mul(unit.Pa)
   var _ = document.createElement('div')
   ord -= delta
   ord *= 100; ord = Math.round(ord)
-  klass = klass || 'h'
   _.textContent = textContent
   _.setAttribute('style', 'top: ' + ord.toString() + 'px;')
   _.setAttribute('class', klass)
@@ -213,14 +212,14 @@ onload = function () {
 
   var i = Math.floor(vals[0][0].ord)
   while (i < vals[vals.length - 1][0].ord + 1) {
-    append(lineh(i, i.toString()))
+    append(lineh(i, i.toString(), 'h'))
     i++
   }
   ;[0, 0.125, 0.25, 0.375, 0.625, 0.75, 0.875].forEach(function (arg) {
     append(linev(arg, '.' + arg.toFixed(3).split('.')[1], 'v'))
   })
   vals.forEach(function (item) {
-    append(lineh(item[0].ord, '.' + item[0].ord.toFixed(3).split('.')[1], 'g'))
+    append(lineh(item[0].ord, '  .' + item[0].ord.toFixed(3).split('.')[1], 'g'))
   })
   vals.forEach(function (item) {
     append(label(item[0], item[1]))
