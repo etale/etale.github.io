@@ -20,15 +20,15 @@ div {
   height: 1px;
 }
 .g {
-  left: 1.75rem;
   width: 100vw;
   height: 2px;
   background-color: black;
+  padding-left: 1.75rem;
 }
 .v {
   position: fixed;
   width: 1px;
-  height: 100vh;
+  height: 100%;
 }
 .label {
   font-size: 1.25rem;
@@ -48,11 +48,11 @@ Complex.prototype.toString = function () {
 
 var delta
 , _ = function (a, b) { return new Complex(Math.log(a), b) }
-, _c = _(299792458)              //         m   s^{-1}
-, _G = _(4 * Math.PI * 6.67408e-11)            // kg^{-1} m^3 s^{-2}
-, _h = _(6.626070040e-34)        // kg      m^2 s^{-1}
-, _Boltzmann = _(1.38064852e-23) // J K^{-1}
-, _mu0 = _(4 * Math.PI * 1e-7)   // N A^{-2}
+, _c = _(299792458)                 //         m   s^{-1}
+, _G = _(4 * Math.PI * 6.67408e-11) // kg^{-1} m^3 s^{-2}
+, _h = _(6.626070040e-34)           // kg      m^2 s^{-1}
+, _Boltzmann = _(1.38064852e-23)    // J K^{-1}
+, _mu0 = _(4 * Math.PI * 1e-7)      // N A^{-2}
 /*
    2014 CODATA recommended values
    http://physics.nist.gov/constants
