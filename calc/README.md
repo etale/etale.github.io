@@ -34,7 +34,7 @@ A calculator works on finite points.
 A calculator works at infinity point.
 
 + Natural Unit System
-  + _G_ = _c_ = ε<sub>0</sub> = μ<sub>0</sub> = _k_ = _h_ / 2π _i_ = 1
+  + 4π _G_ = _c_ = ε<sub>0</sub> = μ<sub>0</sub> = _k_ = _h_ / 2π _i_ = 1
   + `kg` kilogram
   + `m` meter
   + `s` second
