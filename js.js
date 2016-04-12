@@ -225,6 +225,9 @@ _.mul = function (a) {
 
   return a === 0 ? 0 : new Complex(_.ord + a.ord, _.arg + a.arg)
 }
+_.pow = function (a) {
+  return new Complex(this.ord * a, this.arg * a)
+}
 _.neg = function () {
   var _ = this
 
