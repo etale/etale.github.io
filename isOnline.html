@@ -1,0 +1,13 @@
+<!doctype html>
+<style>
+.offline {
+  background-color: black;
+  color: white;
+}
+</style>
+<script>
+var toggle = () => document.body.classList.toggle('offline')
+addEventListener('load', () => navigator.onLine || document.body.classList.add('offline'))
+addEventListener('online', toggle)
+addEventListener('offline', toggle)
+</script>
