@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width">
+<title>passwords</title>
+<script>
+onload = onhashchange = () => Promise.all(Array(0x100).fill().map(() =>
+  Promise.resolve(Reflect.set(
+    document.body.appendChild(
+      document.createElement('pre')
+    ), 'textContent'
+  , Array.from(
+      crypto.getRandomValues(new Uint8Array(32))
+    )
+    .map(a => (a + 0x100).toString(0x10).slice(1))
+    .join('')
+  ))
+))
+</script>
