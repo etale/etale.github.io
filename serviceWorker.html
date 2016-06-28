@@ -2,5 +2,7 @@
 <meta charset="utf-8">
 <title>Service Worker</title>
 <script>
-navigator.serviceWorker && navigator.serviceWorker.register('/serviceWorker.js').then(console.log, console.error)
+navigator.serviceWorker && navigator.serviceWorker
+.register('/serviceWorker.js')
+.then(reg => console.log(reg), err => console.error(err))
 </script>
