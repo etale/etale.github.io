@@ -14,8 +14,28 @@ Number.parse = function (a) {
   s = Math.pow(Number.radix, ord)
   return new Adele(r, s).finalize
 }
+Reflect.ownKeys(Math)
+.filter((p) => (
+  typeof Math[p] === 'function'
+))
+.map((p) => (
+  Object.defineProperty(
+    Number.prototype
+  , p
+  , Math[p].length < 2
+  ? {
+    get() {
+      return Math[p](this)
+    }
+  }
+  : {
+    value(a) {
+      return Math[p](this, a)
+    }
+  }
+)))
 Object.defineProperties(Number.prototype, {
-  divmod: { value: function (a) {
+  divmod: { value(a) {
   var _ = this.valueOf(), q, r
 
   a = (a || 0).body
@@ -27,10 +47,10 @@ Object.defineProperties(Number.prototype, {
   q = (_ - r) / a
   return [q, r]
 }}
-, eql: { value: function (a) { return this === a }}
-, div: { value: function (a) { return this.divmod(a)[0] } }
-, mod: { value: function (a) { return this.divmod(a)[1] } }
-, gcd: { value: function (a) {
+, eql: { value(a) { return this === a }}
+, div: { value(a) { return this.divmod(a)[0] } }
+, mod: { value(a) { return this.divmod(a)[1] } }
+, gcd: { value(a) {
   var _ = this.body, __
 
   a = (a || 0).body
@@ -39,13 +59,13 @@ Object.defineProperties(Number.prototype, {
   }
   return _
 }}
-, lcm: { value: function (a) {
+, lcm: { value(a) {
   var _ = this.body
 
   a = (a || 1).body
   return _ * a / _.gcd(a)
 }}
-, _inv: { value: function (a) {
+, _inv: { value(a) {
   var _ = this.valueOf(), x = 1, z = 0, __, q, r, n
 
   n = a = (a || 0).body
@@ -61,29 +81,29 @@ Object.defineProperties(Number.prototype, {
 }}
 , zero: { value: 0 }
 , unity: { value: 1 }
-, unit: { get: function () { return this < 0 ? -1 : 1 }}
-, body: { get: function () { return Math.abs(this) }}
-, isZero: { get: function () {
+, unit: { get() { return this < 0 ? -1 : 1 }}
+, body: { get() { return Math.abs(this) }}
+, isZero: { get() {
   var _ = this
 
   return _.eql(_.zero)
 }}
-, isUnity: { get: function () {
+, isUnity: { get() {
   var _ = this
 
   return _.eql(_.unity)
 }}
-, isUnit: { get: function () {
+, isUnit: { get() {
   var _ = this
 
   return _.eql(_.unit)
 }}
-, isBody: { get: function () {
+, isBody: { get() {
   var _ = this
 
   return _.eql(_.body)
 }}
-, factor: { get: function () {
+, factor: { get() {
   var _ = this.body, p = 7, bound = Math.sqrt(_) + 1
 
   if (!(_ % 2))
@@ -121,7 +141,7 @@ Object.defineProperties(Number.prototype, {
   }
   return _
 }}
-, factorize: { get: function() {
+, factorize: { get() {
   var _ = this.valueOf(), fs = {}, p
 
   while (_ !== 1) {
@@ -132,7 +152,7 @@ Object.defineProperties(Number.prototype, {
   }
   return fs
 }}
-, ub: { value: function (a) {
+, ub: { value(a) {
   var _ = this.valueOf(), b = 1, d
 
   a = (a || 0).body
@@ -148,20 +168,20 @@ Object.defineProperties(Number.prototype, {
   }
   return [_, b]
 }}
-, toArray: { value: function () {
+, toArray: { value() {
   var _ = [], i = 0, j = this
 
   i > j && (i = j, j = 0)
   while (i < j) _.push(i++)
   return _
 }}
-, forEach: { value: function (a, b, c) {
+, forEach: { value(a, b, c) {
   this.toArray().forEach(a, b, c)
 }}
-, map: { value: function (a, b, c) {
+, map: { value(a, b, c) {
   return this.toArray().map(a, b, c)
 }}
-, s: { get: function () {
+, s: { get() {
   var _ = this.body.toString(Number.radix).split('').reverse()
 
   return (this < 0 ? '-' : '') + (
@@ -195,30 +215,30 @@ Arch.precision = 8
 var PI2 = Math.PI * 2
 
 Object.defineProperties(Arch.prototype, {
-  amp: { get: function () {
+  amp: { get() {
     var _ = this.arg
     _ < 0.5 || (_ -= 1); _ *= PI2
     return _
   } }
-, eql:   { value: function (a) { return a !== 0 && this.ord === a.ord && this.arg === a.arg } }
-, shift: { get: function () { return new Arch(this.ord + 1, this.arg) } }
-, succ:  { get: function () { return this.exp.shift.log } }
-, conj:  { get: function () { return new Arch(this.ord, - this.arg) } }
-, inv:   { get: function () { return new Arch(- this.ord, - this.arg) } }
-, mul:   { value: function (a) { return a === 0 ? 0 : new Arch(this.ord + a.ord, this.arg + a.arg) } }
-, neg:   { get: function () { return new Arch(this.ord, this.arg + 0.5) } }
-, add:   { value: function (a) { return a === 0 ? this : this.neg.eql(a) ? 0 : this.ord < a.ord ? a.add(this) : this.mul(this.inv.mul(a).succ) } }
-, log:   { get: function () {
+, eql:   { value(a) { return a !== 0 && this.ord === a.ord && this.arg === a.arg } }
+, shift: { get() { return new Arch(this.ord + 1, this.arg) } }
+, succ:  { get() { return this.exp.shift.log } }
+, conj:  { get() { return new Arch(this.ord, - this.arg) } }
+, inv:   { get() { return new Arch(- this.ord, - this.arg) } }
+, mul:   { value(a) { return a === 0 ? 0 : new Arch(this.ord + a.ord, this.arg + a.arg) } }
+, neg:   { get() { return new Arch(this.ord, this.arg + 0.5) } }
+, add:   { value(a) { return a === 0 ? this : this.neg.eql(a) ? 0 : this.ord < a.ord ? a.add(this) : this.mul(this.inv.mul(a).succ) } }
+, log:   { get() {
   var _ = this
   return _.isUnity
   ? 0
   : new Arch((_.ord * _.ord + _.amp * _.amp).log * 0.5, _.amp.atan2(_.ord) / PI2)
 } }
-, exp:   { get: function () {
+, exp:   { get() {
   var _ = this
   return new Arch(_.ord.exp * _.amp.cos, _.ord.exp * _.amp.sin / PI2)
 } }
-, toString: { value: function () {
+, toString: { value() {
   var _ = this, ord, arg
 
   ord = _.ord.toFixed(Arch.precision).split('.')
@@ -243,7 +263,7 @@ function Adele(r, s, n) {
 }
 var nil = new Adele(0, 0, 1)
 Object.defineProperties(Adele.prototype, {
-  finalize: { get: function () {
+  finalize: { get() {
   var _ = this, d, r, s
 
   if (_.n === 1 || _.s === 0) {
@@ -252,7 +272,7 @@ Object.defineProperties(Adele.prototype, {
   d = _.r.gcd(_.s); r = _.r.div(d); s = _.s.div(d)
   return new Adele(r, s, _.n)
 }}
-, coerce: { value: function (a) {
+, coerce: { value(a) {
   var _ = this, __, n, _u, _s, au, as, s, _r, ar
 
   n = _.n.gcd(a.n)
@@ -268,41 +288,41 @@ Object.defineProperties(Adele.prototype, {
   a = new Adele(ar, s, n)
   return [a, _]
 }}
-, eql: { value: function (a) {
+, eql: { value(a) {
   var _ = this
   return _.n === a.n && _.r === a.r && _.s === a.s
 }}
-, zero: { get: function () {
+, zero: { get() {
   var _ = this
   return new Adele(0, _.s, _.n)
 }}
-, neg: { get: function () {
+, neg: { get() {
   var _ = this
   return _.eql(nil) ? nil : new Adele(-_.r, _.s, _.n)
 }}
-, res: { get: function () {
+, res: { get() {
   var _ = this, __, u, n
   // return if unit? in ruby
   __ = _.r.ub(_.n); u = __[0]; n = __[1]
   return new Adele(0, 1, n)
 }}
-, add: { value: function (a) {
+, add: { value(a) {
   return this._add(a).finalize()
 }}
-, _add: { value: function (a) {
+, _add: { value(a) {
   var __ = this.coerce(a)
   return __[0].__add(__[1])
 }}
-, __add: { value: function (a) {
+, __add: { value(a) {
   var _ = this
   return _.eql(nil) ? nil :
          new Adele(_.r + a.r, _.s, _.n)
 }}
-, unity: { get: function () {
+, unity: { get() {
   var _ = this
   return new Adele(_.s, _.s, _.n)
 }}
-, inv: { get: function () {
+, inv: { get() {
   var _ = this, r, s, __, u
 
   if (_.r === 0) {
@@ -312,21 +332,21 @@ Object.defineProperties(Adele.prototype, {
   r = _.s * u._inv(_.n)
   return new Adele(r, s, _.n)
 }}
-, mul: { value: function (a) {
+, mul: { value(a) {
   return this._mul(a).finalize()
 }}
-, _mul: { value: function (a) {
+, _mul: { value(a) {
   var __ = this.coerce(a)
 
   return __[0].__mul(__[1])
 }}
-, __mul: { value: function (a) {
+, __mul: { value(a) {
   var _ = this
 
   return _.eql(nil) ? nil :
          new Adele(_.r * a.r, _.s * a.s, _.n)
 }}
-, pow: { value: function (a) {
+, pow: { value(a) {
   var _ = this, __ = _.unity
 
   a = a.r
@@ -336,19 +356,19 @@ Object.defineProperties(Adele.prototype, {
   }
   return __
 }}
-, unit: { get: function () {
+, unit: { get() {
   var _ = this, __
 
   __ = _.r.ub(_.n); r = __[0]
   return new Adele(r, 1, _.n)
 }}
-, body: { get: function () {
+, body: { get() {
   var _ = this, __
 
   __ = _.r.ub(_.n); r = __[1]
   return new Adele(r, _.s, 0)
 }}
-, factor: { get: function () {
+, factor: { get() {
   var _ = this, p = (_.r * _.s).factor
 
   if (_.r % p) {
@@ -357,7 +377,7 @@ Object.defineProperties(Adele.prototype, {
     return [new Adele(p, 1), new Adele(_.r/p, _.s)]
   }
 }}
-, toString: { value: function () {
+, toString: { value() {
   var _ = this, __ = ''
 
   if (_.eql(nil)) {
@@ -369,3 +389,5 @@ Object.defineProperties(Adele.prototype, {
   return __
 }}
 })
+
+module.exports = { Adele, Arch }
