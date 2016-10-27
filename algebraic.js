@@ -12,10 +12,21 @@ class Algebraic {
   _eql(a) { return new Error('_eql is missing') }
   get finalize() { return new Error('finalize is missing') }
   coerce(a) { return new Error('coerce is missing') }
-  cast(a) { return this.coerce(a)[1] }
-  get zero() { return this._zero.finalize }
+  cast(a) {
+    return (
+      (([_, a]) => (
+        a
+      ))
+      (this.coerce(a))
+    )
+  }
+  get zero() {
+    return this._zero.finalize
+  }
   get _zero() { return new Error('_zero is missing') }
-  get neg() { return this._neg.finalize }
+  get neg() {
+    return this._neg.finalize
+  }
   get _neg() { return new Error('_neg is missing') }
   add(a) {
     return (([_, a]) => (
@@ -24,9 +35,13 @@ class Algebraic {
     (this.coerce(a))
   }
   _add(a) { return new Error('_add is missing') }
-  get unity() { return this._unity.finalize }
+  get unity() {
+    return this._unity.finalize
+  }
   get _unity() { return new Error('_unity is missing') }
-  get inv() { return this._inv.finalize }
+  get inv() {
+    return this._inv.finalize
+  }
   get _inv() { return new Error('_inv is missing') }
   mul(a) {
     return (
@@ -45,22 +60,32 @@ class Algebraic {
   }
 }
 
-let f = (a) => (
+let toUint8Array = (a) => (
   a < 0 ? (
     ((arr) => (
-      arr.map((e) => (
-        0xff - e
-      )).reduce(({ ua, carry }, e) => (
-        (([carry, e]) => (
-          {
-            ua: new Uint8Array([...ua, e]),
-            carry
-          }
-        ))
-        ((carry + e).divmod(0x100))
-      ), { ua: new Uint8Array, carry: 1})
+      arr[arr.length - 1] >= 0x80 ? (
+        arr
+      ) : (
+        new Uint8Array([...arr, 255])
+      )
     ))
-    (toUint8Array(-a))
+    (
+      ((arr) => (
+        arr.map((e) => (
+          0xff - e
+        )).reduce(({ ua, carry }, e) => (
+          (([carry, e]) => (
+            {
+              ua: new Uint8Array([...ua, e]),
+              carry
+            }
+          ))
+          ((carry + e).divmod(0x100))
+        ), { ua: new Uint8Array, carry: 1})
+        .ua
+      ))
+      (aux(-a))
+    )
   ) : (
     ((arr) => (
       arr[arr.length - 1] < 0x80 ? (
@@ -69,18 +94,20 @@ let f = (a) => (
         new Uint8Array([...arr, 0])
       )
     ))
-    (toUint8Array(a))
+    (aux(a))
   )
 )
-let toUint8Array = (a) => (
+let aux = (a) => (
   a.isZero ? new Uint8Array :
   (([q, r]) => (
-    new Uint8Array([r, ...toUint8Array(q)])
+    new Uint8Array([r, ...aux(q)])
   ))
   (a.divmod(0x100))
 )
 let fromUint8Array = (a) => (
-  (new Integer(a)).finalize
+  a.reduce((_, e, i) => (
+    _ + e * Math.pow(0x100, i)
+  ), 0)
 )
 Object.defineProperties(Number.prototype, {
   finalize: { get() {
@@ -127,7 +154,7 @@ Object.defineProperties(Number.prototype, {
   _mul: {
     value(a) {
       return (
-        Number.isInteger(this) && Number.isInteger(a)
+        Number.isInteger(this.valueOf()) && Number.isInteger(a)
         ? (new Integer(toUint8Array(this)))._mul(
           new Integer(toUint8Array(a))
         )
@@ -200,10 +227,10 @@ class Integer extends Algebraic {
   get finalize() {
     return (
       ((ua) => (
-        this.ua.length.isZero
+        ua.length.isZero
         ? 0
-        : this.ua.length < 6
-        ? fromUint8Array(this.ua)
+        : ua.length < 6
+        ? fromUint8Array(ua)
         : this
       ))
       (this.ua)
@@ -279,8 +306,31 @@ class Integer extends Algebraic {
       ? this._zero
       : (
         ((_, a) => (
-          0
-        ))
+          ((x) => (
+            _.map((_e, _i) => (
+              a.map((ae, ai) => (
+                (([q, r]) => (
+                  (x[_i + ai    ] = (x[_i + ai    ] || 0) + r),
+                  (x[_i + ai + 1] = (x[_i + ai + 1] || 0) + q),
+                  (([q, r]) => (
+                    (x[_i + ai    ] = r),
+                    (x[_i + ai + 1] += q)
+                  ))
+                  (x[_i + ai    ].divmod(0x100)),
+                  (([q, r]) => (
+                    (x[_i + ai + 1] += r),
+                    (x[_i + ai + 2] = (x[_i + ai + 2] || 0) + q)
+                  ))
+                  (x[_i + ai + 1].divmod(0x100))
+                ))
+                ((_e * ae).divmod(0x100))
+              ))
+            )),
+            new Integer(new Uint8Array(x))
+          ))
+          ([])
+          )
+        )
         (this.ua, a.ua)
       )
     )
