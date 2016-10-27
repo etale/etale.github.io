@@ -9,19 +9,25 @@ class Algebraic {
       this.eq(a) && this._eql(a)
     )
   }
+  _eql(a) { return new Error('_eql is missing') }
   get finalize() { return new Error('finalize is missing') }
   coerce(a) { return new Error('coerce is missing') }
   cast(a) { return this.coerce(a)[1] }
   get zero() { return this._zero.finalize }
+  get _zero() { return new Error('_zero is missing') }
   get neg() { return this._neg.finalize }
+  get _neg() { return new Error('_neg is missing') }
   add(a) {
     return (([_, a]) => (
       _._add(a).finalize
     ))
     (this.coerce(a))
   }
+  _add(a) { return new Error('_add is missing') }
   get unity() { return this._unity.finalize }
+  get _unity() { return new Error('_unity is missing') }
   get inv() { return this._inv.finalize }
+  get _inv() { return new Error('_inv is missing') }
   mul(a) {
     return (
       (([_, a]) => (
@@ -30,6 +36,7 @@ class Algebraic {
       (this.coerce(a))
     )
   }
+  _mul(a) { return new Error('_mul is missing') }
   get isZero() {
     return this._eql(this._zero)
   }
@@ -38,6 +45,16 @@ class Algebraic {
   }
 }
 
+let toUint8Array = (a) => (
+  a.isZero ? new Uint8Array :
+  (([q, r]) => (
+    new Uint8Array([r, ...toUint8Array(q)])
+  ))
+  (a.divmod(0x100))
+)
+let fromUint8Array = (a) => (
+  (new Integer(a)).finalize
+)
 Object.defineProperties(Number.prototype, {
   finalize: { get() {
     return this.valueOf()
@@ -59,27 +76,77 @@ Object.defineProperties(Number.prototype, {
   } },
   _zero: { get() { return 0 } },
   _neg: { get() { return 0 - this } },
-  _add: { value(a) { return this + a } },
-  _unity: { get() { return 1 } },
-  _inv: { get() { return 1 / this } },
-  _mul: { value(a) { return this * a } },
-
-  divmod: { value(a) {
-    if (a.isZero) {
-      return [0, this.valueOf()]
-    } else
-    {
-      let r = this % a
-      let q = (this - r) / a
-      return [q, r]
+  _add: {
+    value(a) {
+      return (
+        Number.isInteger(this) && Number.isInteger(a)
+        ? (new Integer(toUint8Array(this)))._add(
+          new Integer(toUint8Array(a))
+        )
+        : this + a
+      )
     }
-  } },
-  div: { value(a) {
-    return this.divmod(a)[0]
-  } },
-  mod: { value(a) {
-    return this.divmod(a)[1]
-  } },
+  },
+  _unity: { get() { return 1 } },
+  _inv: {
+    get() {
+      return (
+        Number.isInteger(this)
+        ? new Adele(1, this.valueOf())
+        : 1 / this
+      )
+    }
+  },
+  _mul: {
+    value(a) {
+      return (
+        Number.isInteger(this) && Number.isInteger(a)
+        ? (new Integer(toUint8Array(this)))._mul(
+          new Integer(toUint8Array(a))
+        )
+        : this * a
+      )
+    }
+  },
+
+  divmod: {
+    value(a) {
+      return (
+        a.isZero
+        ? [0, this.valueOf()]
+        : (
+          ((r) => (
+            r < 0 && (r += a),
+            ((q) => (
+              [q, r]
+            ))
+            ((this - r) / a)
+          ))
+          (this % a)
+        )
+      )
+    }
+  },
+  div: {
+    value(a) {
+      return (
+        (([q, r]) => (
+          q
+        ))
+        (this.divmod(a))
+      )
+    }
+  },
+  mod: {
+    value(a) {
+      return (
+        (([q, r]) => (
+          r
+        ))
+        (this.divmod(a))
+      )
+    }
+  },
 
   exp: { get() { return Math.exp(this) } },
   log: { get() {
@@ -97,6 +164,103 @@ Object.defineProperties(Number.prototype, {
   hypot: { value(...a) { return Math.hypot(this, ...a) } }
 })
 Reflect.setPrototypeOf(Number.prototype, Algebraic.prototype)
+
+class Integer extends Algebraic {
+  constructor(ua = new Uint8Array) {
+    super()
+    this.ua = ua
+  }
+  get finalize() {
+    return (
+      ((ua) => (
+        this.ua.length.isZero
+        ? 0
+        : this.ua.length < 6
+        ? fromUint8Array(this.ua)
+        : this
+      ))
+      (this.ua)
+    )
+  }
+  coerce(a) {
+    return (
+      this.eq(a)
+      ? [this, a]
+      : Number.isInteger(a)
+      ? [this, new Integer(toUint8Array(a))]
+      : [toFloat(this), a]
+    )
+  }
+  _eql(a) {
+    return (
+      this.ua.length === a.ua.length
+      && this.ua.every((e, i) => (
+        e === a[i]
+      ))
+    )
+  }
+  get _zero() { return Integer.zero }
+  get _neg() {
+    return (
+      this.complement._add(this._unity)
+    )
+  }
+  get complement() {
+    return (
+      new Integer(
+        this.ua.map((a) => (
+          0x100 - a
+        ))
+      )
+    )
+  }
+  _add(a) {
+    return (
+      this.isZero ? a :
+      a.isZero ? this : (
+        ((_, a) => (
+          _.length < a.length
+          ? a._add(this)
+          : (
+            (({ ua, carry }) => (
+              new Integer([...ua, carry])
+            ))
+            (
+              _.reduce(({ ua, carry }, e, i) => (
+                (([q, r]) => (
+                  {
+                    ua: [...ua, r],
+                    carry: q
+                  }
+                ))
+                (carry + e + (a[i] || 0)).divmod(0x100)
+              ), { ua: new Uint8Array, carry: 0 })
+            )
+          )
+        ))
+        (this.ua, a.ua)
+      )
+    )
+  }
+  get _unity() { return Integer.unity }
+  get _inv() {
+    return new Adele(this._unity, this, this._zero)
+  }
+  _mul(a) {
+    return (
+      this.isZero || a.isZero
+      ? this._zero
+      : (
+        ((_, a) => (
+          0
+        ))
+        (this.ua, a.ua)
+      )
+    )
+  }
+}
+Integer.zero = new Integer
+Integer.unity = new Integer(new Uint8Array([1]))
 
 let PI2 = 2 * Math.PI
 class Arch extends Algebraic {
