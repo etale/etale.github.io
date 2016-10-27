@@ -59,7 +59,7 @@ Object.defineProperties(Number.prototype, {
   } },
   _zero: { get() { return 0 } },
   _neg: { get() { return 0 - this } },
-  _add: { value() { return this + a } },
+  _add: { value(a) { return this + a } },
   _unity: { get() { return 1 } },
   _inv: { get() { return 1 / this } },
   _mul: { value(a) { return this * a } },
