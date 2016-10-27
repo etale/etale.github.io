@@ -45,6 +45,33 @@ class Algebraic {
   }
 }
 
+let f = (a) => (
+  a < 0 ? (
+    ((arr) => (
+      arr.map((e) => (
+        0xff - e
+      )).reduce(({ ua, carry }, e) => (
+        (([carry, e]) => (
+          {
+            ua: new Uint8Array([...ua, e]),
+            carry
+          }
+        ))
+        ((carry + e).divmod(0x100))
+      ), { ua: new Uint8Array, carry: 1})
+    ))
+    (toUint8Array(-a))
+  ) : (
+    ((arr) => (
+      arr[arr.length - 1] < 0x80 ? (
+        arr
+      ) : (
+        new Uint8Array([...arr, 0])
+      )
+    ))
+    (toUint8Array(a))
+  )
+)
 let toUint8Array = (a) => (
   a.isZero ? new Uint8Array :
   (([q, r]) => (
@@ -209,7 +236,7 @@ class Integer extends Algebraic {
     return (
       new Integer(
         this.ua.map((a) => (
-          0x100 - a
+          0xff - a
         ))
       )
     )
@@ -261,6 +288,31 @@ class Integer extends Algebraic {
 }
 Integer.zero = new Integer
 Integer.unity = new Integer(new Uint8Array([1]))
+
+class Adele extends Algebraic {
+  constructor(r = 0, s = 1, n = 0) {
+    super()
+    n = n.body
+    (([u, s]) => (
+      ((r) => (
+        this.r = r,
+        this.s = s,
+        this.n = n
+      ))
+      ((r * u.__inv(n)).mod(n * s))
+    ))
+    (s.ub(n))
+  }
+  get finalize() {}
+  coerce(a) {}
+  _eql(a) {}
+  get _zero() {}
+  get _neg() {}
+  _add(a) {}
+  get _unity() {}
+  get _inv() {}
+  _mul(a) {}
+}
 
 let PI2 = 2 * Math.PI
 class Arch extends Algebraic {
