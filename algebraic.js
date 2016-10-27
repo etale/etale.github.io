@@ -64,6 +64,23 @@ Object.defineProperties(Number.prototype, {
   _inv: { get() { return 1 / this } },
   _mul: { value(a) { return this * a } },
 
+  divmod: { value(a) {
+    if (a.isZero) {
+      return [0, this.valueOf()]
+    } else
+    {
+      let r = this % a
+      let q = (this - r) / a
+      return [q, r]
+    }
+  } },
+  div: { value(a) {
+    return this.divmod(a)[0]
+  } },
+  mod: { value(a) {
+    return this.divmod(a)[1]
+  } },
+
   exp: { get() { return Math.exp(this) } },
   log: { get() {
     return (
