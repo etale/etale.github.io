@@ -58,15 +58,24 @@ class Algebraic {
   get isUnity() {
     return this._eql(this._unity)
   }
+  split(a) {
+    return (
+      this.isZero ? [] : (
+        (([q, r]) => (
+          [r, ...q.split(a)]
+        ))
+        (this.divmod(a))
+      )
+    )
+  }
 }
-
 let toUint8Array = (a) => (
   a < 0 ? (
     ((arr) => (
-      arr[arr.length - 1] >= 0x80 ? (
+      arr.last >= 0x80 ? (
         arr
       ) : (
-        new Uint8Array([...arr, 255])
+        [...arr, 0xff]
       )
     ))
     (
@@ -76,89 +85,125 @@ let toUint8Array = (a) => (
         )).reduce(({ ua, carry }, e) => (
           (([carry, e]) => (
             {
-              ua: new Uint8Array([...ua, e]),
+              ua: [...ua, e],
               carry
             }
           ))
           ((carry + e).divmod(0x100))
-        ), { ua: new Uint8Array, carry: 1})
+        ), { ua: [], carry: 1})
         .ua
       ))
-      (aux(-a))
+      ((-a).split)
     )
   ) : (
     ((arr) => (
-      arr[arr.length - 1] < 0x80 ? (
+      arr.last < 0x80 ? (
         arr
       ) : (
-        new Uint8Array([...arr, 0])
+        [...arr, 0]
       )
     ))
-    (aux(a))
+    (a.split)
   )
 )
-let aux = (a) => (
-  a.isZero ? new Uint8Array :
-  (([q, r]) => (
-    new Uint8Array([r, ...aux(q)])
-  ))
-  (a.divmod(0x100))
-)
-let fromUint8Array = (a) => (
-  a.reduce((_, e, i) => (
-    _ + e * Math.pow(0x100, i)
-  ), 0)
-)
-Object.defineProperties(Number.prototype, {
-  finalize: { get() {
-    return this.valueOf()
-  } },
-  coerce: { value(a) {
-    return (
-      this.eq(a)
-      ? [this, a]
-      : (
-        (([a, _]) => (
-          [_, a]
-        ))
-        (a.coerce(this))
+
+Object.defineProperties(Array.prototype, {
+  last: {
+    get() {
+      return this[this.length - 1]
+    }
+  },
+  _join: {
+    value(a = 0x100) {
+      return (
+        this.reverse().reduce((_, e) => (
+          _.mul(a).add(e)
+        ), a.zero)
       )
-    )
-  } },
-  _eql: { value(a) {
-    return this.valueOf() === a.valueOf()
-  } },
-  _zero: { get() { return 0 } },
-  _neg: { get() { return 0 - this } },
-  _add: {
+    }
+  }
+})
+
+Object.defineProperties(Number.prototype, {
+  finalize: {
+    get() {
+      return this.valueOf()
+    }
+  },
+  coerce: {
     value(a) {
       return (
-        Number.isInteger(this) && Number.isInteger(a)
-        ? (new Integer(toUint8Array(this)))._add(
-          new Integer(toUint8Array(a))
-        )
-        : this + a
+        ((_, a) => (
+          typeof a === 'number'
+          ? [_, a] : (
+            (([a, _]) => (
+              [_, a]
+            ))
+            (a.coerce(this))
+          )
+        ))
+        (this.finalize, a.finalize)
       )
     }
   },
-  _unity: { get() { return 1 } },
+  _eql: {
+    value(a) {
+      return (
+        ((_, a) => (
+          _ === a
+        ))
+        (this.coerce(a))
+      )
+    }
+  },
+  _zero: {
+    get() {
+      return 0
+    }
+  },
+  _neg: {
+    get() {
+      return 0 - this
+    }
+  },
+  _add: {
+    value(a) {
+      return (
+        ((_, a) => (
+          Number.isInteger(_) && Number.isInteger(a)
+          ? Integer.cast(_)._add(Integer.cast(a))
+          : _ + a
+        ))
+        (this.coerce(a))
+      )
+    }
+  },
+  _unity: {
+    get() {
+      return 1
+    }
+  },
   _inv: {
     get() {
       return (
-        Number.isInteger(this)
-        ? new Adele(1, this.valueOf())
-        : 1 / this
+        ((_) => (
+          Number.isInteger(_)
+          ? new Adele(1, _)
+          : 1 / _
+        ))
+        (this.finalize)
       )
     }
   },
   _mul: {
     value(a) {
       return (
-        Number.isInteger(this.valueOf()) && Number.isInteger(a)
-        ? (new Integer(toUint8Array(this)))._mul(
-          new Integer(toUint8Array(a))
-        )
-        : this * a
+        ((_, a) => (
+          Number.isInteger(_) && Number.isInteger(a)
+          ? Integer.cast(_)._mul(Integer.cast(a))
+          : _ * a
+        ))
+        (this.coerce(a))
       )
     }
   },
@@ -166,18 +211,19 @@ Object.defineProperties(Number.prototype, {
   divmod: {
     value(a) {
       return (
-        a.isZero
-        ? [0, this.valueOf()]
-        : (
-          ((r) => (
-            r < 0 && (r += a),
-            ((q) => (
-              [q, r]
+        ((_, a) => (
+          a.isZero ? [0, _] : (
+            ((r) => (
+              r < 0 && (r += a),
+              ((q) => (
+                [q, r]
+              ))
+              ((_ - r) / a)
             ))
-            ((this - r) / a)
-          ))
-          (this % a)
-        )
+            (_ % a)
+          )
+        ))
+        (this.coerce(a))
       )
     }
   },
@@ -202,97 +248,141 @@ Object.defineProperties(Number.prototype, {
     }
   },
 
-  exp: { get() { return Math.exp(this) } },
-  log: { get() {
-    return (
-      this.isZero
-      ? undefined
-      : this < 0
-      ? Arch.zero.cast(this).log
-      : Math.log(this)
-    )
-  } },
-  cos: { get() { return Math.cos(this) } },
-  sin: { get() { return Math.sin(this) } },
-  atan2: { value(a) { return Math.atan2(this, a) } },
-  hypot: { value(...a) { return Math.hypot(this, ...a) } }
+  exp: {
+    get() {
+      return Math.exp(this)
+    }
+  },
+  log: {
+    get() {
+      return (
+        this.isZero
+        ? undefined
+        : this < 0
+        ? Arch.zero.cast(this).log
+        : Math.log(this)
+      )
+    }
+  },
+  cos: {
+    get() {
+      return Math.cos(this)
+    }
+  },
+  sin: {
+    get() {
+      return Math.sin(this)
+    }
+  },
+  atan2: {
+    value(a) {
+      return Math.atan2(this, a)
+    }
+  },
+  hypot: {
+    value(...a) {
+      return Math.hypot(this, ...a)
+    }
+  }
 })
 Reflect.setPrototypeOf(Number.prototype, Algebraic.prototype)
 
 class Integer extends Algebraic {
-  constructor(ua = new Uint8Array) {
+  constructor(_ = new Uint8Array) {
     super()
-    this.ua = ua
+    this._ = _
   }
   get finalize() {
     return (
-      ((ua) => (
-        ua.length.isZero
-        ? 0
-        : ua.length < 6
-        ? fromUint8Array(ua)
+      ((_) => (
+        _.length < 6
+        ? Array.from(_)._join()
         : this
       ))
-      (this.ua)
+      (this._)
+    )
+  }
+  get float() {
+    return (
+      ((_) => (
+        Array.from(_)._join()
+      ))
+      (this._)
     )
   }
   coerce(a) {
     return (
-      this.eq(a)
-      ? [this, a]
-      : Number.isInteger(a)
-      ? [this, new Integer(toUint8Array(a))]
-      : [toFloat(this), a]
+      ((_, a) => (
+        typeof a === 'number'
+        ? (
+          Number.isInteger(a)
+          ? [_, new Integer(toUint8Array(a))]
+          : [_.float, a]
+        )
+        : (
+          this.eq(a)
+          ? [this, a]
+          : (
+            ((a, _) => (
+              [_, a]
+            ))
+            (a.coerce(_))
+          )
+        )
+      ))
+      (this, a.finalize)
     )
   }
   _eql(a) {
     return (
-      this.ua.length === a.ua.length
-      && this.ua.every((e, i) => (
-        e === a[i]
+      ((_, a) => (
+        _.length === a.length
+        && _.every((e, i) => (
+          e == a[i]
+        ))
       ))
+      (this.ua, a.ua)
     )
   }
   get _zero() { return Integer.zero }
   get _neg() {
     return (
-      this.complement._add(this._unity)
-    )
-  }
-  get complement() {
-    return (
       new Integer(
-        this.ua.map((a) => (
-          0xff - a
+        this._.map((e) => (
+          0xff - e
         ))
       )
+      ._add(this._unity)
     )
   }
   _add(a) {
     return (
       this.isZero ? a :
       a.isZero ? this : (
-        ((_, a) => (
-          _.length < a.length
-          ? a._add(this)
-          : (
-            (({ ua, carry }) => (
-              new Integer([...ua, carry])
-            ))
-            (
-              _.reduce(({ ua, carry }, e, i) => (
-                (([q, r]) => (
-                  {
-                    ua: [...ua, r],
-                    carry: q
-                  }
-                ))
-                (carry + e + (a[i] || 0)).divmod(0x100)
-              ), { ua: new Uint8Array, carry: 0 })
-            )
-          )
+        ((arr) => (
+          new Integer(arr)
         ))
-        (this.ua, a.ua)
+        (
+          ((_, a) => (
+            _.length < a.length && ([_, a] = [a, _]),
+            _ = [..._, _.last < 0x80 ? 0 : 0xff],
+            a = [...a, ...Array(_.length - a.length).fill(
+              a.last < 0x80 ? 0 : 0xff
+            )],
+            Array(_.length).fill().map((_, i) => i)
+            .reduce(({ arr, carry }, i) => (
+              (([q, r]) => (
+                arr[i] = r,
+                carry = q
+              ))
+              ((carry + _[i] + a[i]).divmod(0x100))
+            ), {
+              arr: new Uint8Array(_.length),
+              carry: 0
+            }).arr
+          ))
+          (this._, a._)
+        )
       )
     )
   }
@@ -304,40 +394,36 @@ class Integer extends Algebraic {
     return (
       this.isZero || a.isZero
       ? this._zero
+      : this.isUnity
+      ? a
+      : a.isUnity
+      ? this
       : (
         ((_, a) => (
-          ((x) => (
-            _.map((_e, _i) => (
-              a.map((ae, ai) => (
+          ((arr) => (
+            Array(_.length).fill().map((_, i) => i).forEach((i) => (
+              Array(a.length).fill().map((_, j) => j).forEach((j) => (
                 (([q, r]) => (
-                  (x[_i + ai    ] = (x[_i + ai    ] || 0) + r),
-                  (x[_i + ai + 1] = (x[_i + ai + 1] || 0) + q),
-                  (([q, r]) => (
-                    (x[_i + ai    ] = r),
-                    (x[_i + ai + 1] += q)
-                  ))
-                  (x[_i + ai    ].divmod(0x100)),
-                  (([q, r]) => (
-                    (x[_i + ai + 1] += r),
-                    (x[_i + ai + 2] = (x[_i + ai + 2] || 0) + q)
-                  ))
-                  (x[_i + ai + 1].divmod(0x100))
+                  arr[i + j] = r,
+                  i + j + 1 < arr.length && (arr[i + j + 1] += q)
                 ))
-                ((_e * ae).divmod(0x100))
+                (arr[i + j] + _[i] * a[j]).divmod(0x100)
               ))
             )),
-            new Integer(new Uint8Array(x))
+            new Integer(arr)
           ))
-          ([])
+          (
+            new Uint8Array(_.length + a.length - 1)
           )
-        )
-        (this.ua, a.ua)
+        ))
+        (this._, a._)
       )
     )
   }
 }
 Integer.zero = new Integer
 Integer.unity = new Integer(new Uint8Array([1]))
+Integer.cast = (a) => Integer.zero.cast(a)
 
 class Adele extends Algebraic {
   constructor(r = 0, s = 1, n = 0) {
@@ -472,3 +558,6 @@ class Arch extends Algebraic {
 }
 Arch.zero = new Arch
 Arch.unity = new Arch(0, 0)
+Arch.cast = (a) => Arch.zero.cast(a)
+
+module.exports = { Algebraic, toUint8Array, Integer, Adele, PI2, Arch }
