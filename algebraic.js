@@ -71,37 +71,10 @@ class Algebraic {
 }
 let toUint8Array = (a) => (
   a < 0 ? (
-    ((arr) => (
-      arr.last >= 0x80 ? (
-        arr
-      ) : (
-        [...arr, 0xff]
-      )
-    ))
-    (
-      ((arr) => (
-        arr.map((e) => (
-          0xff - e
-        )).reduce(({ ua, carry }, e) => (
-          (([carry, e]) => (
-            {
-              ua: [...ua, e],
-              carry
-            }
-          ))
-          ((carry + e).divmod(0x100))
-        ), { ua: [], carry: 1})
-        .ua
-      ))
-      ((-a).split)
-    )
+    new Integer(toUint8Array(-a))._
   ) : (
     ((arr) => (
-      arr.last < 0x80 ? (
-        arr
-      ) : (
-        [...arr, 0]
-      )
+      new Uint8Array(arr.last < 0x80 ? arr : [...arr, 0])
     ))
     (a.split)
   )
@@ -169,7 +142,7 @@ Object.defineProperties(Number.prototype, {
   _add: {
     value(a) {
       return (
-        ((_, a) => (
+        (([_, a]) => (
           Number.isInteger(_) && Number.isInteger(a)
           ? Integer.cast(_)._add(Integer.cast(a))
           : _ + a
@@ -198,7 +171,7 @@ Object.defineProperties(Number.prototype, {
   _mul: {
     value(a) {
       return (
-        ((_, a) => (
+        (([_, a]) => (
           Number.isInteger(_) && Number.isInteger(a)
           ? Integer.cast(_)._mul(Integer.cast(a))
           : _ * a
@@ -211,7 +184,7 @@ Object.defineProperties(Number.prototype, {
   divmod: {
     value(a) {
       return (
-        ((_, a) => (
+        (([_, a]) => (
           a.isZero ? [0, _] : (
             ((r) => (
               r < 0 && (r += a),
@@ -247,6 +220,122 @@ Object.defineProperties(Number.prototype, {
       )
     }
   },
+  gcd: {
+    value(a = 0) {
+      let _ = Math.abs(this)
+      a = Math.abs(a)
+      while (a !== 0) {
+        [_, a] = [a, _.mod(a)]
+      }
+      return _
+    }
+  },
+  lcm: {
+    value(a = 1) {
+      let _ = Math.abs(this)
+      a = Math.abs(a)
+      return _ * a / _.gcd(a)
+    }
+  },
+  __inv: {
+    value(a = 0) {
+      let _ = this.finalize
+      let x = 1
+      let z = 0
+      let [q, r] = _.divmod(a)
+
+      if (a === 0 && _ === -1) {
+        return -1
+      }
+
+      while (a !== 0) {
+        [q, r] = _.divmod(a)
+        [_, a, x, z] = [a, r, z, x - q * z]
+      }
+      return x.mod(n)
+    }
+  },
+  unit: {
+    get() {
+      return this < 0 ? -1 : 1
+    }
+  },
+  body: {
+    get() {
+      return Math.abs(this)
+    }
+  },
+  ub: {
+    value(a = 0) {
+      let _ = this.finalize
+      let b = 1
+      let d = _.gcd(a)
+
+      if (_ * a === 0) {
+        return [_.unit, _.body]
+      }
+      while (d !== 1) {
+        [_, b, d] = [_ / d, b * d, _.gcd(a)]
+      }
+      return [_, b]
+    }
+  },
+  factor: {
+    get() {
+      let [_, p, bound] = [this.body, 7, Math.sqrt(this) + 1]
+
+      if (!(_ % 2))
+        return 2
+      if (!(_ % 3))
+        return 3
+      if (!(_ % 5))
+        return 5
+
+      while (p < bound) {
+        if (!(_ % p)) //  7
+          return p
+        p += 4
+        if (!(_ % p)) // 11
+          return p
+        p += 2
+        if (!(_ % p)) // 13
+          return p
+        p += 4
+        if (!(_ % p)) // 17
+          return p
+        p += 2
+        if (!(_ % p)) // 19
+          return p
+        p += 4
+        if (!(_ % p)) // 23
+          return p
+        p += 6
+        if (!(_ % p)) // 29
+          return p
+        p += 2
+        if (!(_ % p)) //  1
+          return p
+        p += 6
+      }
+      return _
+    }
+  },
+  factorize: {
+    get() {
+      let _ = this.finalize, fs = {}, p
+
+      while (_ !== 1) {
+        p = _.factor
+        fs[p] || (fs[p] = 0)
+        fs[p] += 1
+        _ /= p
+      }
+      return fs
+    }
+  },
+
+
+
 
   exp: {
     get() {
@@ -259,7 +348,7 @@ Object.defineProperties(Number.prototype, {
         this.isZero
         ? undefined
         : this < 0
-        ? Arch.zero.cast(this).log
+        ? Arch.cast(this).log
         : Math.log(this)
       )
     }
@@ -338,7 +427,7 @@ class Integer extends Algebraic {
       ((_, a) => (
         _.length === a.length
         && _.every((e, i) => (
-          e == a[i]
+          e === a[i]
         ))
       ))
       (this.ua, a.ua)
