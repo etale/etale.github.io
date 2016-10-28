@@ -62,7 +62,7 @@ class Algebraic {
     return (
       this.isZero ? [] : (
         (([q, r]) => (
-          [r, ...q.split(a)]
+          [r, ...(q.split(a))]
         ))
         (this.divmod(a))
       )
@@ -76,7 +76,7 @@ let toUint8Array = (a) => (
     ((arr) => (
       new Uint8Array(arr.last < 0x80 ? arr : [...arr, 0])
     ))
-    (a.split)
+    (a.split(0x100))
   )
 )
 
@@ -90,8 +90,8 @@ Object.defineProperties(Array.prototype, {
     value(a = 0x100) {
       return (
         this.reverse().reduce((_, e) => (
-          _.mul(a).add(e)
-        ), a.zero)
+          _ * a + e
+        ), 0)
       )
     }
   }
@@ -382,13 +382,19 @@ class Integer extends Algebraic {
     this._ = _
   }
   get finalize() {
+    let a = Array.from(this._)
+
+    while (
+      (a.last === 0x00 && a[a.length - 2] < 0x80) ||
+      (a.last === 0xff && a[a.length - 2] > 0x7f)
+    ) {
+      a.pop()
+    }
+
     return (
-      ((_) => (
-        _.length < 6
-        ? Array.from(_)._join()
-        : this
-      ))
-      (this._)
+      a.length < 6
+      ? a._join()
+      : new Integer(new Uint8Array(a))
     )
   }
   get float() {
@@ -430,7 +436,7 @@ class Integer extends Algebraic {
           e === a[i]
         ))
       ))
-      (this.ua, a.ua)
+      (this._, a._)
     )
   }
   get _zero() { return Integer.zero }
@@ -453,6 +459,9 @@ class Integer extends Algebraic {
         ))
         (
           ((_, a) => (
+            _ = Array.from(_), // for Array#last
+            a = Array.from(a), // for Array#last
+
             _.length < a.length && ([_, a] = [a, _]),
             _ = [..._, _.last < 0x80 ? 0 : 0xff],
             a = [...a, ...Array(_.length - a.length).fill(
@@ -462,7 +471,8 @@ class Integer extends Algebraic {
             .reduce(({ arr, carry }, i) => (
               (([q, r]) => (
                 arr[i] = r,
-                carry = q
+                carry = q,
+                { arr, carry }
               ))
               ((carry + _[i] + a[i]).divmod(0x100))
             ), {
@@ -496,7 +506,7 @@ class Integer extends Algebraic {
                   arr[i + j] = r,
                   i + j + 1 < arr.length && (arr[i + j + 1] += q)
                 ))
-                (arr[i + j] + _[i] * a[j]).divmod(0x100)
+                ((arr[i + j] + _[i] * a[j]).divmod(0x100))
               ))
             )),
             new Integer(arr)
