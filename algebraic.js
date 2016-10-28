@@ -122,7 +122,7 @@ Object.defineProperties(Number.prototype, {
   _eql: {
     value(a) {
       return (
-        ((_, a) => (
+        (([_, a]) => (
           _ === a
         ))
         (this.coerce(a))
@@ -412,7 +412,7 @@ class Integer extends Algebraic {
           this.eq(a)
           ? [this, a]
           : (
-            ((a, _) => (
+            (([a, _]) => (
               [_, a]
             ))
             (a.coerce(_))
