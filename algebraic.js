@@ -61,6 +61,40 @@ class Algebraic {
   get isUnity() {
     return this._eql(this._unity)
   }
+
+  div(a) {
+    return (
+      (([q, r]) => (
+        q
+      ))
+      (this.divmod(a))
+    )
+  }
+  mod(a) {
+    return (
+      (([q, r]) => (
+        r
+      ))
+      (this.divmod(a))
+    )
+  }
+  gcd(a = 0) {
+    let _ = this.abs
+    a = a.abs
+    while (!a.isZero) {
+      [_, a] = [a, _.mod(a)]
+    }
+    return _
+  }
+  lcm(a = 1) {
+    return (
+      ((_, a) => (
+        _.mul(a).div(_.gcd(a))
+      ))
+      (this.abs, a.abs)
+    )
+  }
+
   split(a) {
     return (
       this.isZero ? [] : (
@@ -203,43 +237,6 @@ Object.defineProperties(Number.prototype, {
       )
     }
   },
-  div: {
-    value(a) {
-      return (
-        (([q, r]) => (
-          q
-        ))
-        (this.divmod(a))
-      )
-    }
-  },
-  mod: {
-    value(a) {
-      return (
-        (([q, r]) => (
-          r
-        ))
-        (this.divmod(a))
-      )
-    }
-  },
-  gcd: {
-    value(a = 0) {
-      let _ = Math.abs(this)
-      a = Math.abs(a)
-      while (a !== 0) {
-        [_, a] = [a, _.mod(a)]
-      }
-      return _
-    }
-  },
-  lcm: {
-    value(a = 1) {
-      let _ = Math.abs(this)
-      a = Math.abs(a)
-      return _ * a / _.gcd(a)
-    }
-  },
   __inv: {
     value(a = 0) {
       let _ = this.finalize
@@ -263,7 +260,12 @@ Object.defineProperties(Number.prototype, {
       return this < 0 ? -1 : 1
     }
   },
-  body: {
+  sign: {
+    get() {
+      return Math.sign(this)
+    }
+  },
+  abs: {
     get() {
       return Math.abs(this)
     }
@@ -272,20 +274,24 @@ Object.defineProperties(Number.prototype, {
     value(a = 0) {
       let _ = this.finalize
       let b = 1
-      let d = _.gcd(a)
+      let d
 
-      if (_ * a === 0) {
-        return [_.unit, _.body]
+      if (_.isZero || a.isZero) {
+        return [_.unit, _.abs]
       }
-      while (d !== 1) {
-        [_, b, d] = [_ / d, b * d, _.gcd(a)]
+      while (true) {
+        d = _.gcd(a)
+        if (d.isUnity) {
+          break
+        }
+        [_, b] = [_ / d, b * d]
       }
       return [_, b]
     }
   },
   factor: {
     get() {
-      let [_, p, bound] = [this.body, 7, Math.sqrt(this) + 1]
+      let [_, p, bound] = [this.abs, 7, Math.sqrt(this) + 1]
 
       if (!(_ % 2))
         return 2
@@ -526,27 +532,120 @@ Integer.cast = (a) => Integer.zero.cast(a)
 class Adele extends Algebraic {
   constructor(r = 0, s = 1, n = 0) {
     super()
-    n = n.body
+    n = n.abs;
     (([u, s]) => (
       ((r) => (
         this.r = r,
         this.s = s,
         this.n = n
       ))
-      ((r * u.__inv(n)).mod(n * s))
+      ((r.mul(u.__inv(n))).mod(n.mul(s)))
     ))
     (s.ub(n))
   }
-  get finalize() {}
-  coerce(a) {}
-  _eql(a) {}
-  get _zero() {}
-  get _neg() {}
-  _add(a) {}
-  get _unity() {}
-  get _inv() {}
-  _mul(a) {}
+  get finalize() {
+    this.n.isUnity || this.s.isZero
+    ? Adele.nil
+    : (
+      ((d) => (
+        new Adele(this.r.div(d), this.s.div(d), this.n)
+      ))
+      (this.r.gcd(this.s))
+    )
+  }
+  coerce(a) {
+    var _ = this, n, _u, _s, au, as, s, _r, ar
+
+    n = _.n.gcd(a.n)
+
+    if (n.isUnity) {
+      return [Adele.nil, Adele.nil]
+    }
+
+    [_u, _s] = _.s.ub(n)
+    [au, as] = a.s.ub(n)
+    s = _s.lcm(as)
+    _r = _.r.mul(_u.__inv(n)).mul(s.div(_s))
+    ar = a.r.mul(au.__inv(n)).mul(s.div(as))
+    return (
+      [new Adele(_r, s, n), new Adele(ar, s, n)]
+    )
+  }
+  _eql(a) {
+    return (
+      this.n._eql(a.n) &&
+      this.r._eql(a.r) &&
+      this.s._eql(a.s)
+    )
+  }
+  get _zero() {
+    return new Adele(this.r.zero, this.s, this.n)
+  }
+  get _neg() {
+    return new Adele(this.r.neg, this.s, this.n)
+  }
+  get res() {
+    return new Adele(
+      this.r.zero,
+      this.s.unity,
+      (([u, n]) => (
+        n
+      ))
+      (this.r.ub(this.n))
+    )
+  }
+  _add(a) {
+    return new Adele(
+      this.r._add(a.r),
+      this.s,
+      this.n
+    )
+  }
+  get _unity() {
+    return new Adele(
+      this.s,
+      this.s,
+      this.n
+    )
+  }
+  get _inv() {
+    return (
+      this.isZero ? Adele.nil :
+      (([u, s]) => (
+        ((r) => (
+          new Adele(r, s, this.n)
+        ))
+        (this.s.mul(u.__inv(this.n)))
+      ))
+      (this.r.ub(this.n))
+    )
+  }
+  _mul(a) {
+    return (
+      new Adele(
+        this.r.mul(a.r),
+        this.s.mul(a.s),
+        this.n
+      )
+    )
+  }
+  get unit() {
+    return (
+      (([u, b]) => (
+        new Adele(u, this.s.unity, this.n)
+      ))
+      (this.r.ub(this.n))
+    )
+  }
+  get abs() {
+    return (
+      (([u, b]) => (
+        new Adele(b, this.s, this.n.zero)
+      ))
+    )
+  }
 }
+//Adele.nil = new Adele(0, 0, 1)
 
 let PI2 = 2 * Math.PI
 class Arch extends Algebraic {
