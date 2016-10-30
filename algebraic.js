@@ -95,6 +95,19 @@ class Algebraic {
     )
   }
 
+  ub(a) {
+    let _ = this.finalize
+    if (_.isZero || a.isZero) {
+      return [_.unit, _.abs]
+    }
+    let [b, d] = [_.unity, _.gcd(a)]
+    while (!d.isUnity) {
+      [_, b] = [_.div(d), b.mul(d)],
+      d = _.gcd(a)
+    }
+    return [_, b]
+  }
+
   split(a) {
     return (
       this.isZero ? [] : (
@@ -159,10 +172,7 @@ Object.defineProperties(Number.prototype, {
   _eql: {
     value(a) {
       return (
-        (([_, a]) => (
-          _ === a
-        ))
-        (this.coerce(a))
+        this.finalize === a.finalize
       )
     }
   },
@@ -242,6 +252,7 @@ Object.defineProperties(Number.prototype, {
       let _ = this.finalize
       let x = 1
       let z = 0
+      let n = a.abs
       let [q, r] = _.divmod(a)
 
       if (a === 0 && _ === -1) {
@@ -268,25 +279,6 @@ Object.defineProperties(Number.prototype, {
   abs: {
     get() {
       return Math.abs(this)
-    }
-  },
-  ub: {
-    value(a = 0) {
-      let _ = this.finalize
-      let b = 1
-      let d
-
-      if (_.isZero || a.isZero) {
-        return [_.unit, _.abs]
-      }
-      while (true) {
-        d = _.gcd(a)
-        if (d.isUnity) {
-          break
-        }
-        [_, b] = [_ / d, b * d]
-      }
-      return [_, b]
     }
   },
   factor: {
@@ -544,13 +536,15 @@ class Adele extends Algebraic {
     (s.ub(n))
   }
   get finalize() {
-    this.n.isUnity || this.s.isZero
-    ? Adele.nil
-    : (
-      ((d) => (
-        new Adele(this.r.div(d), this.s.div(d), this.n)
-      ))
-      (this.r.gcd(this.s))
+    return (
+      this.n.isUnity || this.s.isZero
+      ? this
+      : (
+        ((d) => (
+          new Adele(this.r.div(d), this.s.div(d), this.n)
+        ))
+        (this.r.gcd(this.s))
+      )
     )
   }
   coerce(a) {
@@ -725,6 +719,24 @@ class Arch extends Algebraic {
   }
   get succ() {
     return this.exp.shift.log
+  }
+  get unit() {
+    return (
+      this.isZero ? Arch.unity :
+      this.sign
+    )
+  }
+  get sign() {
+    return (
+      this.isZero ? this :
+      new Arch(0, this.arg)
+    )
+  }
+  get abs() {
+    return (
+      this.isZero ? this :
+      new Arch(this.ord, 0)
+    )
   }
   get exp() {
     return (
