@@ -108,6 +108,27 @@ class Algebraic {
     return [_, b]
   }
 
+  cmp(a) {
+    return (
+      (([_, a]) => (
+        _._cmp(a)
+      ))
+      (this.coerce(a))
+    )
+  }
+  lt(a) {
+    return this.cmp(a) < 0
+  }
+  gt(a) {
+    return this.cmp(a) > 0
+  }
+  lte(a) {
+    return this.cmp(a) <= 0
+  }
+  gte(a) {
+    return this.cmp(a) >= 0
+  }
+
   split(a) {
     return (
       this.isZero ? [] : (
@@ -124,7 +145,7 @@ let toUint8Array = (a) => (
     new Integer(toUint8Array(- a)).neg._
   ) : (
     ((arr) => (
-      new Uint8Array(arr.last < 0x80 ? arr : [...arr, 0])
+      new Uint8Array(arr.length.isZero || arr.last < 0x80 ? arr : [...arr, 0])
     ))
     (a.split(0x100))
   )
@@ -190,9 +211,18 @@ Object.defineProperties(Number.prototype, {
     value(a) {
       return (
         (([_, a]) => (
-          Number.isInteger(_) && Number.isInteger(a)
-          ? Integer.cast(_)._add(Integer.cast(a))
-          : _ + a
+          ((r) => (
+            Number.isInteger(_) &&
+            Number.isInteger(a)
+            ? (
+              ((R) => (
+                R._.length < 6 ? r : R
+              ))
+              (Integer.cast(r))
+            )
+            : r
+          ))
+          (_ + a)
         ))
         (this.coerce(a))
       )
@@ -208,7 +238,11 @@ Object.defineProperties(Number.prototype, {
       return (
         ((_) => (
           Number.isInteger(_)
-          ? new Adele(1, _)
+          ? (
+            _ ===  1 ?  1 :
+            _ === -1 ? -1 :
+            new Adele(1, _)
+          )
           : 1 / _
         ))
         (this.finalize)
@@ -219,9 +253,18 @@ Object.defineProperties(Number.prototype, {
     value(a) {
       return (
         (([_, a]) => (
-          Number.isInteger(_) && Number.isInteger(a)
-          ? Integer.cast(_)._mul(Integer.cast(a))
-          : _ * a
+          ((r) => (
+            Number.isInteger(_) &&
+            Number.isInteger(a)
+            ? (
+              ((R) => (
+                R._.length < 6 ? r : R
+              ))
+              (Integer.cast(r))
+            )
+            : r
+          ))
+          (_ * a)
         ))
         (this.coerce(a))
       )
@@ -370,6 +413,11 @@ Object.defineProperties(Number.prototype, {
     value(...a) {
       return Math.hypot(this, ...a)
     }
+  },
+  _cmp: {
+    value(a) {
+      return this - a
+    }
   }
 })
 Reflect.setPrototypeOf(Number.prototype, Algebraic.prototype)
@@ -390,40 +438,46 @@ class Integer extends Algebraic {
     }
 
     return (
-      a.length < 6
-      ? a._join(0x100)
-      : new Integer(new Uint8Array(a))
+      ((_) => (
+        _.isZero ? _ :
+        _._.length < 6 ? _.number : _
+      ))
+      (new Integer(new Uint8Array(a)))
     )
   }
-  get float() {
+  get number() {
     return (
-      ((_) => (
-        Array.from(_)._join(0x100)
-      ))
-      (this._)
+      this.gte(0) ? (
+        ((_) => (
+          Array.from(_)._join(0x100)
+        ))
+        (this._)
+      ) : (
+        this._neg.number._neg
+      )
     )
   }
   coerce(a) {
     return (
-      ((_, a) => (
-        typeof a === 'number'
-        ? (
-          Number.isInteger(a)
-          ? [_, new Integer(toUint8Array(a))]
-          : [_.float, a]
-        )
-        : (
-          this.eq(a)
-          ? [this, a]
+      this.eq(a)
+      ? [this, a]
+      : (
+        ((a) => (
+          typeof a === 'number'
+          ? (
+            Number.isInteger(a)
+            ? [this, new Integer(toUint8Array(a))]
+            : [this.number, a]
+          )
           : (
             (([a, _]) => (
               [_, a]
             ))
             (a.coerce(_))
           )
-        )
-      ))
-      (this, a.finalize)
+        ))
+        (a.finalize)
+      )
     )
   }
   _eql(a) {
@@ -440,6 +494,7 @@ class Integer extends Algebraic {
   get _zero() { return Integer.zero }
   get _neg() {
     return (
+      this.isZero ? this :
       new Integer(
         this._.map((e) => (
           0xff - e
@@ -515,6 +570,15 @@ class Integer extends Algebraic {
 
       return new Integer(ua)
     }
+  }
+  _cmp(a) {
+    return (
+      ((d) => (
+        d.isZero ? 0 :
+        d._.last < 0x80 ? 1 : -1
+      ))
+      (this._add(a.neg))
+    )
   }
 }
 Integer.zero = new Integer
