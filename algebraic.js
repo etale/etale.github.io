@@ -340,6 +340,11 @@ Object.defineProperties(Number.prototype, {
       return Math.abs(this)
     }
   },
+  floor: {
+    get() {
+      return Math.floor(this)
+    }
+  },
   factor: {
     get() {
       let [_, p, bound] = [this.abs, 7, Math.sqrt(this) + 1]
@@ -560,14 +565,14 @@ class Integer extends Algebraic {
         ))
         (
           ((_, a) => (
-            _ = Array.from(_), // for Array#last
-            a = Array.from(a), // for Array#last
+            (_ = Array.from(_)), // for Array#last
+            (a = Array.from(a)), // for Array#last
 
             _.length < a.length && ([_, a] = [a, _]),
-            _ = [..._, _.last < 0x80 ? 0 : 0xff],
-            a = [...a, ...Array(_.length - a.length).fill(
+            (_ = [..._, _.last < 0x80 ? 0 : 0xff]),
+            (a = [...a, ...Array(_.length - a.length).fill(
               a.last < 0x80 ? 0 : 0xff
-            )],
+            )]),
             Array(_.length).fill().map((_, i) => i)
             .reduce(({ arr, carry }, i) => (
               ((x) => (
@@ -623,13 +628,34 @@ class Integer extends Algebraic {
       return new Integer(ua)
     }
   }
+  _divmod(a) {
+    let [q, r] = [Integer.zero, this]
+    let c
+
+    if (!a.isZero) {
+      while (r._cmp(a) > 0) {
+        if (r._.last > a._.last) {
+          c = (r._.last / a._.last).floor
+        } else
+        {
+          c = ((r._.last * 0x100 + r._[r._.length - 2]) / a._.last).floor
+        }
+        if (a.mul(c)._cmp(r) > 0) {
+          c -= 1
+        }
+        [q, r] = [q.add(c), r._add(a.mul(c)._neg)]
+        console.log({ q, r })
+      }
+    }
+    return [q, r]
+  }
   _cmp(a) {
     return (
       ((d) => (
         d.isZero ? 0 :
         d._.last < 0x80 ? 1 : -1
       ))
-      (this._add(a.neg))
+      (this._add(a._neg))
     )
   }
 }
