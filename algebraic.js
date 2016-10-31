@@ -129,6 +129,20 @@ class Algebraic {
     return this.cmp(a) >= 0
   }
 
+  pow(a) {
+    let _ = this
+    let r = _.unity
+
+    while (!a.isZero) {
+      if (a.mod(2).isUnity) {
+        r = r.mul(_)
+      }
+      [_, a] = [_.mul(_), a.div(2)]
+    }
+
+    return r
+  }
+
   split(a) {
     return (
       this.isZero ? [] : (
@@ -417,6 +431,38 @@ Object.defineProperties(Number.prototype, {
   _cmp: {
     value(a) {
       return this - a
+    }
+  },
+
+  f0: {
+    get() {
+      let [_, e] = [this.valueOf(), 0]
+      while (_ >= 2) {
+        [_, e] = [_ / 2, e + 1]
+      }
+      while (_ < 1) {
+        [_, e] = [_ * 2, e - 1]
+      }
+      return [_, e]
+    }
+  },
+  f1: {
+    get() {
+      let [_, e] = [this.valueOf(), 0]
+      while (!Number.isInteger(_)) {
+        [_, e] = [_ * 2, e + 1]
+      }
+      return [_, e]
+    }
+  },
+  adele: {
+    get() {
+      let [u, e0] = this.f0
+      let [r, e1] = u.f1
+      let e = e0 - e1
+      r = new Adele(Integer.cast(r))
+      b = (new Adele(Integer.cast(2))).pow(e)
+      return r.mul(b)
     }
   }
 })
