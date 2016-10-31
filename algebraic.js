@@ -1,4 +1,15 @@
 class Algebraic {
+  _eql(a) { return new Error('_eql is missing') }
+  get finalize() { return new Error('finalize is missing') }
+  coerce(a) { return new Error('coerce is missing') }
+  get _zero() { return new Error('_zero is missing') }
+  get _neg() { return new Error('_neg is missing') }
+  _add(a) { return new Error('_add is missing') }
+  get _unity() { return new Error('_unity is missing') }
+  get _inv() { return new Error('_inv is missing') }
+  _mul(a) { return new Error('_mul is missing') }
+  _cmp(a) { return new Error('_cmp is missing')}
+
   eq(a) {
     return (
       Reflect.getPrototypeOf(this) ===
@@ -10,9 +21,6 @@ class Algebraic {
       this.eq(a) && this._eql(a)
     )
   }
-  _eql(a) { return new Error('_eql is missing') }
-  get finalize() { return new Error('finalize is missing') }
-  coerce(a) { return new Error('coerce is missing') }
   cast(a) {
     return (
       (([_, a]) => (
@@ -24,11 +32,9 @@ class Algebraic {
   get zero() {
     return this._zero.finalize
   }
-  get _zero() { return new Error('_zero is missing') }
   get neg() {
     return this._neg.finalize
   }
-  get _neg() { return new Error('_neg is missing') }
   add(a) {
     return (
       (([_, a]) => (
@@ -37,15 +43,12 @@ class Algebraic {
       (this.coerce(a))
     )
   }
-  _add(a) { return new Error('_add is missing') }
   get unity() {
     return this._unity.finalize
   }
-  get _unity() { return new Error('_unity is missing') }
   get inv() {
     return this._inv.finalize
   }
-  get _inv() { return new Error('_inv is missing') }
   mul(a) {
     return (
       (([_, a]) => (
@@ -54,7 +57,6 @@ class Algebraic {
       (this.coerce(a))
     )
   }
-  _mul(a) { return new Error('_mul is missing') }
   get isZero() {
     return this._eql(this._zero)
   }
@@ -78,7 +80,7 @@ class Algebraic {
       (this.divmod(a))
     )
   }
-  gcd(a = 0) {
+  gcd(a) {
     let _ = this.abs
     a = a.abs
     while (!a.isZero) {
@@ -86,7 +88,7 @@ class Algebraic {
     }
     return _
   }
-  lcm(a = 1) {
+  lcm(a) {
     return (
       ((_, a) => (
         _.mul(a).div(_.gcd(a))
@@ -568,12 +570,12 @@ class Integer extends Algebraic {
             )],
             Array(_.length).fill().map((_, i) => i)
             .reduce(({ arr, carry }, i) => (
-              (([q, r]) => (
-                arr[i] = r,
-                carry = q,
+              ((x) => (
+                arr[i] = x & 0xff,
+                carry = x >>> 8,
                 { arr, carry }
               ))
-              ((carry + _[i] + a[i]).divmod(0x100))
+              (carry + _[i] + a[i])
             ), {
               arr: new Uint8Array(_.length),
               carry: 0
@@ -604,13 +606,17 @@ class Integer extends Algebraic {
       let _ = this._; a = a._
       let _len = _.length, alen = a.length, ualen = _len + alen
       let ua = new Uint8Array(_len + alen)
-      let i, j, q, r
+      let i, j
 
       for (i = 0; i < _len; i ++) {
         for (j = 0; j < alen; j ++) {
-          [q, r] = (ua[i + j] + _[i] * a[j]).divmod(0x100)
-          ua[i + j] = r
-          i + j + 1 < ualen && (ua[i + j + 1] += q)
+          ((x) => {
+            ua[i + j] = x & 0xff
+            i + j + 1 < ualen && (
+              ua[i + j + 1] += x >>> 8
+            )
+          })
+          (ua[i + j] + _[i] * a[j])
         }
       }
 
