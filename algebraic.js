@@ -439,7 +439,7 @@ class Integer extends Algebraic {
 
     return (
       ((_) => (
-        _.isZero ? _ :
+        _.isZero ? 0 :
         _._.length < 6 ? _.number : _
       ))
       (new Integer(new Uint8Array(a)))
