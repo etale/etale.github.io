@@ -495,13 +495,13 @@ class Integer extends Algebraic {
   }
   get number() {
     return (
-      this.gte(0) ? (
+      this.isZero ? 0 : (
         ((_) => (
-          Array.from(_)._join(0x100)
+          _.last < 0x80
+          ? _._join(0x100)
+          : this._neg.number._neg
         ))
-        (this._)
-      ) : (
-        this._neg.number._neg
+        (Array.from(this._))
       )
     )
   }
