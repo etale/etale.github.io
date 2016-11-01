@@ -1,15 +1,15 @@
 class Algebraic {
-  _eql(a) { return new Error('_eql is missing') }
-  get finalize() { return new Error('finalize is missing') }
-  coerce(a) { return new Error('coerce is missing') }
-  get _zero() { return new Error('_zero is missing') }
-  get _neg() { return new Error('_neg is missing') }
-  _add(a) { return new Error('_add is missing') }
-  get _unity() { return new Error('_unity is missing') }
-  get _inv() { return new Error('_inv is missing') }
-  _mul(a) { return new Error('_mul is missing') }
-  _cmp(a) { return new Error('_cmp is missing') }
-  _divmod(a) { return new Error('_divmod is missing') }
+  get finalize() { throw new Error('finalize is missing') }
+  get _zero() { throw new Error('_zero is missing') }
+  get _unity() { throw new Error('_unity is missing') }
+  get _neg() { throw new Error('_neg is missing') }
+  get _inv() { throw new Error('_inv is missing') }
+  _eql(a) { throw new Error('_eql is missing') }
+  coerce(a) { throw new Error('coerce is missing') }
+  _add(a) { throw new Error('_add is missing') }
+  _mul(a) { throw new Error('_mul is missing') }
+  _divmod(a) { throw new Error('_divmod is missing') }
+  _cmp(a) { throw new Error('_cmp is missing') }
 
   eq(a) {
     return (
@@ -33,8 +33,14 @@ class Algebraic {
   get zero() {
     return this._zero.finalize
   }
+  get unity() {
+    return this._unity.finalize
+  }
   get neg() {
     return this._neg.finalize
+  }
+  get inv() {
+    return this._inv.finalize
   }
   add(a) {
     return (
@@ -44,12 +50,6 @@ class Algebraic {
       (this.coerce(a))
     )
   }
-  get unity() {
-    return this._unity.finalize
-  }
-  get inv() {
-    return this._inv.finalize
-  }
   mul(a) {
     return (
       (([_, a]) => (
@@ -58,13 +58,6 @@ class Algebraic {
       (this.coerce(a))
     )
   }
-  get isZero() {
-    return this._eql(this._zero)
-  }
-  get isUnity() {
-    return this._eql(this._unity)
-  }
-
   divmod(a) {
     return (
       (([_, a]) => (
@@ -76,6 +69,22 @@ class Algebraic {
       ))
       (this.coerce(a))
     )
+  }
+  pow(a) {
+    if (a < 0) {
+      return this.pow(-a).inv
+    }
+    let _ = this
+    let r = _._unity
+
+    while (a) {
+      if (a & 1 === 1) {
+        r = r.mul(_)
+      }
+      [_, a] = [_._mul(_), a >>> 1]
+    }
+
+    return r.finalize
   }
   div(a) {
     return (
@@ -140,6 +149,12 @@ class Algebraic {
     return x.mod(n)
   }
 
+  get isZero() {
+    return this._eql(this._zero)
+  }
+  get isUnity() {
+    return this._eql(this._unity)
+  }
   cmp(a) {
     return (
       (([_, a]) => (
@@ -161,23 +176,6 @@ class Algebraic {
     return this.cmp(a) >= 0
   }
 
-  pow(a) {
-    if (a < 0) {
-      return this.pow(-a).inv
-    }
-    let _ = this
-    let r = _._unity
-
-    while (a) {
-      if (a & 1 === 1) {
-        r = r.mul(_)
-      }
-      [_, a] = [_._mul(_), a >>> 1]
-    }
-
-    return r.finalize
-  }
-
   split(a) {
     return (
       this.isZero ? [] : (
@@ -191,7 +189,7 @@ class Algebraic {
 }
 let toUint8Array = (a) => (
   a < 0 ? (
-    new Integer(toUint8Array(- a)).neg._
+    new Integer(toUint8Array(- a))._neg._
   ) : (
     ((arr) => (
       new Uint8Array(arr.length.isZero || arr.last < 0x80 ? arr : [...arr, 0])
