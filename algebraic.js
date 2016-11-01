@@ -7,6 +7,9 @@ class Algebraic {
   get _neg() { throw new Error('_neg is missing') }
   get _res() { throw new Error('_res is missing') }
   get _inv() { throw new Error('_inv is missing') }
+  get unit() { throw new Error('unit is missing') }
+  get sign() { throw new Error('sign is missing') }
+  get abs() { throw new Error('abs is missing') }
   _add(a) { throw new Error('_add is missing') }
   _mul(a) { throw new Error('_mul is missing') }
   _divmod(a) { throw new Error('_divmod is missing') }
@@ -140,8 +143,8 @@ class Algebraic {
     let n = a.abs
     let [q, r] = _._divmod(a)
 
-    if (a.isZero && _._neg.isUnity) {
-      return _._neg
+    if (a.isZero && _.isUnit) {
+      return _
     }
 
     while (!a.isZero) {
@@ -155,6 +158,15 @@ class Algebraic {
   }
   get isUnity() {
     return this._eql(this._unity)
+  }
+  get isUnit() {
+    return this._eql(this.unit)
+  }
+  get isSign() {
+    return this._eql(this.sign)
+  }
+  get isAbs() {
+    return this._eql(this.abs)
   }
   cmp(a) {
     return (
@@ -338,8 +350,8 @@ Object.defineProperties(Number.prototype, {
       let n = a.abs
       let [q, r] = _._divmod(a)
 
-      if (a === 0 && _ === -1) {
-        return -1
+      if (a.isZero && _.isUnit) {
+        return _
       }
 
       while (a !== 0) {
