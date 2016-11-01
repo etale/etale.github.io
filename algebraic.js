@@ -136,7 +136,7 @@ class Algebraic {
     }
     return [_, b]
   }
-  __inv(a = this._zero) {
+  invmod(a) {
     let _ = this
     let x = this._unity
     let z = this._zero
@@ -144,7 +144,7 @@ class Algebraic {
     let [q, r] = _._divmod(a)
 
     if (a.isZero && _.isUnit) {
-      return _
+      return _._inv
     }
 
     while (!a.isZero) {
@@ -342,8 +342,8 @@ Object.defineProperties(Number.prototype, {
       return this - a
     }
   },
-  __inv: {
-    value(a = 0) {
+  invmod: {
+    value(a) {
       let _ = this.finalize
       let x = 1
       let z = 0
@@ -351,7 +351,7 @@ Object.defineProperties(Number.prototype, {
       let [q, r] = _._divmod(a)
 
       if (a.isZero && _.isUnit) {
-        return _
+        return _._inv
       }
 
       while (a !== 0) {
@@ -625,7 +625,7 @@ class Integer extends Algebraic {
     return (
       this.isZero ? undefined :
       this.isUnity ? Integer.unity :
-      this._eql(Integer.unity._neg) ? Integer.unity._neg :
+      this._eql(Integer.negUnity) ? Integer.negUnity :
       new Adele(1, this)
     )
   }
@@ -738,6 +738,7 @@ class Integer extends Algebraic {
 }
 Integer.zero = new Integer
 Integer.unity = new Integer(new Uint8Array([1]))
+Integer.negUnity = Integer.unity._neg
 Integer.cast = (a) => Integer.zero.cast(a)
 
 class Adele extends Algebraic {
@@ -750,7 +751,7 @@ class Adele extends Algebraic {
         this.s = s,
         this.n = n
       ))
-      ((r.mul(u.__inv(n))).mod(n.mul(s)))
+      ((r.mul(u.invmod(n))).mod(n.mul(s)))
     ))
     (s.ub(n))
   }
@@ -774,8 +775,8 @@ class Adele extends Algebraic {
       [_u, _s] = _.s.ub(n)
       [au, as] = a.s.ub(n)
       s = _s.lcm(as)
-      _r = _.r.mul(_u.__inv(n)).mul(s.div(_s))
-      ar = a.r.mul(au.__inv(n)).mul(s.div(as))
+      _r = _.r.mul(_u.invmod(n)).mul(s.div(_s))
+      ar = a.r.mul(au.invmod(n)).mul(s.div(as))
       return (
         [new Adele(_r, s, n), new Adele(ar, s, n)]
       )
@@ -838,7 +839,7 @@ class Adele extends Algebraic {
         ((r) => (
           new Adele(r, s, this.n)
         ))
-        (this.s.mul(u.__inv(this.n)))
+        (this.s.mul(u.invmod(this.n)))
       ))
       (this.r.ub(this.n))
     )
