@@ -8,7 +8,8 @@ class Algebraic {
   get _unity() { return new Error('_unity is missing') }
   get _inv() { return new Error('_inv is missing') }
   _mul(a) { return new Error('_mul is missing') }
-  _cmp(a) { return new Error('_cmp is missing')}
+  _cmp(a) { return new Error('_cmp is missing') }
+  _divmod(a) { return new Error('_divmod is missing') }
 
   eq(a) {
     return (
@@ -64,6 +65,17 @@ class Algebraic {
     return this._eql(this._unity)
   }
 
+  divmod(a) {
+    return (
+      (([_, a]) => (
+        (([_, a]) => (
+          [_.finalize, a.finalize]
+        ))
+        (_._divmod(a))
+      ))
+      (this.coerce(a))
+    )
+  }
   div(a) {
     return (
       (([q, r]) => (
@@ -227,18 +239,10 @@ Object.defineProperties(Number.prototype, {
     value(a) {
       return (
         (([_, a]) => (
-          ((r) => (
-            Number.isInteger(_) &&
-            Number.isInteger(a)
-            ? (
-              ((R) => (
-                R._.length < 6 ? r : R
-              ))
-              (Integer.cast(r))
-            )
-            : r
-          ))
-          (_ + a)
+          Number.isInteger(_) &&
+          Number.isInteger(a)
+          ? Integer.cast(_).add(Integer.cast(a))
+          : _ + a
         ))
         (this.coerce(a))
       )
@@ -269,25 +273,17 @@ Object.defineProperties(Number.prototype, {
     value(a) {
       return (
         (([_, a]) => (
-          ((r) => (
-            Number.isInteger(_) &&
-            Number.isInteger(a)
-            ? (
-              ((R) => (
-                R._.length < 6 ? r : R
-              ))
-              (Integer.cast(r))
-            )
-            : r
-          ))
-          (_ * a)
+          Number.isInteger(_) &&
+          Number.isInteger(a)
+          ? Integer.cast(_).mul(Integer.cast(a))
+          : _ + a
         ))
         (this.coerce(a))
       )
     }
   },
 
-  divmod: {
+  _divmod: {
     value(a) {
       return (
         (([_, a]) => (
@@ -312,14 +308,14 @@ Object.defineProperties(Number.prototype, {
       let x = 1
       let z = 0
       let n = a.abs
-      let [q, r] = _.divmod(a)
+      let [q, r] = _._divmod(a)
 
       if (a === 0 && _ === -1) {
         return -1
       }
 
       while (a !== 0) {
-        [q, r] = _.divmod(a)
+        [q, r] = _._divmod(a)
         [_, a, x, z] = [a, r, z, x - q * z]
       }
       return x.mod(n)
@@ -481,21 +477,29 @@ class Integer extends Algebraic {
     this._ = _
   }
   get finalize() {
+    return (
+      ((_) => (
+        _._.length > 6 ? _ : _.number
+      ))
+      (this.canonicalize)
+    )
+  }
+  get canonicalize() {
     let a = Array.from(this._)
 
     while (
       (a.last === 0x00 && a[a.length - 2] < 0x80) ||
       (a.last === 0xff && a[a.length - 2] > 0x7f)
-    ) {
-      a.pop()
-    }
+    ) a.pop()
 
     return (
-      ((_) => (
-        _.isZero ? 0 :
-        _._.length < 6 ? _.number : _
-      ))
-      (new Integer(new Uint8Array(a)))
+      a.length === 1 ? (
+        a[0] === 0 ? Integer.zero :
+        a[0] === 1 ? Integer.unity :
+        new Integer(new Uint8Array(a))
+      ) : (
+        new Integer(new Uint8Array(a))
+      )
     )
   }
   get number() {
@@ -599,7 +603,7 @@ class Integer extends Algebraic {
   }
   _mul(a) {
     if (this.isZero || a.isZero) {
-      return this._zero
+      return Integer.zero
     } else
     if (this.isUnity) {
       return a
@@ -655,7 +659,7 @@ class Integer extends Algebraic {
         d.isZero ? 0 :
         d._.last < 0x80 ? 1 : -1
       ))
-      (this._add(a._neg))
+      (this._add(a._neg).canonicalize)
     )
   }
 }
