@@ -1,11 +1,12 @@
 class Algebraic {
+  _eql(a) { throw new Error('_eql is missing') }
+  coerce(a) { throw new Error('coerce is missing') }
   get finalize() { throw new Error('finalize is missing') }
   get _zero() { throw new Error('_zero is missing') }
   get _unity() { throw new Error('_unity is missing') }
   get _neg() { throw new Error('_neg is missing') }
+  get _res() { throw new Error('_res is missing') }
   get _inv() { throw new Error('_inv is missing') }
-  _eql(a) { throw new Error('_eql is missing') }
-  coerce(a) { throw new Error('coerce is missing') }
   _add(a) { throw new Error('_add is missing') }
   _mul(a) { throw new Error('_mul is missing') }
   _divmod(a) { throw new Error('_divmod is missing') }
@@ -39,6 +40,9 @@ class Algebraic {
   get neg() {
     return this._neg.finalize
   }
+  get res() {
+    return this._res.finalize
+  }
   get inv() {
     return this._inv.finalize
   }
@@ -62,8 +66,7 @@ class Algebraic {
     return (
       (([_, a]) => (
         (([_, a]) => (
-          [_, a]
-//          [_.finalize, a.finalize]
+          [_, a] // [_.finalize, a.finalize]
         ))
         (_._divmod(a))
       ))
@@ -118,7 +121,6 @@ class Algebraic {
       (this.abs, a.abs)
     )
   }
-
   ub(a) {
     let _ = this.finalize
     if (_.isZero || a.isZero) {
@@ -148,7 +150,6 @@ class Algebraic {
     }
     return x.mod(n)
   }
-
   get isZero() {
     return this._eql(this._zero)
   }
@@ -175,7 +176,6 @@ class Algebraic {
   gte(a) {
     return this.cmp(a) >= 0
   }
-
   split(a) {
     return (
       this.isZero ? [] : (
@@ -216,9 +216,11 @@ Object.defineProperties(Array.prototype, {
 })
 
 Object.defineProperties(Number.prototype, {
-  finalize: {
-    get() {
-      return this.valueOf()
+  _eql: {
+    value(a) {
+      return (
+        this.finalize === a.finalize
+      )
     }
   },
   coerce: {
@@ -237,11 +239,9 @@ Object.defineProperties(Number.prototype, {
       )
     }
   },
-  _eql: {
-    value(a) {
-      return (
-        this.finalize === a.finalize
-      )
+  finalize: {
+    get() {
+      return this.valueOf()
     }
   },
   _zero: {
@@ -249,27 +249,19 @@ Object.defineProperties(Number.prototype, {
       return 0
     }
   },
+  _unity: {
+    get() {
+      return 1
+    }
+  },
   _neg: {
     get() {
       return 0 - this
     }
   },
-  _add: {
-    value(a) {
-      return (
-        (([_, a]) => (
-          Number.isInteger(_) &&
-          Number.isInteger(a)
-          ? Integer.cast(_).add(Integer.cast(a))
-          : _ + a
-        ))
-        (this.coerce(a))
-      )
-    }
-  },
-  _unity: {
+  _res: {
     get() {
-      return 1
+      return new Adele(0, 1, this.finalize)
     }
   },
   _inv: {
@@ -288,6 +280,19 @@ Object.defineProperties(Number.prototype, {
       )
     }
   },
+  _add: {
+    value(a) {
+      return (
+        (([_, a]) => (
+          Number.isInteger(_) &&
+          Number.isInteger(a)
+          ? Integer.cast(_).add(Integer.cast(a))
+          : _ + a
+        ))
+        (this.coerce(a))
+      )
+    }
+  },
   _mul: {
     value(a) {
       return (
@@ -301,7 +306,6 @@ Object.defineProperties(Number.prototype, {
       )
     }
   },
-
   _divmod: {
     value(a) {
       return (
@@ -319,6 +323,11 @@ Object.defineProperties(Number.prototype, {
         ))
         (this.coerce(a))
       )
+    }
+  },
+  _cmp: {
+    value(a) {
+      return this - a
     }
   },
   __inv: {
@@ -413,7 +422,6 @@ Object.defineProperties(Number.prototype, {
       return fs
     }
   },
-
   exp: {
     get() {
       return Math.exp(this)
@@ -450,12 +458,6 @@ Object.defineProperties(Number.prototype, {
       return Math.hypot(this, ...a)
     }
   },
-  _cmp: {
-    value(a) {
-      return this - a
-    }
-  },
-
   f0: {
     get() {
       let [_, e] = [this.valueOf(), 0]
@@ -498,6 +500,40 @@ class Integer extends Algebraic {
     super()
     this._ = _
   }
+  _eql(a) {
+    return (
+      ((_, a) => (
+        _.length === a.length
+        && _.every((e, i) => (
+          e === a[i]
+        ))
+      ))
+      (this._, a._)
+    )
+  }
+  coerce(a) {
+    return (
+      this.eq(a)
+      ? [this, a]
+      : (
+        ((a) => (
+          typeof a === 'number'
+          ? (
+            Number.isInteger(a)
+            ? [this, new Integer(toUint8Array(a))]
+            : [this.number, a]
+          )
+          : (
+            (([a, _]) => (
+              [_, a]
+            ))
+            (a.coerce(_))
+          )
+        ))
+        (a.finalize)
+      )
+    )
+  }
   get finalize() {
     return (
       ((_) => (
@@ -536,41 +572,12 @@ class Integer extends Algebraic {
       )
     )
   }
-  coerce(a) {
-    return (
-      this.eq(a)
-      ? [this, a]
-      : (
-        ((a) => (
-          typeof a === 'number'
-          ? (
-            Number.isInteger(a)
-            ? [this, new Integer(toUint8Array(a))]
-            : [this.number, a]
-          )
-          : (
-            (([a, _]) => (
-              [_, a]
-            ))
-            (a.coerce(_))
-          )
-        ))
-        (a.finalize)
-      )
-    )
+  get _zero() {
+    return Integer.zero
   }
-  _eql(a) {
-    return (
-      ((_, a) => (
-        _.length === a.length
-        && _.every((e, i) => (
-          e === a[i]
-        ))
-      ))
-      (this._, a._)
-    )
+  get _unity() {
+    return Integer.unity
   }
-  get _zero() { return Integer.zero }
   get _neg() {
     return (
       this.isZero ? this :
@@ -581,6 +588,19 @@ class Integer extends Algebraic {
       )
       ._add(this._unity)
       .canonicalize
+    )
+  }
+  get _res() {
+    return (
+      new Adele(0, 1, this)
+    )
+  }
+  get _inv() {
+    return (
+      this.isZero ? undefined :
+      this.isUnity ? Integer.unity :
+      this._eql(Integer.unity._neg) ? Integer.unity._neg :
+      new Adele(1, this)
     )
   }
   _add(a) {
@@ -618,17 +638,6 @@ class Integer extends Algebraic {
       )
     )
   }
-  get _unity() {
-    return Integer.unity
-  }
-  get _inv() {
-    return (
-      this.isZero ? undefined :
-      this.isUnity ? Integer.unity :
-      this._eql(Integer.unity._neg) ? Integer.unity._neg :
-      new Adele(1, this)
-    )
-  }
   _mul(a) {
     if (this.isZero || a.isZero) {
       return Integer.zero
@@ -660,16 +669,6 @@ class Integer extends Algebraic {
       return new Integer(ua)
     }
   }
-  get unit() {
-    return (
-      this.isZero ? Integer.unity :
-      Array.from(this._).last < 0x80 ? Integer.unity :
-      Integer.unity._neg
-    )
-  }
-  get abs() {
-    return this._mul(this.unit)
-  }
   _divmod(a) {
     let [q, r] = [Integer.zero, this]
     let c
@@ -700,6 +699,16 @@ class Integer extends Algebraic {
       (this._add(a._neg).canonicalize)
     )
   }
+  get unit() {
+    return (
+      this.isZero ? Integer.unity :
+      Array.from(this._).last < 0x80 ? Integer.unity :
+      Integer.unity._neg
+    )
+  }
+  get abs() {
+    return this._mul(this.unit)
+  }
 }
 Integer.zero = new Integer
 Integer.unity = new Integer(new Uint8Array([1]))
@@ -719,16 +728,11 @@ class Adele extends Algebraic {
     ))
     (s.ub(n))
   }
-  get finalize() {
+  _eql(a) {
     return (
-      this.n.isUnity || this.s.isZero
-      ? this
-      : (
-        ((d) => (
-          new Adele(this.r.div(d), this.s.div(d), this.n)
-        ))
-        (this.r.gcd(this.s))
-      )
+      this.n._eql(a.n) &&
+      this.r._eql(a.r) &&
+      this.s._eql(a.s)
     )
   }
   coerce(a) {
@@ -767,20 +771,32 @@ class Adele extends Algebraic {
       return [this, new Error('not yet')]
     }
   }
-  _eql(a) {
+  get finalize() {
     return (
-      this.n._eql(a.n) &&
-      this.r._eql(a.r) &&
-      this.s._eql(a.s)
+      this.n.isUnity || this.s.isZero
+      ? this
+      : (
+        ((d) => (
+          new Adele(this.r.div(d), this.s.div(d), this.n)
+        ))
+        (this.r.gcd(this.s))
+      )
     )
   }
   get _zero() {
     return new Adele(this.r.zero, this.s, this.n)
   }
+  get _unity() {
+    return new Adele(
+      this.s,
+      this.s,
+      this.n
+    )
+  }
   get _neg() {
     return new Adele(this.r.neg, this.s, this.n)
   }
-  get res() {
+  get _res() {
     return new Adele(
       this.r.zero,
       this.s.unity,
@@ -788,20 +804,6 @@ class Adele extends Algebraic {
         n
       ))
       (this.r.ub(this.n))
-    )
-  }
-  _add(a) {
-    return new Adele(
-      this.r._add(a.r),
-      this.s,
-      this.n
-    )
-  }
-  get _unity() {
-    return new Adele(
-      this.s,
-      this.s,
-      this.n
     )
   }
   get _inv() {
@@ -815,6 +817,13 @@ class Adele extends Algebraic {
       (this.r.ub(this.n))
     )
   }
+  _add(a) {
+    return new Adele(
+      this.r._add(a.r),
+      this.s,
+      this.n
+    )
+  }
   _mul(a) {
     return (
       new Adele(
@@ -823,6 +832,12 @@ class Adele extends Algebraic {
         this.n
       )
     )
+  }
+  _divmod(a) {
+    throw new Error('Adele#_divmod not yet')
+  }
+  _cmp(a) {
+    throw new Error('Adele#_cmp not yet')
   }
   get unit() {
     return (
@@ -840,7 +855,6 @@ class Adele extends Algebraic {
     )
   }
 }
-//Adele.nil = new Adele(0, 0, 1)
 
 let PI2 = 2 * Math.PI
 class Arch extends Algebraic {
@@ -856,8 +870,11 @@ class Arch extends Algebraic {
       (ord || 0, arg || 0)
     )
   }
-  get finalize() {
-    return this
+  _eql(a) {
+    return (
+      this.ord === a.ord &&
+      this.arg === a.arg
+    )
   }
   coerce(a) {
     return (
@@ -867,17 +884,26 @@ class Arch extends Algebraic {
       [this, new Arch((- a).log, 0.5)]
     )
   }
-  _eql(a) {
-    return (
-      this.ord === a.ord &&
-      this.arg === a.arg
-    )
+  get finalize() {
+    return this
   }
   get _zero() {
     return Arch.zero
   }
+  get _unity() {
+    return Arch.unity
+  }
   get _neg() {
     return new Arch(this.ord, this.arg + 0.5)
+  }
+  get _res() {
+    throw new Error('Arch#_res not yet')
+  }
+  get _inv() {
+    return new Arch(
+      - this.ord,
+      - this.arg
+    )
   }
   _add(a) {
     return (
@@ -889,15 +915,6 @@ class Arch extends Algebraic {
       )
     )
   }
-  get _unity() {
-    return Arch.unity
-  }
-  get _inv() {
-    return new Arch(
-      - this.ord,
-      - this.arg
-    )
-  }
   _mul(a) {
     return (
       a.isZero
@@ -907,6 +924,16 @@ class Arch extends Algebraic {
         this.arg + a.arg
       )
     )
+  }
+  _divmod(a) {
+    throw new Error('Arch#_divmod not yet')
+  }
+  _cmp(a) {
+    let _ = this._mul(this.sign.inv)
+    a = a._mul(this.sign.inv)
+    return a.arg === 0 || a.arg === 0.5 ? (
+      (_.exp.ord)._cmp(a.exp.ord)
+    ) : undefined
   }
   get shift() {
     return (
