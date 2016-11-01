@@ -572,6 +572,20 @@ class Integer extends Algebraic {
       )
     )
   }
+  get arch() {
+    return (
+      this.isZero ? 0 : (
+        ((_) => (
+          _.last < 0x80
+          ? _.reverse().reduce((a, b) => (
+            a.mul(256).add(b)
+          ), Arch.zero)
+          : this._neg.arch._neg
+        ))
+        (Array.from(this._))
+      )
+    )
+  }
   get _zero() {
     return Integer.zero
   }
