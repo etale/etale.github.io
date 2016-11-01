@@ -145,16 +145,16 @@ class Algebraic {
 
   pow(a) {
     let _ = this
-    let r = _.unity
+    let r = _._unity
 
-    while (!a.isZero) {
-      if (a.mod(2).isUnity) {
+    while (a) {
+      if (a & 1 === 1) {
         r = r.mul(_)
       }
-      [_, a] = [_.mul(_), a.div(2)]
+      [_, a] = [_._mul(_), a >>> 1]
     }
 
-    return r
+    return r.finalize
   }
 
   split(a) {
