@@ -2,64 +2,88 @@ class Integer extends Uint8Array {
   constructor(a) {
     super(a)
   }
+  get next() {
+    return this[this.length - 1] < 0x80 ? 0 : 0xff
+  }
   get final() {
-    let _ = Array.from(this)
-
-    while (
-      _[_.length - 1] === 0    && _[_.length - 2] < 0x80 ||
-      _[_.length - 1] === 0xff && _[_.length - 2] > 0x7f
-    ) _.pop()
-    if (_.length === 1) {
-      if (_[0] === 0) {
-        return Integer.zero
-      } else
-      if (_[0] === 1) {
-        return Integer.unity
-      }
-    }
-    return new Integer(_)
+    return (
+      ((_) => (
+        _.length === 1
+        ? (
+          _[0] === 0 ? Integer.zero :
+          _[0] === 1 ? Integer.unity :
+          _
+        )
+        : _
+      ))
+      (
+        ((i) => (
+          (() => {
+            while (
+              this[i - 1] === 0    && this[i - 2] < 0x80 ||
+              this[i - 1] === 0xff && this[i - 2] > 0x7f
+            ) i --
+          })(),
+          this.slice(0, i)
+        ))
+        (this.length)
+      )
+    )
   }
   get zero() { return Integer.zero }
   get unity() { return Integer.unity }
   get neg() {
-    return this.map((a) => (
-      0xff - a
-    )).add(Integer.unity)
+    return (
+      this.map((a) => (
+        0xff - a
+      )).add(Integer.unity)
+    )
   }
   add(a) {
-    return ((_, a) => {
-      _.length < a.length && (
-        [a, _] = [_, a]
-      )
-      _ = new Integer([..._, _[_.length - 1] < 0x80 ? 0 : 0xff])
-      a = new Integer([...a, Array(_.length - a.length).fill(
-        a[a.length - 1] < 0x80 ? 0 : 0xff
-      )])
-      let i
-      for (i = 0; i < _.length; i++) {
-        ((x) => {
-          _[i] = x & 0xff
-          _[i + 1] = x >>> 8
-        })
-        (_[i] + a[i])
-      }
-      return _.final
-    })
-    (this, a)
+    return (
+      ((_, a) => (
+        _.length < a.length && (
+          [a, _] = [_, a]
+        ),
+        ((_, a) => (console.log({ _, a }),
+          _.reduce((carry, e, i) => (console.log({ _, a }),
+            ((x) => (
+              (_[i] = x & 0xff), x >>> 8
+            ))
+            (carry + e + a[i])
+          ), 0),
+          _.final
+        ))
+        (
+          new Integer([
+            ..._, _.next
+          ]),
+          new Integer([
+            ...a, Array(
+              _.length - a.length + 1
+            ).fill(a.next)
+          ])
+        )
+      ))
+      (this, a)
+    )
   }
   mul(a) {
-    let _ = new Integer(this.length + a.length)
-    let i, j
-    for (i = 0; i < this.length; i++) {
-      for (j = 0; j < a.length; j++) {
-        ((x) => {
-          _[i + j] = x & 0xff
-          _[i + j + 1] = x >>> 8
-        })
-        (_[i + j] + this[i] * a[j])
-      }
-    }
-    return _.final
+    return (
+      ((_) => (
+        this.forEach((_e, _i) => (
+          a.forEach((ae, ai) => (
+            ((x) => {
+              _[_i + ai] = x & 0xff;
+              _[_i + ai + 1] = x >>> 8
+            })
+            (_[_i + ai] + _e * ae)
+          ))
+        )),
+        _.final
+      ))
+      (new Integer(this.length + a.length))
+    )
   }
   divmod(a) {
     return
@@ -67,6 +91,6 @@ class Integer extends Uint8Array {
 }
 Integer.zero = new Integer
 Integer.unity = new Integer([1])
-Integer.negUnity = Integer.unity.neg
+Integer.unityNeg = Integer.unity.neg
 
 module.exports = Integer
