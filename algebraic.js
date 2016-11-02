@@ -1,4 +1,9 @@
 class Algebraic {
+  get r() { throw new Error('r is missing') }
+  get s() { throw new Error('s is missing') }
+  get n() { throw new Error('n is missing') }
+  get ord() { throw new Error('ord is missing') }
+  get arg() { throw new Error('arg is missing') }
   _eql(a) { throw new Error('_eql is missing') }
   coerce(a) { throw new Error('coerce is missing') }
   get finalize() { throw new Error('finalize is missing') }
@@ -228,6 +233,37 @@ Object.defineProperties(Array.prototype, {
 })
 
 Object.defineProperties(Number.prototype, {
+  r: {
+    get() {
+      return this.finalize
+    }
+  },
+  s: {
+    get() {
+      return 1
+    }
+  },
+  n: {
+    get() {
+      return 0
+    }
+  },
+  ord: {
+    get() {
+      return (
+        this.isZero ? undefined : this.abs.log
+      )
+    }
+  },
+  arg: {
+    get() {
+      return (
+        this.isZero ? undefined : (
+          this >= 0 ? 0 : 0.5
+        )
+      )
+    }
+  },
   _eql: {
     value(a) {
       return (
@@ -508,6 +544,31 @@ Object.defineProperties(Number.prototype, {
 Reflect.setPrototypeOf(Number.prototype, Algebraic.prototype)
 
 class Integer extends Algebraic {
+  get r() {
+    return this
+  }
+  get s() {
+    return this._unity
+  }
+  get n() {
+    return this._zero
+  }
+  get ord() {
+    return (
+      Array.from(this._).last < 0x80 ? (
+        Array.from(this._).reverse().reduce((a, b) => (
+          a * 0x100 + b
+        )).ord
+      ) : (
+        this._neg.ord
+      )
+    )
+  }
+  get arg() {
+    return (
+      Array.from(this._).last < 0x80 ? 0 : 0.5
+    )
+  }
   constructor(_ = new Uint8Array) {
     super()
     this._ = _
@@ -755,6 +816,18 @@ class Adele extends Algebraic {
     ))
     (s.ub(n))
   }
+  get ord() {
+    return (
+      this.isZero ? undefined :
+      this.r.ord - this.s.ord
+    )
+  }
+  get arg() {
+    return (
+      this.isZero ? undefined :
+      this.r.arg - this.s.arg
+    )
+  }
   _eql(a) {
     return (
       this.n._eql(a.n) &&
@@ -783,7 +856,7 @@ class Adele extends Algebraic {
     } else
     if (a.eq(Integer.zero)) {
       return (
-        [this, new Adele(a, 1)]
+        [this, new Adele(a.r, a.s, a.n)]
       )
     } else
     if (a.eq(0)) {
@@ -792,10 +865,15 @@ class Adele extends Algebraic {
       )
     } else
     if (a.eq(Arch.zero)) {
-      return [this, new Error('not yet')]
+      return [this, new Adele(a.r, a.s, a.n)] // Arch#r, s, n
     } else
-    {// fix later
-      return [this, new Error('not yet')]
+    {
+      return (
+        (([a, _]) => (
+          [_, a]
+        ))
+        (a.coerce(this))
+      )
     }
   }
   get finalize() {
@@ -882,6 +960,7 @@ class Adele extends Algebraic {
     )
   }
 }
+// Adele.zero = new Adele
 
 let PI2 = 2 * Math.PI
 class Arch extends Algebraic {
@@ -891,8 +970,10 @@ class Arch extends Algebraic {
       ((ord, arg) => (
         (arg %= 1),
         arg < 0 && (arg += 1),
-        (this.ord = ord),
-        (this.arg = arg)
+        Reflect.set(this, 'ord', ord),
+        Reflect.set(this, 'arg', arg)
+//        (this.ord = ord),
+//        (this.arg = arg)
       ))
       (ord || 0, arg || 0)
     )
@@ -905,10 +986,15 @@ class Arch extends Algebraic {
   }
   coerce(a) {
     return (
-      this.eq(a) ? [this, a] :
-      a === 0 ? [this, Arch.zero] :
-      a > 0 ? [this, new Arch(a.log)] :
-      [this, new Arch((- a).log, 0.5)]
+      a.eq(this) ? [this, a] :
+      a.eq(0) ? [this, new Arch(a.ord, a.arg)] :
+      a.eq(Integer.zero) ? [this, new Arch(a.ord, a.arg)] :
+      a.eq(Adele.zero) ? [this, new Arch(a.ord, a.arg)] : ( // Adele#ord, arg, Adele.zero
+        (([a, _]) => (
+          [_, a]
+        ))
+        (a.coerce(this))
+      )
     )
   }
   get finalize() {
