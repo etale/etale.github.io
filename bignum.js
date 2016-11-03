@@ -130,28 +130,26 @@ class Integer extends Uint8Array {
         (([q, r]) => (
           [q.final, r.final]
         ))
-        (this.dm(a, Integer.zero))
+        (this.g(a, Integer.zero))
       )
     )
   }
-  dm(a, q) {
-    console.log({ _: 'dm(a, q)', x: this, a, q })
-    // this を a で割った商 q と剰余 r を返す
-    // q も r も正規化されていないことに注意
+  g(a, q) {
+    console.log({ function: 'g', _: this, a, q })
     return (
       this.lt(a) ? [q, this] : (
         (([x, r]) => (
           new Integer([
             ...this.slice(0, this.length - a.length -1),
             ...r
-          ]).dm(a, new Integer([x, ...q]))
+          ]).g(a, new Integer([x, ...q]))
         ))
-        (this.slice(this.length - a.length - 1, this.length).f0(a))
+        (this.slice(this.length - a.length - 1, this.length).f(a))
       )
     )
   }
-  f0(a) {
-    console.log({ _: 'f0(a)', x: this, a })
+  f(a) {
+    console.log({ function: 'f', _: this, a })
     return (
       ((q) => (
         ((r) => (
@@ -159,13 +157,13 @@ class Integer extends Uint8Array {
             while (r.next === 0xff) {
               [q, r] = [q - 1, r.add(a)]
             }
-          })(),
+          })(), console.log({ _: this, a, q, r }),
           [q, new Integer([
             ...r,
             ...Array(a.length - r.length).fill(0)
           ])]
         ))
-        (this.add(a.mul(new Integer([q])).neg))
+        (this.add(a.mul(new Integer([q, 0])).neg))
       ))
       (
         ((_) => (
