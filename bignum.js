@@ -135,7 +135,6 @@ class Integer extends Uint8Array {
     )
   }
   g(a, q) {
-    console.log({ function: 'g', _: this, a, q })
     return (
       this.lt(a) ? [q, this] : (
         (([x, r]) => (
@@ -149,7 +148,6 @@ class Integer extends Uint8Array {
     )
   }
   f(a) {
-    console.log({ function: 'f', _: this, a })
     return (
       ((q) => (
         ((r) => (
@@ -157,7 +155,8 @@ class Integer extends Uint8Array {
             while (r.next === 0xff) {
               [q, r] = [q - 1, r.add(a)]
             }
-          })(), console.log({ _: this, a, q, r }),
+          })(),
+          (r = r.slice(0, a.length)),
           [q, new Integer([
             ...r,
             ...Array(a.length - r.length).fill(0)
