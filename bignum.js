@@ -144,15 +144,14 @@ class Integer extends Uint8Array {
           new Integer([
             ...this.slice(0, this.length - a.length -1),
             ...r
-          ]).dm(a, new Integer([x, ...q.reverse()]))
+          ]).dm(a, new Integer([x, ...q]))
         ))
         (this.slice(this.length - a.length - 1, this.length).f0(a))
       )
     )
   }
   f0(a) {
-     console.log({ _: 'f0(a)', x: this, a })
-    // n + 1 桁の this を ｎ 桁の a で割り、商 q と剰余 r を求める
+    console.log({ _: 'f0(a)', x: this, a })
     return (
       ((q) => (
         ((r) => (
