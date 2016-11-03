@@ -30,8 +30,34 @@ class Integer extends Uint8Array {
       )
     )
   }
+  eql(a) {
+    return (
+      this.length === a.length &&
+      this.every((e, i) => (
+        e === a[i]
+      ))
+    )
+  }
+  cmp(a) {
+    return (
+      ((_) => (
+        _.isZero ? 0 :
+        ((_) => (
+          _ < 0x80 ? _ : _ - 0x100
+        ))
+        (_[_.length - 1])
+      ))
+      (this.add(a.neg))
+    )
+  }
+  lt(a) { return this.cmp(a) < 0 }
+  gt(a) { return this.cmp(a) > 0 }
+  lte(a) { return this.cmp(a) <= 0 }
+  gte(a) { return this.cmp(a) >= 0 }
   get zero() { return Integer.zero }
+  get isZero() { return this.length === 0 }
   get unity() { return Integer.unity }
+  get isUnity() { return this.length === 1 && this[0] === 1 }
   get neg() {
     return (
       this.map((a) => (
@@ -45,12 +71,12 @@ class Integer extends Uint8Array {
         _.length < a.length && (
           [a, _] = [_, a]
         ),
-        ((_, a) => (console.log({ _, a }),
-          _.reduce((carry, e, i) => (console.log({ _, a }),
+        ((_, a) => (
+          _.reduce((x, e, i) => (
             ((x) => (
               (_[i] = x & 0xff), x >>> 8
             ))
-            (carry + e + a[i])
+            (x + e + a[i])
           ), 0),
           _.final
         ))
@@ -59,7 +85,7 @@ class Integer extends Uint8Array {
             ..._, _.next
           ]),
           new Integer([
-            ...a, Array(
+            ...a, ...Array(
               _.length - a.length + 1
             ).fill(a.next)
           ])
@@ -72,13 +98,12 @@ class Integer extends Uint8Array {
     return (
       ((_) => (
         this.forEach((_e, _i) => (
-          a.forEach((ae, ai) => (
-            ((x) => {
-              _[_i + ai] = x & 0xff;
-              _[_i + ai + 1] = x >>> 8
-            })
-            (_[_i + ai] + _e * ae)
-          ))
+          a.reduce((x, ae, ai) => (
+            ((x) => (
+              (_[_i + ai] = x & 0xff), x >>> 8
+            ))
+            (x + _e * ae)
+          ), 0)
         )),
         _.final
       ))
@@ -86,7 +111,78 @@ class Integer extends Uint8Array {
     )
   }
   divmod(a) {
-    return
+    return (
+      this.isZero || a.isZero
+      ? [Integer.zero, this]
+      : this.negative
+      ? (([q, r]) => (
+        // -x = q a + r
+        [q.neg, r.neg]
+      ))
+      (this.neg.divmod(a))
+      : a.negative
+      ? (([q, r]) => (
+        // x = (-q) (-a) + r
+        [q.neg, r]
+      ))
+      (this.divmod(a.neg))
+      : (
+        (([q, r]) => (
+          [q.final, r.final]
+        ))
+        (this.dm(a, Integer.zero))
+      )
+    )
+  }
+  dm(a, q) {
+    console.log({ _: 'dm(a, q)', x: this, a, q })
+    // this を a で割った商 q と剰余 r を返す
+    // q も r も正規化されていないことに注意
+    return (
+      this.lt(a) ? [q, this] : (
+        (([x, r]) => (
+          new Integer([
+            ...this.slice(0, this.length - a.length -1),
+            ...r
+          ]).dm(a, new Integer([x, ...q.reverse()]))
+        ))
+        (this.slice(this.length - a.length - 1, this.length).f0(a))
+      )
+    )
+  }
+  f0(a) {
+     console.log({ _: 'f0(a)', x: this, a })
+    // n + 1 桁の this を ｎ 桁の a で割り、商 q と剰余 r を求める
+    return (
+      ((q) => (
+        ((r) => (
+          (() => {
+            while (r.next === 0xff) {
+              [q, r] = [q - 1, r.add(a)]
+            }
+          })(),
+          [q, new Integer([
+            ...r,
+            ...Array(a.length - r.length).fill(0)
+          ])]
+        ))
+        (this.add(a.mul(new Integer([q])).neg))
+      ))
+      (
+        ((_) => (
+          ((a) => (
+            Math.min(Math.floor(_ / a), 0xff)
+          ))
+          (a[a.length - 1])
+        ))
+        (
+          ((_1, _0) => (
+            _0 << 8 + _1
+          ))
+          (...this.slice(this.length - 2, this.length))
+        )
+      )
+    )
   }
 }
 Integer.zero = new Integer
