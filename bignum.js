@@ -170,12 +170,13 @@ class Integer extends Uint8Array {
       (this.neg.divmod(a))
       : a.negative
       ? (([q, r]) => (
-        // x = (-q) (-a) + r
+        // x = q (-a) + r
         [q.neg, r]
       ))
       (this.divmod(a.neg))
       : (
         ((_, d) => (
+          // normalize a
           (() => {
             while ((_ << d) & 0x80 === 0) d++
           })(),
