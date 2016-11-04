@@ -2,8 +2,11 @@ class Integer extends Uint8Array {
   constructor(a) {
     super(a)
   }
+  get last() {
+    return this[this.length - 1]
+  }
   get next() {
-    return this[this.length - 1] < 0x80 ? 0 : 0xff
+    return this.last < 0x80 ? 0 : 0xff
   }
   get final() {
     return (
@@ -45,7 +48,7 @@ class Integer extends Uint8Array {
         ((_) => (
           _ < 0x80 ? _ : _ - 0x100
         ))
-        (_[_.length - 1])
+        (_.last)
       ))
       (this.add(a.neg))
     )
@@ -74,7 +77,7 @@ class Integer extends Uint8Array {
         ((_, a) => (
           _.reduce((x, e, i) => (
             ((x) => (
-              (_[i] = x & 0xff), x >>> 8
+              (_[i] = x & 0xff), x >> 8
             ))
             (x + e + a[i])
           ), 0),
@@ -100,7 +103,7 @@ class Integer extends Uint8Array {
         this.forEach((_e, _i) => (
           a.reduce((x, ae, ai) => (
             ((x) => (
-              (_[_i + ai] = x & 0xff), x >>> 8
+              (_[_i + ai] = x & 0xff), x >> 8
             ))
             (x + _e * ae)
           ), 0)
@@ -108,6 +111,36 @@ class Integer extends Uint8Array {
         _.final
       ))
       (new Integer(this.length + a.length))
+    )
+  }
+  shiftLeft(a) {
+    return (
+      ((_) => (
+        (
+          _[this.length] = this.reduce((x, e, i) => (
+            ((x) => (
+              (_[i] = x & 0xff), x >> 8
+            ))
+            ((e << a) + x)
+          ), 0)
+        ),
+        _
+      ))
+      (new Integer(this.length + 1)) // is 0 OK?
+    )
+  }
+  shiftRight(a) {
+    return (
+      ((_) => (
+        this.reduceRight((x, e, i) => (
+          ((x) => (
+            (_[i] = x >> a), x & ((1 << a) - 1)
+          ))
+          (e + (x << 8))
+        ), 0), // is 0 OK?
+        _
+      ))
+      (new Integer(this.length))
     )
   }
   divmod(a) {
@@ -127,14 +160,29 @@ class Integer extends Uint8Array {
       ))
       (this.divmod(a.neg))
       : (
-        (([q, r]) => (
-          [q.final, r.final]
+        // 正規化　<< shiftLeft
+        // 非正規化 >> shiftRight
+        ((_, d) => (
+          (() => {
+            while (!((_ << d) & 0x80)) d++
+          })(),
+          ((_, a) => (
+            _.length === a.length && (
+              _ = new Integer([..._, 0])
+            ),
+            (([q, r]) => (
+              [q.shiftRight(d), a.shiftRight(d)] // final ?
+            ))
+            (_.g(a, Integer.zero))
+          ))
+          (this.shiftLeft(d), a.shiftLeft(d))
         ))
-        (this.g(a, Integer.zero))
+        (a.last, 0)
       )
     )
   }
   g(a, q) {
+    console.log({ function: 'g', _: this, a, q })
     return (
       this.lt(a) ? [q, this] : (
         (([x, r]) => (
@@ -148,6 +196,7 @@ class Integer extends Uint8Array {
     )
   }
   f(a) {
+    console.log({ function: 'f', _: this, a })
     return (
       ((q) => (
         ((r) => (
@@ -169,7 +218,7 @@ class Integer extends Uint8Array {
           ((a) => (
             Math.min(Math.floor(_ / a), 0xff)
           ))
-          (a[a.length - 1])
+          (a[a.length - 2]) // 1 -> 2 にした
         ))
         (
           ((_1, _0) => (
