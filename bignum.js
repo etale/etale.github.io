@@ -160,18 +160,16 @@ class Integer extends Uint8Array {
       ))
       (this.divmod(a.neg))
       : (
-        // 正規化　<< shiftLeft
-        // 非正規化 >> shiftRight
         ((_, d) => (
           (() => {
-            while (!((_ << d) & 0x80)) d++
+            while ((_ << d) & 0x80 === 0) d++
           })(),
           ((_, a) => (
             _.length === a.length && (
               _ = new Integer([..._, 0])
             ),
             (([q, r]) => (
-              [q.shiftRight(d), a.shiftRight(d)] // final ?
+              [q.shiftRight(d), r.shiftRight(d)] // final ?
             ))
             (_.g(a, Integer.zero))
           ))
@@ -187,11 +185,11 @@ class Integer extends Uint8Array {
       this.lt(a) ? [q, this] : (
         (([x, r]) => (
           new Integer([
-            ...this.slice(0, this.length - a.length -1),
+            ...this.slice(0, this.length - a.length),
             ...r
           ]).g(a, new Integer([x, ...q]))
         ))
-        (this.slice(this.length - a.length - 1, this.length).f(a))
+        (this.slice(this.length - a.length, this.length).f(a))
       )
     )
   }
@@ -205,11 +203,16 @@ class Integer extends Uint8Array {
               [q, r] = [q - 1, r.add(a)]
             }
           })(),
-          (r = r.slice(0, a.length)),
-          [q, new Integer([
-            ...r,
-            ...Array(a.length - r.length).fill(0)
-          ])]
+          r.last === 0 && (
+            r = r.slice(0, r.length - 1)
+          ),
+          [
+            q,
+            new Integer([
+              ...r,
+              ...Array(a.length - r.length).fill(0)
+            ])
+          ]
         ))
         (this.add(a.mul(new Integer([q, 0])).neg))
       ))
