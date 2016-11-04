@@ -77,7 +77,7 @@ class Integer extends Uint8Array {
         ((_, a) => (
           _.reduce((x, e, i) => (
             ((x) => (
-              (_[i] = x & 0xff), x >> 8
+              (_[i] = x & 0xff), x >>> 8
             ))
             (x + e + a[i])
           ), 0),
@@ -103,7 +103,7 @@ class Integer extends Uint8Array {
         this.forEach((_e, _i) => (
           a.reduce((x, ae, ai) => (
             ((x) => (
-              (_[_i + ai] = x & 0xff), x >> 8
+              (_[_i + ai] += x & 0xff), x >>> 8
             ))
             (x + _e * ae)
           ), 0)
@@ -122,11 +122,11 @@ class Integer extends Uint8Array {
               (_[i] = x & 0xff), x >> 8
             ))
             ((e << a) + x)
-          ), 0)
+          ), 0) // ? 0
         ),
         _
       ))
-      (new Integer(this.length + 1)) // is 0 OK?
+      (new Integer(this.length + 1))
     )
   }
   shiftRight(a) {
@@ -137,10 +137,25 @@ class Integer extends Uint8Array {
             (_[i] = x >> a), x & ((1 << a) - 1)
           ))
           (e + (x << 8))
-        ), 0), // is 0 OK?
+        ), 0), // ? 0
         _
       ))
       (new Integer(this.length))
+    )
+  }
+  pow(a) {
+    return (
+      ((_, r) => (
+        (() => {
+          while (a) {
+            a & 1 === 1 && (r = r.mul(_)),
+            _ = _.mul(_),
+            a = a >>> 1
+          }
+        })(),
+        r.final
+      ))
+      (this, Integer.unity)
     )
   }
   divmod(a) {
