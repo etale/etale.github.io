@@ -4,12 +4,15 @@ class Integer extends Uint8Array {
   }
   get last() {
     return (
-      this.isZero ? 0 :
+      this.length < 1 ? 0 :
       this[this.length - 1]
     )
   }
   get secondLast() {
-    return this[this.length - 2]
+    return (
+      this.length < 2 ? 0 :
+      this[this.length - 2]
+    )
   }
   get next() {
     return this.last < 0x80 ? 0 : 0xff
@@ -56,7 +59,7 @@ class Integer extends Uint8Array {
         ))
         (_.last)
       ))
-      (this.add(a.neg))
+      (this.sub(a))
     )
   }
   lt(a) { return this.cmp(a) < 0 }
@@ -70,7 +73,7 @@ class Integer extends Uint8Array {
   get isNegative() { return this.lt(Integer.zero) }
   get neg() {
     return (
-      this.isZero ? this :
+      this.isZero ? Integer.zero :
       this.map((a) => (
         0xff - a
       )).add(Integer.unity)
@@ -82,14 +85,12 @@ class Integer extends Uint8Array {
         ((x) => (
           new Integer([..._, x + this.next + a.next]).final
         ))
-        (
-          _.reduce((x, e, i) => (
-            ((e) => (
-              (_[i] = e & 0xff), e >> 8
-            ))
-            (x + (this[i] || this.next) + (a[i] || a.next))
-          ), 0)
-        )
+        (_.reduce((x, e, i) => (
+          ((e) => (
+            (_[i] = e & 0xff), e >> 8
+          ))
+          (x + (this[i] || this.next) + (a[i] || a.next))
+        ), 0))
       ))
       (new Integer(Math.max(this.length, a.length)))
     )
@@ -166,7 +167,7 @@ class Integer extends Uint8Array {
           while (((_ << d) & 0x80) === 0) d++
         })(), d
       ))
-      (this.last || this[this.length - 2], 0)
+      (this.last || this.secondLast, 0)
     )
   }
   divmod(a) {
@@ -199,11 +200,19 @@ class Integer extends Uint8Array {
       )
     )
   }
+  div(a) {
+    return (
+      ((q, r) => q)
+      (...this.divmod(a))
+    )
+  }
+  mod(a) {
+    return (
+      ((q, r) => r)
+      (...this.divmod(a))
+    )
+  }
   g(a, q) {
-    // this を a で割り、商 q と剰余 r を返す。
-    // this < a でなければ、this の上位 a.length + 1 桁を a で割り、
-    // 一桁の商 x と a.length 桁の剰余 r を f で計算し、
-    // this を this.slice(0, x)
     console.log({ func: 'g', _: this, a, q })
     return (
       this.lt(a) ? [q, this] : (
@@ -226,7 +235,6 @@ class Integer extends Uint8Array {
     )
   }
   f(a) {
-    // a.length + 1 桁の this を a で割り、一桁の商 q と a.length 桁の剰余 r を返す。
     console.log({ func: 'f', _: this, a })
     return (
       ((q) => (
@@ -240,14 +248,12 @@ class Integer extends Uint8Array {
         ))
         (this.sub(a._mul(q)))
       ))
-      (
-        ((_) => (
-          _.last === 0 && (_ = _.slice(0, _.length - 1)),
-          a.last === 0 && (a = a.slice(0, a.length - 1)),
-          Math.min(((_.last << 8) + _.secondLast).div(a.last), 0xff)
-        ))
-        (this)
-      )
+      (((_) => {
+        while (_.last === 0) _ = _.slice(0, _.length - 1)
+        while (a.last === 0) a = a.slice(0, a.length - 1)
+        return Math.min(((_.last << 8) + _.secondLast).div(a.last), 0xff)
+      })
+      (this))
     )
   }
   _mul(a) {
@@ -266,6 +272,22 @@ class Integer extends Uint8Array {
         ))
         (new Integer(this.length))
       )
+    )
+  }
+  _divmod(a) {
+    return (
+      ((_) => (
+        ((r) => (
+          [_.final, r]
+        ))
+        (this.reduceRight((x, e, i) => (
+          ((q, r) => (
+            (_[i] = q), r
+          ))
+          (...((x << 8) + e).divmod(a))
+        ), 0))
+      ))
+      (new Integer(this.length))
     )
   }
 }
