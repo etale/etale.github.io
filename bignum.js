@@ -19,27 +19,10 @@ class Integer extends Uint8Array {
   }
   get final() {
     return (
-      ((_) => (
-        _.length === 1
-        ? (
-          _[0] === 0 ? Integer.zero :
-          _[0] === 1 ? Integer.unity :
-          _
-        )
-        : _
-      ))
-      (
-        ((i) => (
-          (() => {
-            while (
-              this[i - 1] === 0    && this[i - 2] < 0x80 ||
-              this[i - 1] === 0xff && this[i - 2] > 0x7f
-            ) i --
-          })(),
-          this.slice(0, i)
-        ))
-        (this.length)
-      )
+      this.isZero ? Integer.zero :
+      this.last === 0    && this.secondLast < 0x80 ||
+      this.last === 0xff && this.secondLast > 0x7f ? this.slice(0, this.length - 1).final :
+      this
     )
   }
   eql(a) {
@@ -86,10 +69,13 @@ class Integer extends Uint8Array {
           new Integer([..._, x + this.next + a.next]).final
         ))
         (_.reduce((x, e, i) => (
-          ((e) => (
+          ((_i, ai) => (
+            _i === undefined && (_i = this.next),
+            ai === undefined && (ai = a.next),
+            (e = x + _i + ai),
             (_[i] = e & 0xff), e >> 8
           ))
-          (x + (this[i] || this.next) + (a[i] || a.next))
+          (this[i], a[i])
         ), 0))
       ))
       (new Integer(Math.max(this.length, a.length)))
