@@ -93,7 +93,7 @@ class Integer extends Uint8Array {
               (_[i] += e & 0xff), e >> 8
             ))
             (_e * ae, _i + ai)
-          ), 0)
+          ), 0) + a.next
         )),
         _.final
       ))
@@ -254,7 +254,7 @@ class Integer extends Uint8Array {
               (_[i] = e & 0xff), e >> 8
             ))
             (x + e * a)
-          ), 0))
+          ), 0) + this.next + (a < 0x80 ? 0 : 255))
         ))
         (new Integer(this.length))
       )
