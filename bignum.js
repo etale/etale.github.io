@@ -8,8 +8,8 @@ class Integer extends Uint8Array {
       this[this.length - 1]
     )
   }
-  set last(a) {
-    return this[this.length - 1] = a
+  get secondLast() {
+    return this[this.length - 2]
   }
   get next() {
     return this.last < 0x80 ? 0 : 0xff
@@ -123,7 +123,7 @@ class Integer extends Uint8Array {
           ))
           (((this[i] || 0) << a) + x)
         ), 0),
-        _
+        _.final
       ))
       (new Integer(this.length + 1))
     )
@@ -144,19 +144,29 @@ class Integer extends Uint8Array {
     )
   }
   pow(a) {
-    // assume a = 0, ..., 2 ** 31 - 1
+    // assume a = 0, ..., 2 ** 32 - 1
     return (
       ((_, r) => (
         (() => {
           while (a) {
             a & 1 === 1 && (r = r.mul(_)),
             _ = _.mul(_),
-            a = a >> 1
+            a = a >>> 1
           }
         })(),
         r.final
       ))
       (this, Integer.unity)
+    )
+  }
+  get d() {
+    return (
+      ((_, d) => (
+        (() => {
+          while (((_ << d) & 0x80) === 0) d++
+        })(), d
+      ))
+      (this.last || this[this.length - 2], 0)
     )
   }
   divmod(a) {
@@ -176,86 +186,85 @@ class Integer extends Uint8Array {
       ))
       (this.divmod(a.neg))
       : (
-        ((_, a) => (
-          _.last === 0 && (
-            _ = _.slice(0, _.length - 1)
-          ),
-          a.last === 0 && (
-            a = a.slice(0, a.length - 1)
-          ),
-          ((_, d) => (
-            (() => {
-              while ((_ << d) & 0x80 === 0) d++
-            })(),
-            ((_, a) => (
-              (([q, r]) => (
-                [q.shiftRight(d), r.shiftRight(d)] // final ?
-              ))
-              (_.g(a, Integer.zero))
+        ((d) => (
+          ((_, a) => (
+            (([q, r]) => (
+              [q.shiftRight(d), r.shiftRight(d)]
             ))
-            (_.shiftLeft(d), a.shiftLeft(d))
+            (_.g(a, Integer.zero))
           ))
-          (a.last, 0)
+          (this.shiftLeft(d), a.shiftLeft(d))
         ))
-        (this, a)
+        (a.d)
       )
     )
   }
-  h(a) {
-    return (
-      new Integer([...this, 0]).lt(new Integer([...a, 0]))
-    )
-  }
   g(a, q) {
+    // this を a で割り、商 q と剰余 r を返す。
+    // this < a でなければ、this の上位 a.length + 1 桁を a で割り、
+    // 一桁の商 x と a.length 桁の剰余 r を f で計算し、
+    // this を this.slice(0, x)
     console.log({ func: 'g', _: this, a, q })
     return (
-      this.h(a) ? [q, this] : (
-        (([x, r]) => (
-          new Integer([
-            ...this.slice(0, this.length - a.length),
-            ...r
-          ]).g(a, new Integer([x, ...q]))
+      this.lt(a) ? [q, this] : (
+        ((_) => (
+          _.length === a.length && (
+            _ = new Integer([..._, 0])
+          ),
+          ((x, r) => (
+            new Integer([
+              ..._.slice(0, _.length - a.length - 1),
+              ...r
+            ]).g(a, new Integer([x, ...q]))
+          ))
+          (..._.slice(
+            _.length - a.length - 1,
+            _.length).f(a))
         ))
-        (this.slice(this.length - a.length - 1, this.length).f(a))
+        (this)
       )
     )
   }
   f(a) {
+    // a.length + 1 桁の this を a で割り、一桁の商 q と a.length 桁の剰余 r を返す。
     console.log({ func: 'f', _: this, a })
     return (
       ((q) => (
         ((r) => (
           (() => {
-            while (r.next === 0xff) {
+            while (r.isNegative) {
               [q, r] = [q - 1, r.add(a)]
             }
           })(),
-          r.last === 0 && (
-            r = r.slice(0, r.length - 1)
-          ),
-          [
-            q,
-            new Integer([
-              ...r,
-              ...Array(a.length - r.length).fill(0)
-            ])
-          ]
+          [q, r]
         ))
-        (this.add(a.mul(new Integer([q, 0])).neg))
+        (this.sub(a._mul(q)))
       ))
       (
         ((_) => (
-          ((a) => (
-            Math.min(Math.floor(_ / a), 0xff)
-          ))
-          (a.last)
+          _.last === 0 && (_ = _.slice(0, _.length - 1)),
+          a.last === 0 && (a = a.slice(0, a.length - 1)),
+          Math.min(((_.last << 8) + _.secondLast).div(a.last), 0xff)
         ))
-        (
-          ((_1, _0) => (
-            (_0 << 8) + _1
+        (this)
+      )
+    )
+  }
+  _mul(a) {
+    return (
+      this.isZero || a === 0 ? Integer.zero : (
+        ((_) => (
+          ((last) => (
+            new Integer([..._, last]).final
           ))
-          (...this.slice(this.length - 2, this.length))
-        )
+          (this.reduce((x, e, i) => (
+            ((e) => (
+              (_[i] = e & 0xff), e >> 8
+            ))
+            (x + e * a)
+          ), 0))
+        ))
+        (new Integer(this.length))
       )
     )
   }
@@ -263,5 +272,22 @@ class Integer extends Uint8Array {
 Integer.zero = new Integer
 Integer.unity = new Integer([1])
 Integer.unityNeg = Integer.unity.neg
+
+Number.prototype.divmod = function (a) {
+  return (
+    ((r) => (
+      [(this - r) / a, r]
+    ))
+    (this % a)
+  )
+}
+Number.prototype.div = function (a) {
+  return (
+    ((q, r) => (
+      q
+    ))
+    (...this.divmod(a))
+  )
+}
 
 module.exports = Integer
