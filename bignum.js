@@ -66,7 +66,7 @@ class Integer extends Uint8Array {
     return (
       ((_) => (
         ((x) => (
-          new Integer([..._, x + this.next + a.next]).final
+          new Integer([..._, x]).final
         ))
         (_.reduce((x, e, i) => (
           ((_i, ai) => (
@@ -76,7 +76,7 @@ class Integer extends Uint8Array {
             (_[i] = e & 0xff), e >> 8
           ))
           (this[i], a[i])
-        ), 0))
+        ), 0) + this.next + a.next)
       ))
       (new Integer(Math.max(this.length, a.length)))
     )
@@ -86,6 +86,8 @@ class Integer extends Uint8Array {
   }
   mul(a) {
     return (
+      this.isNegative ? this.neg.mul(a).neg :
+      a.isNegative ? this.mul(a.neg).neg :
       ((_) => (
         this.forEach((_e, _i) => (
           _[_i + a.length] = a.reduce((x, ae, ai) => (
@@ -93,7 +95,7 @@ class Integer extends Uint8Array {
               (_[i] += e & 0xff), e >> 8
             ))
             (_e * ae, _i + ai)
-          ), 0) + a.next
+          ), 0)
         )),
         _.final
       ))
