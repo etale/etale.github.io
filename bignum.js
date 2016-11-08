@@ -17,6 +17,22 @@ class Integer extends Uint8Array {
   get next() {
     return this.last < 0x80 ? 0 : 0xff
   }
+  get n2i() {
+    return (
+      this.last > 0x7f ? new Integer([...this, 0]) : this
+    )
+  }
+  get i2n() {
+    // assume this is natural
+    return this.finaln
+  }
+  get finaln() {
+    return (
+      this.isZero ? Integer.zero :
+      this.last === 0 ? this.slice(0, this.length - 1).finaln :
+      this
+    )
+  }
   get final() {
     return (
       this.isZero ? Integer.zero :
@@ -33,14 +49,26 @@ class Integer extends Uint8Array {
       ))
     )
   }
+  cmpn(a) {
+    return (
+      this.length > a.length ? 1 :
+      this.length < a.length ? -1 :
+      this.last > a.last ? 1 :
+      this.last < a.last ? -1 :
+      0
+    )
+  }
+  ltn(a) { return this.cmpn(a) < 0 }
+  gtn(a) { return this.cmpn(a) > 0 }
+  lten(a) { return this.cmpn(a) <= 0 }
+  gten(a) { return this.cmpn(a) >= 0 }
+  get isNegative() { return this.last > 0x7f }
   cmp(a) {
     return (
       ((_) => (
         _.isZero ? 0 :
-        ((_) => (
-          _ < 0x80 ? _ : _ - 0x100
-        ))
-        (_.last)
+        _.isNegative ? -1 :
+        1
       ))
       (this.sub(a))
     )
@@ -53,13 +81,29 @@ class Integer extends Uint8Array {
   get isZero() { return this.length === 0 }
   get unity() { return Integer.unity }
   get isUnity() { return this.length === 1 && this[0] === 1 }
-  get isNegative() { return this.lt(Integer.zero) }
   get neg() {
     return (
       this.isZero ? Integer.zero :
       this.map((a) => (
         0xff - a
       )).add(Integer.unity)
+    )
+  }
+  addn(a) {
+    return (
+      ((_) => (
+        ((x) => (
+          new Integer([..._, x]).finaln
+        ))
+        (_.reduce((x, e, i) => (
+          ((_i, ai) => (
+            (e = x + _i + ai),
+            (_[i] = e & 0xff), e >> 8
+          ))
+          (this[i] || 0, a[i] || 0)
+        ), 0))
+      ))
+      (new Integer(Math.max(this.length, a.length)))
     )
   }
   add(a) {
@@ -84,10 +128,9 @@ class Integer extends Uint8Array {
   sub(a) {
     return this.add(a.neg)
   }
-  mul(a) {
+  muln(a) {
     return (
-      this.isNegative ? this.neg.mul(a).neg :
-      a.isNegative ? this.mul(a.neg).neg :
+      this.isZero || a.isZero ? Integer.zero :
       ((_) => (
         this.forEach((_e, _i) => (
           _[_i + a.length] = a.reduce((x, ae, ai) => (
@@ -97,9 +140,20 @@ class Integer extends Uint8Array {
             (_e * ae, _i + ai)
           ), 0)
         )),
-        _.final
+        _.finaln
       ))
       (new Integer(this.length + a.length))
+    )
+  }
+  mul(a) {
+    return (
+      this.isNegative
+      ? a.isNegative
+        ? this.neg.i2n.muln(a.neg.i2n).n2i
+        : this.neg.i2n.muln(a.i2n).n2i.neg
+      : a.isNegative
+        ? this.i2n.muln(a.neg.i2n).n2i.neg
+        : this.i2n.muln(a.i2n).n2i
     )
   }
   shiftLeft(a) {
@@ -221,6 +275,19 @@ class Integer extends Uint8Array {
         (this)
       )
     )
+  }
+  _g(a, q) {
+    let _ = this
+    if (this.lt(a)) {
+      return [q, this]
+    }
+    while (_.last === 0) { _ = _.slice(0, _.length - 1) }
+    while (a.last === 0) { a = a.slice(0, a.length - 1) }
+    if (_.length === a.length) { _ = new Integer([..._, 0]) }
+    let [_q, r] = _.slice(_.length - a.length - 1, _.length).f(a)
+    _ = new Integer([..._.slice(0, _.length - a.length - 1), ...r])
+    q = new Integer([_q, ...q])
+    return _._g(a, q)
   }
   f(a) {
     console.log({ func: 'f', _: this, a })
