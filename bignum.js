@@ -202,14 +202,92 @@ class Integer extends Uint8Array {
       (this, Integer.unity)
     )
   }
-  get d() {
+  divmodn(a) {
     return (
-      ((_, d) => (
-        (() => {
-          while (((_ << d) & 0x80) === 0) d++
-        })(), d
+      ((d) => (
+        ((_, a) => (
+          (([q, r]) => (
+            [q.shiftRight(d), r.shiftRight(d)]
+          ))
+          (_._divmodn(a, Integer.zero))
+        ))
+        (this.shiftLeft(d), a.shiftLeft(d))
       ))
-      (this.last || this.secondLast, 0)
+      (d(a.last))
+    )
+  }
+  _divmodn(a, q) {
+    // assume a is normalized
+    console.log({ func: '_divmodn', _: this, a, q })
+    return (
+      this.ltn(a) ? [q, this] : (
+        ((_) => (
+          _.length === a.length && (
+            _ = new Integer([..._, 0])
+          ),
+          ((_q, r) => (
+            new Integer([
+              ..._.slice(0, _.length - a.length - 1),
+              ...r
+            ])._divmodn(a, new Integer([_q, ...q]))
+          ))
+          (..._
+            .slice(_.length - a.length - 1, _.length)
+            .f(a))
+        ))
+        (this)
+      )
+    )
+  }
+  f(a) {
+    console.log({ func: 'f', _: this, a })
+    return (
+      ((q) => (
+        ((r) => (
+          (() => {
+            while (r.isNegative) {
+              [q, r] = [q - 1, r.add(a)]
+            }
+          })(),
+          [q, r.i2n]
+        ))
+        (this.n2i.sub(a.mulSmall(q)))
+      ))
+      (Math.min(((this.last << 8) + this.secondLast).div(a.last), 0xff))
+    )
+  }
+  mulSmall(a) {
+    return (
+      this.isZero || a === 0 ? Integer.zero : (
+        ((_) => (
+          ((last) => (
+            new Integer([..._, last]).final
+          ))
+          (this.reduce((x, e, i) => (
+            ((e) => (
+              (_[i] = e & 0xff), e >> 8
+            ))
+            (x + e * a)
+          ), 0) + this.next + (a < 0x80 ? 0 : 255))
+        ))
+        (new Integer(this.length))
+      )
+    )
+  }
+  divmodSmall(a) {
+    return (
+      ((_) => (
+        ((r) => (
+          [_.final, r]
+        ))
+        (this.reduceRight((x, e, i) => (
+          ((q, r) => (
+            (_[i] = q), r
+          ))
+          (...((x << 8) + e).divmod(a))
+        ), 0))
+      ))
+      (new Integer(this.length))
     )
   }
   divmod(a) {
@@ -228,18 +306,10 @@ class Integer extends Uint8Array {
         [q.neg, r]
       ))
       (this.divmod(a.neg))
-      : (
-        ((d) => (
-          ((_, a) => (
-            (([q, r]) => (
-              [q.shiftRight(d), r.shiftRight(d)]
-            ))
-            (_.g(a, Integer.zero))
-          ))
-          (this.shiftLeft(d), a.shiftLeft(d))
-        ))
-        (a.d)
-      )
+      : (([q, r]) => (
+        [q.n2i, r.n2i]
+      ))
+      (this.divmodn(a))
     )
   }
   div(a) {
@@ -254,101 +324,9 @@ class Integer extends Uint8Array {
       (...this.divmod(a))
     )
   }
-  g(a, q) {
-    console.log({ func: 'g', _: this, a, q })
-    return (
-      this.lt(a) ? [q, this] : (
-        ((_) => (
-          _.length === a.length && (
-            _ = new Integer([..._, 0])
-          ),
-          ((x, r) => (
-            new Integer([
-              ..._.slice(0, _.length - a.length - 1),
-              ...r
-            ]).g(a, new Integer([x, ...q]))
-          ))
-          (..._.slice(
-            _.length - a.length - 1,
-            _.length).f(a))
-        ))
-        (this)
-      )
-    )
-  }
-  _g(a, q) {
-    let _ = this
-    if (this.lt(a)) {
-      return [q, this]
-    }
-    while (_.last === 0) { _ = _.slice(0, _.length - 1) }
-    while (a.last === 0) { a = a.slice(0, a.length - 1) }
-    if (_.length === a.length) { _ = new Integer([..._, 0]) }
-    let [_q, r] = _.slice(_.length - a.length - 1, _.length).f(a)
-    _ = new Integer([..._.slice(0, _.length - a.length - 1), ...r])
-    q = new Integer([_q, ...q])
-    return _._g(a, q)
-  }
-  f(a) {
-    console.log({ func: 'f', _: this, a })
-    return (
-      ((q) => (
-        ((r) => (
-          (() => {
-            while (r.isNegative) {
-              [q, r] = [q - 1, r.add(a)]
-            }
-          })(),
-          [q, r]
-        ))
-        (this.sub(a._mul(q)))
-      ))
-      (((_) => {
-        while (_.last === 0) _ = _.slice(0, _.length - 1)
-        while (a.last === 0) a = a.slice(0, a.length - 1)
-        return Math.min(((_.last << 8) + _.secondLast).div(a.last), 0xff)
-      })
-      (this))
-    )
-  }
-  _mul(a) {
-    return (
-      this.isZero || a === 0 ? Integer.zero : (
-        ((_) => (
-          ((last) => (
-            new Integer([..._, last]).final
-          ))
-          (this.reduce((x, e, i) => (
-            ((e) => (
-              (_[i] = e & 0xff), e >> 8
-            ))
-            (x + e * a)
-          ), 0) + this.next + (a < 0x80 ? 0 : 255))
-        ))
-        (new Integer(this.length))
-      )
-    )
-  }
-  _divmod(a) {
-    return (
-      ((_) => (
-        ((r) => (
-          [_.final, r]
-        ))
-        (this.reduceRight((x, e, i) => (
-          ((q, r) => (
-            (_[i] = q), r
-          ))
-          (...((x << 8) + e).divmod(a))
-        ), 0))
-      ))
-      (new Integer(this.length))
-    )
-  }
 }
 Integer.zero = new Integer
 Integer.unity = new Integer([1])
-Integer.unityNeg = Integer.unity.neg
 
 Number.prototype.divmod = function (a) {
   return (
@@ -365,6 +343,13 @@ Number.prototype.div = function (a) {
     ))
     (...this.divmod(a))
   )
+}
+let d = (a) => {
+  let d = 0
+  while ((a << d) & 0x80 === 0) {
+    d++
+  }
+  return d
 }
 
 module.exports = Integer
