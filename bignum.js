@@ -19,7 +19,7 @@ class Integer extends Uint8Array {
   }
   get final() {
     return (
-      this.isZero ? Integer.zero :
+      this.isZero ? this.zero :
       this.last === 0    && this.secondLast < 0x80 ||
       this.last === 0xff && this.secondLast > 0x7f ? this.slice(0, this.length - 1).final :
       this
@@ -54,10 +54,10 @@ class Integer extends Uint8Array {
   get isUnity() { return this.length === 1 && this[0] === 1 }
   get neg() {
     return (
-      this.isZero ? Integer.zero :
+      this.isZero ? this.zero :
       this.map((a) => (
         0xff - a
-      )).add(Integer.unity)
+      )).add(this.unity)
     )
   }
   add(a) {
@@ -84,41 +84,32 @@ class Integer extends Uint8Array {
   }
   mul(a) {
     return (
-      this.isNegative
-      ? a.isNegative
-        ? this.neg.i2n.muln(a.neg.i2n).n2i
-        : this.neg.i2n.muln(a.i2n).n2i.neg
-      : a.isNegative
-        ? this.i2n.muln(a.neg.i2n).n2i.neg
-        : this.i2n.muln(a.i2n).n2i
-    )
-  }
-  __mul__(a) {
-    return (
-      this.isZero || a.isZero ? this.zero :
-      ((__) => (
-        ((_, a) => (
-          __.reduce((x, dummy, i) => (
-            ((x) => (
-              (__[i] = (x & 0xff)),
-              x >> 8
-            ))
-            (x + new Uint8Array(i + 1).reduce((x, dummy, j) => (
-              x + _[j] * a[i - j]
-            ), 0))
-          ), 0)
+      ((_) => (
+        _.isZero || a.isZero ? _.zero :
+        ((r) => (
+          ((_, a) => (
+            r.reduce((x, __, i) => (
+              ((x) => (
+                (r[i] = x & 0xff), x >> 8
+              ))
+              (x + Array(i + 1).fill(0).reduce((x, __, j) => (
+                x + _[j] * a[i - j]
+              ), 0))
+            ), 0)
+          ))
+          (Array(..._, ...Array(a.length).fill(_.next)),
+           Array(...a, ...Array(_.length).fill(a.next))),
+          r.final
         ))
-        (new Integer([...this, ... new Uint8Array(a   .length).fill(this.next)]),
-         new Integer([...a   , ... new Uint8Array(this.length).fill(a   .next)])),
-        __.final
+        (new Integer(_.length + a.length))
       ))
-      (new Integer(this.length + a.length))
+      (this)
     )
   }
   divmod(a) {
     return (
       this.isZero || a.isZero
-      ? [Integer.zero, this]
+      ? [this.zero, this]
       : this.isNegative
       ? (([q, r]) => (
         // -x = q a + r
@@ -162,10 +153,23 @@ class Integer extends Uint8Array {
         })(),
         r.final
       ))
-      (this, Integer.unity)
+      (this, this.unity)
     )
   }
 
+/*
+  mul(a) {
+    return (
+      this.isNegative
+      ? a.isNegative
+        ? this.neg.i2n.muln(a.neg.i2n).n2i
+        : this.neg.i2n.muln(a.i2n).n2i.neg
+      : a.isNegative
+        ? this.i2n.muln(a.neg.i2n).n2i.neg
+        : this.i2n.muln(a.i2n).n2i
+    )
+  }
+ */
   get n2i() {
     return (
       this.last > 0x7f ? new Integer([...this, 0]) : this
@@ -177,7 +181,7 @@ class Integer extends Uint8Array {
   }
   get finaln() {
     return (
-      this.isZero ? Integer.zero :
+      this.isZero ? this.zero :
       this.last === 0 ? this.slice(0, this.length - 1).finaln :
       this
     )
@@ -214,7 +218,7 @@ class Integer extends Uint8Array {
   }
   muln(a) {
     return (
-      this.isZero || a.isZero ? Integer.zero :
+      this.isZero || a.isZero ? this.zero :
       ((_) => (
         this.forEach((_e, _i) => (
           _[_i + a.length] = a.reduce((x, ae, ai) => (
@@ -266,7 +270,7 @@ class Integer extends Uint8Array {
           (([q, r]) => (
             [q.shiftRight(d), r.shiftRight(d)]
           ))
-          (_._divmodn(a, Integer.zero))
+          (_._divmodn(a, this.zero))
         ))
         (this.shiftLeft(d), a.shiftLeft(d))
       ))
@@ -315,7 +319,7 @@ class Integer extends Uint8Array {
   }
   mulnSmall(a) {
     return (
-      this.isZero || a === 0 ? Integer.zero : (
+      this.isZero || a === 0 ? this.zero : (
         ((_) => (
           ((last) => (
             new Integer([..._, last]).finaln
