@@ -98,13 +98,13 @@ class Integer extends Uint8Array {
       this.isZero || a.isZero ? this.zero :
       ((__) => (
         ((_, a) => (
-          __.reduce((x, dummy, i) => (console.log({__}),
+          __.reduce((x, dummy, i) => (
             ((x) => (
               (__[i] = (x & 0xff)),
               x >> 8
             ))
             (x + new Uint8Array(i + 1).reduce((x, dummy, j) => (
-              x + _[i] * a[i - j]
+              x + _[j] * a[i - j]
             ), 0))
           ), 0)
         ))
