@@ -93,6 +93,28 @@ class Integer extends Uint8Array {
         : this.i2n.muln(a.i2n).n2i
     )
   }
+  __mul__(a) {
+    return (
+      this.isZero || a.isZero ? this.zero :
+      ((__) => (
+        ((_, a) => (
+          __.reduce((x, dummy, i) => (console.log({__}),
+            ((x) => (
+              (__[i] = (x & 0xff)),
+              x >> 8
+            ))
+            (x + new Uint8Array(i + 1).reduce((x, dummy, j) => (
+              x + _[i] * a[i - j]
+            ), 0))
+          ), 0)
+        ))
+        (new Integer([...this, ... new Uint8Array(a   .length).fill(this.next)]),
+         new Integer([...a   , ... new Uint8Array(this.length).fill(a   .next)])),
+        __.final
+      ))
+      (new Integer(this.length + a.length))
+    )
+  }
   divmod(a) {
     return (
       this.isZero || a.isZero

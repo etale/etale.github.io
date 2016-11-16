@@ -392,7 +392,7 @@ Object.defineProperties(Number.prototype, {
       return (
         this.isInteger && a.isInteger
         ? Integer.cast(this).mul(Integer.cast(a))
-        : this + a
+        : this * a
       )
     }
   },
