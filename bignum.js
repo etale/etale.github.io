@@ -1,4 +1,4 @@
-Array.prototype.convolute = function (a, i) {
+Array.prototype._convolute = function (a, i) {
   return (
     ((x) => (
       ((j) => {
@@ -9,10 +9,10 @@ Array.prototype.convolute = function (a, i) {
     ))(0)
   )
 }
-Array.prototype._convolute = function (a) {
+Array.prototype.convolute = function (a) {
   return (
     this.map((__, i) => (
-      this.convolute(a, i)
+      this._convolute(a, i)
     ))
   )
 }
@@ -98,7 +98,7 @@ class Integer extends Uint8Array {
               ((x) => (
                 (r[i] = x & 0xff), x >> 8
               ))
-              (x + _.convolute(a, i))
+              (x + _._convolute(a, i))
             ), 0)
           ))
           (Array(..._, ...Array(a.length).fill(_.next)),
