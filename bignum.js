@@ -9,6 +9,13 @@ Array.prototype.convolute = function (a, i) {
     ))(0)
   )
 }
+Array.prototype._convolute = function (a) {
+  return (
+    this.map((__, i) => (
+      this.convolute(a, i)
+    ))
+  )
+}
 class Integer extends Uint8Array {
   constructor(a) {
     super(a)
@@ -59,20 +66,23 @@ class Integer extends Uint8Array {
   add(a) {
     return (
       ((_) => (
-        ((x) => (
-          new Integer([..._, x]).final
-        ))
-        (_.reduce((x, e, i) => (
-          ((_i, ai) => (
-            _i === undefined && (_i = this.next),
-            ai === undefined && (ai = a.next),
-            (e = x + _i + ai),
-            (_[i] = e & 0xff), e >> 8
+        ((r) => (
+          ((x) => (
+            new Integer([...r, x]).final
           ))
-          (this[i], a[i])
-        ), 0) + this.next + a.next)
+          (r.reduce((x, e, i) => (
+            ((_i, ai) => (
+              _i === undefined && (_i = _.next),
+              ai === undefined && (ai = a.next),
+              (e = x + _i + ai),
+              (r[i] = e & 0xff), e >> 8
+            ))
+            (_[i], a[i])
+          ), 0) + _.next + a.next)
+        ))
+        (new Integer(Math.max(_.length, a.length)))
       ))
-      (new Integer(Math.max(this.length, a.length)))
+      (this)
     )
   }
   sub(a) {
@@ -96,6 +106,28 @@ class Integer extends Uint8Array {
           r.final
         ))
         (new Integer(_.length + a.length))
+      ))
+      (this)
+    )
+  }
+  m(a) {
+    return (
+      ((_) => (
+        _.isZero || a.isZero ? _.zero :
+        ((_, a) => (
+          ((r) => (
+            _.convolute(a).reduce((x, e, i) => (
+              ((x) => (
+                (r[i] = x & 0xff), x >> 8
+              ))
+              (x + e)
+            ), 0),
+            r.final
+          ))
+          (new Integer(_.length))
+        ))
+        (Array(..._, ...Array(a.length).fill(_.next)),
+         Array(...a, ...Array(_.length).fill(a.next)))
       ))
       (this)
     )
