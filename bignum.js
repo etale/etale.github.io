@@ -1,3 +1,14 @@
+Array.prototype.convolute = function (a, i) {
+  return (
+    ((x) => (
+      ((j) => {
+        while (j <= i) {
+          x += this[j] * a[i - j]; j++
+        }
+      })(0), x
+    ))(0)
+  )
+}
 class Integer extends Uint8Array {
   constructor(a) {
     super(a)
@@ -33,21 +44,6 @@ class Integer extends Uint8Array {
       ))
     )
   }
-  get isNegative() { return this.last > 0x7f }
-  cmp(a) {
-    return (
-      ((_) => (
-        _.isZero ? 0 :
-        _.isNegative ? -1 :
-        1
-      ))
-      (this.sub(a))
-    )
-  }
-  lt(a) { return this.cmp(a) < 0 }
-  gt(a) { return this.cmp(a) > 0 }
-  lte(a) { return this.cmp(a) <= 0 }
-  gte(a) { return this.cmp(a) >= 0 }
   get zero() { return Integer.zero }
   get isZero() { return this.length === 0 }
   get unity() { return Integer.unity }
@@ -92,9 +88,7 @@ class Integer extends Uint8Array {
               ((x) => (
                 (r[i] = x & 0xff), x >> 8
               ))
-              (x + Array(i + 1).fill(0).reduce((x, __, j) => (
-                x + _[j] * a[i - j]
-              ), 0))
+              (x + _.convolute(a, i))
             ), 0)
           ))
           (Array(..._, ...Array(a.length).fill(_.next)),
@@ -156,6 +150,21 @@ class Integer extends Uint8Array {
       (this, this.unity)
     )
   }
+  get isNegative() { return this.last > 0x7f }
+  cmp(a) {
+    return (
+      ((_) => (
+        _.isZero ? 0 :
+        _.isNegative ? -1 :
+        1
+      ))
+      (this.sub(a))
+    )
+  }
+  lt(a) { return this.cmp(a) < 0 }
+  gt(a) { return this.cmp(a) > 0 }
+  lte(a) { return this.cmp(a) <= 0 }
+  gte(a) { return this.cmp(a) >= 0 }
 
 /*
   mul(a) {
