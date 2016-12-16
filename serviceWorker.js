@@ -1,11 +1,13 @@
-addEventListener('fetch', event =>
+self.addEventListener('fetch', function(event) {
   event.respondWith(
-    caches.open('v1')
-    .then(cache =>
-      cache.match(event.request)
-      .then(response =>
-        response ||
-        fetch(event.request.clone())
-        .then(response =>
-          cache.put(event.request, response.clone())
-          .then(() => response))))))
+    caches.open('v1').then(function(cache) {
+      return cache.match(event.request).then(function(response) {
+        var fetchPromise = fetch(event.request).then(function(networkResponse) {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        })
+        return response || fetchPromise;
+      })
+    })
+  );
+});
