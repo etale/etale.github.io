@@ -2,35 +2,41 @@
 <meta name="viewport" content="width=device-width">
 <title>Planck Timer</title>
 <script>
-var d = 98.36347184776213 - Math.log(1e3), c, p = Date.parse, n = Date.now
-onload = function() {
-  var t = location.hash.slice(1).split(',').map(p).filter(isFinite)
-  t.push(n())
-  t.unshift(-13.799e9 * 365.25 * 24 * 3600 * 1e3)
-/*
-  Planck Collaboration (2015)
-  "Planck 2015 results. XIII. Cosmological parameters (See Table 4 on page 31 of pfd)."
-  http://arxiv.org/abs/1502.01589
- */
-
-  c = t.map(function(a) {
-    var e = document.createElement('h1')
-    e.start = a
-    document.body.appendChild(e)
-    return e
+const { log } = Math
+const { parse, now } = Date
+const logOfMillisecond = 98.36347184776213 - log(1e3)
+const genPage = () => {
+  /*
+    Planck Collaboration (2015)
+    "Planck 2015 results. XIII. Cosmological parameters (See Table 4 on page 31 of pfd)."
+    https://arxiv.org/abs/1502.01589
+   */
+  [
+    -13.799e9 * 365.25 * 24 * 3600 * 1e3,
+    ...location.hash.slice(1).split(',').map(parse).filter(isFinite),
+    now()
+  ]
+  .forEach((time) => {
+    ((node) => {
+      Reflect.set(node, 'start', time)
+      document.body.appendChild(node)
+    })(document.createElement('h1'))
   })
 
-  setInterval(function() {
-    var t = n()
-    c.forEach(function(a) {
-      a.textContent = (Math.log(t - a.start) + d).toString()
-    })
-  }, 1)
-}
-onhashchange = function() {
-  c.forEach(function(a) {
-    document.body.removeChild(a)
+  setInterval(() => {
+    ((now) => (
+      document.body.childNodes.forEach((e) => {
+        e.textContent = String(log(now - e.start) + logOfMillisecond)
+      })
+    ))(now())
   })
-  onload()
 }
+
+addEventListener('load', genPage)
+addEventListener('hashchange', () => {
+  (({ body }) => {
+    while (body.firstChild) body.removeChild(body.firstChild)
+  })(document)
+  genPage()
+})
 </script>
