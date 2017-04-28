@@ -4,16 +4,16 @@
 <title>p-adic numbers</title>
 <script>
 Number.prototype.forEach = function (a) {var i = 0; while (i < this) {a(i); i++}}
-
+let { PI, cos, sin } = Math
 onload = onhashchange = function () {
   var
   p = parseInt(location.hash.slice(1)) || 7,
-  f = function (i) { return i * 2 * Math.PI / (p - 1) },
+  f = function (i) { return i * 2 * PI / (p - 1) },
   s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
   c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'),
   _ = document.querySelector('svg')
 
-  document.querySelector('title').textContent = p.toString() + '-adic numbers'
+  document.querySelector('title').textContent = `${p}-adic numbers`
   s.setAttribute('viewBox', '-1.5 -1.5 3 3')
   c.cx.baseVal.value = 0
   c.cy.baseVal.value = 0
@@ -26,8 +26,8 @@ onload = onhashchange = function () {
   ;(p - 1).forEach(function (i) {
     var _ = c.cloneNode()
 
-    _.cx.baseVal.value = Math.cos(f(i))
-    _.cy.baseVal.value = Math.sin(f(i))
+    _.cx.baseVal.value = cos(f(i))
+    _.cy.baseVal.value = sin(f(i))
     s.appendChild(_)
   })
 
