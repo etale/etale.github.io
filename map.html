@@ -49,8 +49,10 @@ var delta
 , _ = function (a, b) { return new Complex(Math.log(a), b) }
 , _c = _(299792458)                 //         m   s^{-1}
 , _G = _(4 * Math.PI * 6.67408e-11) // kg^{-1} m^3 s^{-2}
-, _h = _(6.626070040e-34)           // kg      m^2 s^{-1}
-, _Boltzmann = _(1.38064852e-23)    // J K^{-1}
+//, _h = _(6.626070040e-34)           // kg      m^2 s^{-1}
+  , _h = _(6.62607015e-34)           // kg      m^2 s^{-1}
+//, _Boltzmann = _(1.38064852e-23)    // J K^{-1}
+  , _Boltzmann = _(1.380649e-23)    // J K^{-1}
 , _mu0 = _(4 * Math.PI * 1e-7)      // N A^{-2}
 /*
    2014 CODATA recommended values
@@ -123,7 +125,8 @@ var atm = _(101325).mul(unit.Pa)
 , min = _(60).mul(unit.s), hour = _(60).mul(min), day = _(24).mul(hour)
 , week = _(7).mul(day), year = _(365.25).mul(day)
 , _0dc = _(273.15).mul(unit.K), _100dc = _(273.15 + 100).mul(unit.K)
-, e = _(1.6021766208e-19).mul(unit.C)
+//, e = _(1.6021766208e-19).mul(unit.C)
+  , e = _(1.602176634e-19).mul(unit.C)
 , eV = e.mul(unit.V)
 , me = _(9.10938356e-31).mul(kg)
 , mp = _(1.672621898e-27).mul(kg)
