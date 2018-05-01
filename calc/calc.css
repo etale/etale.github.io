@@ -3,15 +3,9 @@ body {
   position: fixed;
   bottom: 0;
   overflow: auto;
-/*  display: -webkit-box;
-  -webkit-box-orient: vertical;*/
   margin: 0;
   font-size: 1.5rem;
   font-family: serif;
-/*  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  -o-text-size-adjust: 100%;*/
   text-size-adjust: 100%;
 }
 .focus {
