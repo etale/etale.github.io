@@ -34,16 +34,16 @@ Reflect.ownKeys(Math)
     }
   }
 )))
-Object.defineProperties(Number.prototype, {
+Object.defineProperties(BigInt.prototype, {
   divmod: { value(a) {
   var _ = this.valueOf(), q, r
 
-  a = (a || 0).body
-  if (a === 0) {
-    return [0, _]
+  a = (a || 0n).body
+  if (a === 0n) {
+    return [0n, _]
   }
 
-  r = _ % a; r < 0 && (r += a)
+  r = _ % a; r < 0n && (r += a)
   q = (_ - r) / a
   return [q, r]
 }}
@@ -51,38 +51,38 @@ Object.defineProperties(Number.prototype, {
 , div: { value(a) { return this.divmod(a)[0] } }
 , mod: { value(a) { return this.divmod(a)[1] } }
 , gcd: { value(a) {
-  var _ = this.body, __
+  var _ = this.body
 
-  a = (a || 0).body
-  while (a !== 0) {
-    __ = [a, _.mod(a)]; _ = __[0]; a = __[1]
+  a = (a || 0n).body
+  while (a !== 0n) {
+    [_, a] = [a, _.mod(a)]
   }
   return _
 }}
 , lcm: { value(a) {
   var _ = this.body
 
-  a = (a || 1).body
+  a = (a || 1n).body
   return _ * a / _.gcd(a)
 }}
 , _inv: { value(a) {
-  var _ = this.valueOf(), x = 1, z = 0, __, q, r, n
+  var _ = this.valueOf(), x = 1n, z = 0n, q, r, n
 
-  n = a = (a || 0).body
-  if (a === 0 && _ === -1)
-    return -1
+  n = a = (a || 0n).body
+  if (a === 0n && _ === -1n)
+    return -1n
 
-  while (a !== 0) {
-    __ = _.divmod(a); q = __[0]; r = __[1]
-    __ = [a, r, z, x - q * z]
-    _ = __[0]; a = __[1]; x = __[2]; z = __[3]
+  while (a !== 0n) {
+    [q, r] = _.divmod(a)
+    console.log({x, q, z})
+    [_, a, x, z] = [a, r, z, x - q * z]
   }
   return x.mod(n)
 }}
-, zero: { value: 0 }
-, unity: { value: 1 }
-, unit: { get() { return this < 0 ? -1 : 1 }}
-, body: { get() { return Math.abs(this) }}
+, zero: { value: 0n }
+, unity: { value: 1n }
+, unit: { get() { return this < 0n ? -1n : 1n }}
+, body: { get() { return this < 0n ? -this : this.valueOf()}}
 , isZero: { get() {
   var _ = this
 
@@ -104,64 +104,64 @@ Object.defineProperties(Number.prototype, {
   return _.eql(_.body)
 }}
 , factor: { get() {
-  var _ = this.body, p = 7, bound = Math.sqrt(_) + 1
+  var _ = this.body, p = 7n
 
-  if (!(_ % 2))
-    return 2
-  if (!(_ % 3))
-    return 3
-  if (!(_ % 5))
-    return 5
+  if (!(_ % 2n))
+    return 2n
+  if (!(_ % 3n))
+    return 3n
+  if (!(_ % 5n))
+    return 5n
 
-  while (p < bound) {
+  while (p * p < _) {
     if (!(_ % p)) //  7
       return p
-    p += 4
+    p += 4n
     if (!(_ % p)) // 11
       return p
-    p += 2
+    p += 2n
     if (!(_ % p)) // 13
       return p
-    p += 4
+    p += 4n
     if (!(_ % p)) // 17
       return p
-    p += 2
+    p += 2n
     if (!(_ % p)) // 19
       return p
-    p += 4
+    p += 4n
     if (!(_ % p)) // 23
       return p
-    p += 6
+    p += 6n
     if (!(_ % p)) // 29
       return p
-    p += 2
+    p += 2n
     if (!(_ % p)) //  1
       return p
-    p += 6
+    p += 6n
   }
   return _
 }}
 , factorize: { get() {
   var _ = this.valueOf(), fs = {}, p
 
-  while (_ !== 1) {
+  while (_ !== 1n) {
     p = _.factor
-    fs[p] || (fs[p] = 0)
-    fs[p] += 1
+    fs[p] || (fs[p] = 0n)
+    fs[p] += 1n
     _ /= p
   }
   return fs
 }}
 , ub: { value(a) {
-  var _ = this.valueOf(), b = 1, d
+  var _ = this.valueOf(), b = 1n, d
 
-  a = (a || 0).body
-  if (_ * a === 0) {
+  a = (a || 0n).body
+  if (_ === 0n || a === 0n) {
     return [_.unit, _.body]
   }
   while (true) {
     d = _.gcd(a)
-    if (d === 1) {
+    if (d === 1n) {
       break
     }
     _ /= d; b *= d
@@ -169,9 +169,9 @@ Object.defineProperties(Number.prototype, {
   return [_, b]
 }}
 , toArray: { value() {
-  var _ = [], i = 0, j = this
+  var _ = [], i = 0n, j = this
 
-  i > j && (i = j, j = 0)
+  i > j && (i = j, j = 0n)
   while (i < j) _.push(i++)
   return _
 }}
@@ -249,38 +249,39 @@ Object.defineProperties(Arch.prototype, {
 }}
 })
 
-function Adele(r, s, n) {
-  var _ = this, __, u
+function Adele(r = 0n, s = 1n, n = 0n) {
+  var _ = this, u
 
-  r = r || 0; s = s || 1; n = n || 0
   n = n.body
-  __ = s.ub(n); u = __[0]; s = __[1]
+  console.log({ s, n })
+  [u, s] = s.ub(n)
+  console.log({ u, s })
   r = (r * u._inv(n)).mod(n * s)
   _.r = r; _.s = s; _.n = n
   _._r = n === 0 ? r :
          r < n/2 ? r :
          r - n
 }
-var nil = new Adele(0, 0, 1)
+var nil = new Adele(0n, 0n, 1n)
 Object.defineProperties(Adele.prototype, {
   finalize: { get() {
   var _ = this, d, r, s
 
-  if (_.n === 1 || _.s === 0) {
+  if (_.n === 1n || _.s === 0n) {
     return nil
   }
   d = _.r.gcd(_.s); r = _.r.div(d); s = _.s.div(d)
   return new Adele(r, s, _.n)
 }}
 , coerce: { value(a) {
-  var _ = this, __, n, _u, _s, au, as, s, _r, ar
+  var _ = this, n, _u, _s, au, as, s, _r, ar
 
   n = _.n.gcd(a.n)
-  if (n === 1) {
+  if (n === 1n) {
     return [nil, nil]
   }
-  __ = _.s.ub(n); _u = __[0]; _s = __[1]
-  __ = a.s.ub(n); au = __[0]; as = __[1]
+  [_u, _s] = _.s.ub(n)
+  [au, as] = a.s.ub(n)
   s = _s.lcm(as)
   _r = _.r * _u._inv(n) * s.div(_s)
   ar = a.r * au._inv(n) * s.div(as)
@@ -294,16 +295,16 @@ Object.defineProperties(Adele.prototype, {
 }}
 , zero: { get() {
   var _ = this
-  return new Adele(0, _.s, _.n)
+  return new Adele(0n, _.s, _.n)
 }}
 , neg: { get() {
   var _ = this
   return _.eql(nil) ? nil : new Adele(-_.r, _.s, _.n)
 }}
 , res: { get() {
-  var _ = this, __, u, n
+  var _ = this, u, n
   // return if unit? in ruby
-  __ = _.r.ub(_.n); u = __[0]; n = __[1]
+  [u, n] = _.r.ub(_.n)
   return new Adele(0, 1, n)
 }}
 , add: { value(a) {
@@ -325,10 +326,10 @@ Object.defineProperties(Adele.prototype, {
 , inv: { get() {
   var _ = this, r, s, __, u
 
-  if (_.r === 0) {
+  if (_.r === 0n) {
     return nil
   }
-  __ = _.r.ub(_.n); u = __[0]; s = __[1]
+  [u, s] = _.r.ub(_.n)
   r = _.s * u._inv(_.n)
   return new Adele(r, s, _.n)
 }}
@@ -360,21 +361,21 @@ Object.defineProperties(Adele.prototype, {
   var _ = this, __
 
   __ = _.r.ub(_.n); r = __[0]
-  return new Adele(r, 1, _.n)
+  return new Adele(r, 1n, _.n)
 }}
 , body: { get() {
   var _ = this, __
 
   __ = _.r.ub(_.n); r = __[1]
-  return new Adele(r, _.s, 0)
+  return new Adele(r, _.s, 0n)
 }}
 , factor: { get() {
   var _ = this, p = (_.r * _.s).factor
 
   if (_.r % p) {
-    return [new Adele(1, p), new Adele(_.r, _.s/p)]
+    return [new Adele(1n, p), new Adele(_.r, _.s/p)]
   } else {
-    return [new Adele(p, 1), new Adele(_.r/p, _.s)]
+    return [new Adele(p, 1n), new Adele(_.r/p, _.s)]
   }
 }}
 , toString: { value() {
@@ -383,9 +384,9 @@ Object.defineProperties(Adele.prototype, {
   if (_.eql(nil)) {
     return 'nil'
   }
-  _.n === 0 || (__ +=       _.n.toString() + '\\')
-                __ +=       _.r.toString()
-  _.s === 1 || (__ += '/' + _.s.toString())
+  _.n === 0n || (__ +=       _.n.toString() + '\\')
+                 __ +=       _.r.toString()
+  _.s === 1n || (__ += '/' + _.s.toString())
   return __
 }}
 })
