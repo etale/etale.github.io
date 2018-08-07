@@ -47,7 +47,7 @@ Object.defineProperties(BigInt.prototype, {
   q = (_ - r) / a
   return [q, r]
 }}
-, eql: { value(a) { return this === a }}
+, eql: { value(a) { return this.valueOf() === a }}
 , div: { value(a) { return this.divmod(a)[0] } }
 , mod: { value(a) { return this.divmod(a)[1] } }
 , gcd: { value(a) {
@@ -74,7 +74,7 @@ Object.defineProperties(BigInt.prototype, {
 
   while (a !== 0n) {
     [q, r] = _.divmod(a)
-    console.log({x, q, z})
+    console.log({x, q, z});
     [_, a, x, z] = [a, r, z, x - q * z]
   }
   return x.mod(n)
@@ -83,26 +83,10 @@ Object.defineProperties(BigInt.prototype, {
 , unity: { value: 1n }
 , unit: { get() { return this < 0n ? -1n : 1n }}
 , body: { get() { return this < 0n ? -this : this.valueOf()}}
-, isZero: { get() {
-  var _ = this
-
-  return _.eql(_.zero)
-}}
-, isUnity: { get() {
-  var _ = this
-
-  return _.eql(_.unity)
-}}
-, isUnit: { get() {
-  var _ = this
-
-  return _.eql(_.unit)
-}}
-, isBody: { get() {
-  var _ = this
-
-  return _.eql(_.body)
-}}
+, isZero: { get() { return this.eql(this.zero) } }
+, isUnity: { get() { return this.eql(this.unity) } }
+, isUnit: { get() { return this.eql(this.unit) } }
+, isBody: { get() { return this.eql(this.body) } }
 , factor: { get() {
   var _ = this.body, p = 7n
 
@@ -253,16 +237,13 @@ function Adele(r = 0n, s = 1n, n = 0n) {
   var _ = this, u
 
   n = n.body
-  console.log({ s, n })
+  console.log({ s, n });
   [u, s] = s.ub(n)
   console.log({ u, s })
   r = (r * u._inv(n)).mod(n * s)
   _.r = r; _.s = s; _.n = n
-  _._r = n === 0 ? r :
-         r < n/2 ? r :
-         r - n
 }
-var nil = new Adele(0n, 0n, 1n)
+const nil = new Adele(0n, 0n, 1n)
 Object.defineProperties(Adele.prototype, {
   finalize: { get() {
   var _ = this, d, r, s
