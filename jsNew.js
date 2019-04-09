@@ -1,185 +1,223 @@
-Number.parse = function (a) {
-  var ord, r, s, _
-
-  a = a.split('.'); a[1] || (a[1] = '')
-  _ = a[0] + a[1]
-  if (Number.isLittle) {
-    ord = a[0].length - 1
-    _ = _.split('').reverse().join('')
-  } else
-  {
-    ord = a[1].length
+class Algebraic {
+  eql(a) { return this.valueOf() === a }
+  get zero() { return 0 }
+  get unity() { return 1 }
+  get unit() { return this < 0 ? -this.unity : this.unity }
+  get body() { return this < 0 ? -this : this.valueOf() }
+  get isZero() { return this.eql(this.zero) }
+  get isUnity() { return this.eql(this.unity) }
+  get isUnit() { return this.eql(this.unit) }
+  get isBody() { return this.eql(this.body) }
+  divmod(a) {
+    return (
+      ((_) => (
+        a.isZero ? [a, _] : (
+          ((r) => (
+            r < 0 && (r += a),
+            ((q) => (
+              [q, r]
+            ))((_ - r)/a)
+          ))(_ % a)
+        )
+      ))(this.valueOf())
+    )
   }
-  r = parseInt(_, Number.radix)
-  s = Math.pow(Number.radix, ord)
-  return new Adele(r, s).finalize
+  div(a) { return this.divmod(a)[0] }
+  mod(a) { return this.divmod(a)[1] }
+  gcd(a) {
+    return (
+      ((_) => {
+        while (!a.isZero) {
+          [_, a] = [a, _.mod(a)]
+        }
+        return _
+      })(this.valueOf())
+    )
+  }
+  ub(a) {
+    return (
+      this.isZero || a.isZero ? [this.unit, this.body] : (
+        ((_, b) => {
+          let d
+          while (true) {
+            d = _.gcd(a)
+            if (d.isUnity) {
+              break
+            }
+            _ /= d; b *= d
+          }
+          return [_, b]
+        })(this.valueOf(), this.unity)
+      )
+    )
+  }
+  lcm(a) {
+    return (
+      ((_) => (
+        _ * a / _.gcd(a)
+      ))(this.valueOf())
+    )
+  }
+  _inv(a) {
+    return (
+      ((_, x, z, n) => {
+        if (a.isZero && (-_).isUnity)
+          return _
+        while (!a.isZero) {
+          (([q, r]) => {
+            [_, a, x, z] = [a, r, z, x - q * z]
+            console.log({_, a, x, z })
+          })(_.divmod(a))
+        }
+        return x.mod(n)
+      })(this.valueOf(), this.unity, this.zero, a)
+    )
+  }
+  get factorize() {
+    return (
+      (({ body, zero, unity }, fs) => {
+        while (!body.isUnity) {
+          ((p) => {
+            fs.has(p) || fs.set(p, zero)
+            fs.set(p, fs.get(p) + unity)
+            body /= p
+          })(body.factor)
+        }
+        return fs
+      })(this, new Map)
+    )
+  }
 }
-Reflect.ownKeys(Math)
-.filter((p) => (
-  typeof Math[p] === 'function'
-))
-.map((p) => (
-  Object.defineProperty(
-    Number.prototype
-  , p
-  , Math[p].length < 2
-  ? {
-    get() {
-      return Math[p](this)
-    }
+
+(({ ownKeys, defineProperty }) => (
+  (({ prototype }) => (
+    ownKeys(Math).forEach((p) => (
+      ((f) => (
+        typeof f === 'function' &&
+        defineProperty(prototype, p, f.length < 2 ? {
+          get() {
+            return f(this)
+          }
+        } : {
+          value(a) {
+            return f(this, a)
+          }
+        })
+      ))(Math[p])
+    )),
+    defineProperty(prototype, 'factor', {
+      get() {
+        return (
+          !(this % 2) ? 2 :
+          !(this % 3) ? 3 :
+          !(this % 5) ? 5 :
+          ((_, p) => {
+            while (p * p < _) {
+              if (!(_ % p)) return p // 7
+              p += 4
+              if (!(_ % p)) return p // 11
+              p += 2
+              if (!(_ % p)) return p // 13
+              p += 4
+              if (!(_ % p)) return p // 17
+              p += 2
+              if (!(_ % p)) return p // 19
+              p += 4
+              if (!(_ % p)) return p // 23
+              p += 6
+              if (!(_ % p)) return p // 29
+              p += 2
+              if (!(_ % p)) return p // 1
+              p += 6
+            }
+            return _
+          })(this.valueOf(), 7)
+        )
+      }
+    })
+  ))(Number),
+  (({ prototype }) => (
+    defineProperty(prototype, 'zero', { value: 0n }),
+    defineProperty(prototype, 'unity', { value: 1n }),
+    defineProperty(prototype, 'factor', {
+      get() {
+        return (
+          !(this % 2n) ? 2n :
+          !(this % 3n) ? 3n :
+          !(this % 5n) ? 5n :
+          ((_, p) => {
+            while (p * p < _) {
+              if (!(_ % p)) return p // 7
+              p += 4n
+              if (!(_ % p)) return p // 11
+              p += 2n
+              if (!(_ % p)) return p // 13
+              p += 4n
+              if (!(_ % p)) return p // 17
+              p += 2n
+              if (!(_ % p)) return p // 19
+              p += 4n
+              if (!(_ % p)) return p // 23
+              p += 6n
+              if (!(_ % p)) return p // 29
+              p += 2n
+              if (!(_ % p)) return p // 1
+              p += 6n
+            }
+            return _
+          })(this.valueOf(), 7n)
+        )
+      }
+    })
+  ))(BigInt)
+))(Reflect)
+
+Reflect.setPrototypeOf(Number.prototype, Algebraic.prototype)
+Reflect.setPrototypeOf(BigInt.prototype, Algebraic.prototype)
+
+const PI2 = Math.PI * 2
+
+class Arch extends Algebraic {
+  constructor(ord = 0, arg = 0) {
+    super()
+    arg %= 1; arg < 0 && (arg += 1)
+    this.ord = ord; this.arg = arg
   }
-  : {
-    value(a) {
-      return Math[p](this, a)
-    }
-  }
-)))
-Object.defineProperties(BigInt.prototype, {
-  divmod: { value(a) {
-  var _ = this.valueOf(), q, r
-
-  a = (a || 0n).body
-  if (a === 0n) {
-    return [0n, _]
-  }
-
-  r = _ % a; r < 0n && (r += a)
-  q = (_ - r) / a
-  return [q, r]
-}}
-, eql: { value(a) { return this.valueOf() === a }}
-, div: { value(a) { return this.divmod(a)[0] } }
-, mod: { value(a) { return this.divmod(a)[1] } }
-, gcd: { value(a) {
-  var _ = this.body
-
-  a = (a || 0n).body
-  while (a !== 0n) {
-    [_, a] = [a, _.mod(a)]
-  }
-  return _
-}}
-, lcm: { value(a) {
-  var _ = this.body
-
-  a = (a || 1n).body
-  return _ * a / _.gcd(a)
-}}
-, _inv: { value(a) {
-  var _ = this.valueOf(), x = 1n, z = 0n, q, r, n
-
-  n = a = (a || 0n).body
-  if (a === 0n && _ === -1n)
-    return -1n
-
-  while (a !== 0n) {
-    [q, r] = _.divmod(a)
-    console.log({x, q, z});
-    [_, a, x, z] = [a, r, z, x - q * z]
-  }
-  return x.mod(n)
-}}
-, zero: { value: 0n }
-, unity: { value: 1n }
-, unit: { get() { return this < 0n ? -1n : 1n }}
-, body: { get() { return this < 0n ? -this : this.valueOf()}}
-, isZero: { get() { return this.eql(this.zero) } }
-, isUnity: { get() { return this.eql(this.unity) } }
-, isUnit: { get() { return this.eql(this.unit) } }
-, isBody: { get() { return this.eql(this.body) } }
-, factor: { get() {
-  var _ = this.body, p = 7n
-
-  if (!(_ % 2n))
-    return 2n
-  if (!(_ % 3n))
-    return 3n
-  if (!(_ % 5n))
-    return 5n
-
-  while (p * p < _) {
-    if (!(_ % p)) //  7
-      return p
-    p += 4n
-    if (!(_ % p)) // 11
-      return p
-    p += 2n
-    if (!(_ % p)) // 13
-      return p
-    p += 4n
-    if (!(_ % p)) // 17
-      return p
-    p += 2n
-    if (!(_ % p)) // 19
-      return p
-    p += 4n
-    if (!(_ % p)) // 23
-      return p
-    p += 6n
-    if (!(_ % p)) // 29
-      return p
-    p += 2n
-    if (!(_ % p)) //  1
-      return p
-    p += 6n
-  }
-  return _
-}}
-, factorize: { get() {
-  var _ = this.valueOf(), fs = {}, p
-
-  while (_ !== 1n) {
-    p = _.factor
-    fs[p] || (fs[p] = 0n)
-    fs[p] += 1n
-    _ /= p
-  }
-  return fs
-}}
-, ub: { value(a) {
-  var _ = this.valueOf(), b = 1n, d
-
-  a = (a || 0n).body
-  if (_ === 0n || a === 0n) {
-    return [_.unit, _.body]
-  }
-  while (true) {
-    d = _.gcd(a)
-    if (d === 1n) {
-      break
-    }
-    _ /= d; b *= d
-  }
-  return [_, b]
-}}
-, toArray: { value() {
-  var _ = [], i = 0n, j = this
-
-  i > j && (i = j, j = 0n)
-  while (i < j) _.push(i++)
-  return _
-}}
-, forEach: { value(a, b, c) {
-  this.toArray().forEach(a, b, c)
-}}
-, map: { value(a, b, c) {
-  return this.toArray().map(a, b, c)
-}}
-, s: { get() {
-  var _ = this.body.toString(Number.radix).split('').reverse()
-
-  return (this < 0 ? '-' : '') + (
-    Number.isLittle ? [_[0], '.'].concat(_.slice(1)) :
-                      _.reverse()
-  ).join('')
-}}
-})
-
-function Arch(ord, arg) {
-  ord = ord || 0; arg = arg || 0
-  arg %= 1; arg < 0 && (arg += 1)
-  this.ord = ord; this.arg = arg
+  get amp() { return (
+    (({ arg }) => {
+      arg < 0.5 || (arg -= 1)
+      return arg * PI2
+    })(this)
+  ) }
+  eql(a) { return a !== 0 && this.ord === a.ord && this.arg === a.arg }
+  get unit() { return new Arch(0, this.arg) }
+  get body() { return new Arch(this.ord, 0) }
+  get shift() { return new Arch(this.ord + 1, this.arg) }
+  get succ() { return this.exp.shift.log }
+  get conj() { return new Arch(this.ord, -this.arg) }
+  get inv() { return new Arch(-this.ord, -this.arg) }
+  mul(a) { return a === 0 ? 0 : new Arch(this.ord + a.ord, this.arg + a.arg) }
+  get neg() { return new Arch(this.ord, this.arg + 0.5) }
+  add(a) { return a === 0 ? this : this.neg.eql(a) ? 0 : this.ord < a.ord ? a.add(this) : this.mul(this.inv.mul(a).succ) }
+  get log() { return (({ isUnity, ord, amp }) => (
+    isUnity ? 0 :
+    new Arch((ord ** 2 + amp ** 2).log * 0.5, amp.atan2(ord) / PI2)
+  ))(this)}
+  get exp() { return (({ ord, amp }) => (
+    (({ exp }, { cos, sin }) => (
+      new Arch(exp * cos, exp * sin / PI2)
+    ))(ord, amp)
+  ))(this)}
+  toString() { return (({ ord, arg }) => {
+    ord = ord.toFixed(Arch.precision).split('.')
+    arg = arg.toFixed(Arch.precision).split('.')
+    ord[1] || (ord[1] = '0')
+    arg[1] || (arg[1] = '0')
+    return ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
+  })(this) }
 }
+Reflect.defineProperty(Arch.prototype, 'unity', { value: new Arch })
+
 function parseArch(a) {
   var _ = a.split('.'), ord, arg
 
@@ -189,187 +227,119 @@ function parseArch(a) {
   ord = parseFloat(_[0] + '.' + _[1])
   arg = parseFloat(      '0.' + _[2])
   _ = new Arch(ord, arg)
-  return a.indexOf('X') === -1 ? _.log() : _
+  return a.indexOf('X') === -1 ? _.log : _
 }
-
-Object.setPrototypeOf(Arch.prototype, Number.prototype)
-
 Arch.precision = 8
 
-var PI2 = Math.PI * 2
-
-Object.defineProperties(Arch.prototype, {
-  amp: { get() {
-    var _ = this.arg
-    _ < 0.5 || (_ -= 1); _ *= PI2
-    return _
-  } }
-, eql:   { value(a) { return a !== 0 && this.ord === a.ord && this.arg === a.arg } }
-, shift: { get() { return new Arch(this.ord + 1, this.arg) } }
-, succ:  { get() { return this.exp.shift.log } }
-, conj:  { get() { return new Arch(this.ord, - this.arg) } }
-, inv:   { get() { return new Arch(- this.ord, - this.arg) } }
-, mul:   { value(a) { return a === 0 ? 0 : new Arch(this.ord + a.ord, this.arg + a.arg) } }
-, neg:   { get() { return new Arch(this.ord, this.arg + 0.5) } }
-, add:   { value(a) { return a === 0 ? this : this.neg.eql(a) ? 0 : this.ord < a.ord ? a.add(this) : this.mul(this.inv.mul(a).succ) } }
-, log:   { get() {
-  var _ = this
-  return _.isUnity
-  ? 0
-  : new Arch((_.ord * _.ord + _.amp * _.amp).log * 0.5, _.amp.atan2(_.ord) / PI2)
-} }
-, exp:   { get() {
-  var _ = this
-  return new Arch(_.ord.exp * _.amp.cos, _.ord.exp * _.amp.sin / PI2)
-} }
-, toString: { value() {
-  var _ = this, ord, arg
-
-  ord = _.ord.toFixed(Arch.precision).split('.')
-  arg = _.arg.toFixed(Arch.precision).split('.')
-  ord[1] = ord[1] || '0'
-  arg[1] = arg[1] || '0'
-  return ord[0] + '.' + ord[1] + '.' + arg[1] + 'X'
-}}
-})
-
-function Adele(r = 0n, s = 1n, n = 0n) {
-  var _ = this, u
-
-  n = n.body
-  console.log({ s, n });
-  [u, s] = s.ub(n)
-  console.log({ u, s })
-  r = (r * u._inv(n)).mod(n * s)
-  _.r = r; _.s = s; _.n = n
+class Adele extends Algebraic {
+  constructor(r = 0n, s = 1n, n = 0n) {
+    (([u, s]) => {
+      super()
+      this.r = (r * u._inv(n)).mod(n * s)
+      this.s = s
+      this.n = n
+    })(s.ub(n))
+  }
+  get finalize() {
+    return (
+      (({ n, r, s }) => (
+        n.isUnity || s.isZero ? nil :
+        ((d) => (
+          new Adele(r.div(d), s.div(d), n)
+        ))(r.gcd(s))
+      ))(this)
+    )
+  }
+  coerce(a) {
+    return (
+      (({ n: _n, r: _r, s: _s }, { n: an, r: ar, s: as }) => (
+        ((n) => (
+          n.isUnity ? [nil, nil] :
+          (([_u, _s], [au, as]) => (
+            ((s) => (
+              ((_r, ar) => (
+                [new Adele(ar, s, n), new Adele(_r, s, n)]
+              ))(_r * _u._inv(n) * s.div(_s), ar * au._inv(n) * s.div(as))
+            ))(_s.lcm(as))
+          ))(_s.ub(n), as.ub(n))
+        ))(_n.gcd(an))
+      ))(this, a)
+    )
+  }
+  eql(a) { return this.n === a.n && this.r === a.r && this.s === a.s }
+  get zero() { return new Adele(0n, this.s, this.n) }
+  get neg() { return this.eql(nil) ? nil : new Adele(-this.r, this.s, this.n) }
+  get res() { return (({ n, r, s }) => (
+    (([u, n]) => (
+      new Adele(0n, 1n, n)
+    ))(r.ub(n))
+  ))(this)}
+  add(a) { return this._add(a).finalize }
+  _add(a) { return (([_, a]) => _.__add(a))(this.coerce(a)) }
+  __add(a) { return this.eql(nil) ? nil : new Adele(this.r + a.r, this.s, this.n) }
+  get unity() { return (({ s, n }) => (
+    new Adele(s, s, n)
+  ))(this)}
+  get inv() { return (({ r, s, n }) => (
+    r.isZero ? nil :
+    (([u, b]) => (
+      new Adele(s * u._inv(n), b, n)
+    ))(r.ub(n))
+  ))(this) }
+  mul(a) { return this._mul(a).finalize }
+  _mul(a) { return (([_, a]) => (
+    _.__mul(a)
+  ))(this.coerce(a)) }
+  __mul(a) { return this.eql(nil) ? nil : new Adele(
+    this.r * a.r, this.s * a.s, this.n
+  ) }
+  pow(a) {
+    let _ = this, __ = _.unity
+    while (a) {
+      a.mod(2n).isUnity && (__ = __.mul(_))
+      _ = _.mul(_); a = a.div(2n)
+    }
+    return __
+  }
+  get unit() {
+    return (
+      (({ n, r, s }) => (
+        (([u, b]) => (
+          new Adele(u, 1n, n)
+        ))(r.ub(n))
+      ))(this)
+    )
+  }
+  get body() {
+    return (
+      (({ n, r, s }) => (
+        (([u, b]) => (
+          new Adele(b, s, 0n)
+        ))(r.ub(n))
+      ))(this)
+    )
+  }
+  get factor() {
+    return (
+      (({ n, r, s }) => (
+        ((p) => (
+          r % p
+          ? [new Adele(1n, p), new Adele(r, s/p)]
+          : [new Adele(p, 1n), new Adele(r/p, s)]
+        ))((r * s).factor)
+      ))(this)
+    )
+  }
+  toString(a = 10) {
+    return (
+      this.eql(nil) ? 'nil' :
+      (({ n, r, s }, _) => {
+        n.isZero  || (_ += n.toString(a) + '\\')
+                      _ += r.toString(a)
+        s.isUnity || (_ += '/' + s.toString(a))
+        return _
+      })(this, '')
+    )
+  }
 }
 const nil = new Adele(0n, 0n, 1n)
-Object.defineProperties(Adele.prototype, {
-  finalize: { get() {
-  var _ = this, d, r, s
-
-  if (_.n === 1n || _.s === 0n) {
-    return nil
-  }
-  d = _.r.gcd(_.s); r = _.r.div(d); s = _.s.div(d)
-  return new Adele(r, s, _.n)
-}}
-, coerce: { value(a) {
-  var _ = this, n, _u, _s, au, as, s, _r, ar
-
-  n = _.n.gcd(a.n)
-  if (n === 1n) {
-    return [nil, nil]
-  }
-  [_u, _s] = _.s.ub(n)
-  [au, as] = a.s.ub(n)
-  s = _s.lcm(as)
-  _r = _.r * _u._inv(n) * s.div(_s)
-  ar = a.r * au._inv(n) * s.div(as)
-  _ = new Adele(_r, s, n)
-  a = new Adele(ar, s, n)
-  return [a, _]
-}}
-, eql: { value(a) {
-  var _ = this
-  return _.n === a.n && _.r === a.r && _.s === a.s
-}}
-, zero: { get() {
-  var _ = this
-  return new Adele(0n, _.s, _.n)
-}}
-, neg: { get() {
-  var _ = this
-  return _.eql(nil) ? nil : new Adele(-_.r, _.s, _.n)
-}}
-, res: { get() {
-  var _ = this, u, n
-  // return if unit? in ruby
-  [u, n] = _.r.ub(_.n)
-  return new Adele(0, 1, n)
-}}
-, add: { value(a) {
-  return this._add(a).finalize()
-}}
-, _add: { value(a) {
-  var __ = this.coerce(a)
-  return __[0].__add(__[1])
-}}
-, __add: { value(a) {
-  var _ = this
-  return _.eql(nil) ? nil :
-         new Adele(_.r + a.r, _.s, _.n)
-}}
-, unity: { get() {
-  var _ = this
-  return new Adele(_.s, _.s, _.n)
-}}
-, inv: { get() {
-  var _ = this, r, s, __, u
-
-  if (_.r === 0n) {
-    return nil
-  }
-  [u, s] = _.r.ub(_.n)
-  r = _.s * u._inv(_.n)
-  return new Adele(r, s, _.n)
-}}
-, mul: { value(a) {
-  return this._mul(a).finalize()
-}}
-, _mul: { value(a) {
-  var __ = this.coerce(a)
-
-  return __[0].__mul(__[1])
-}}
-, __mul: { value(a) {
-  var _ = this
-
-  return _.eql(nil) ? nil :
-         new Adele(_.r * a.r, _.s * a.s, _.n)
-}}
-, pow: { value(a) {
-  var _ = this, __ = _.unity
-
-  a = a.r
-  while (a) {
-    a.mod(2) === 1 && (__ = __.mul(_))
-    _ = _.mul(_); a = a.div(2)
-  }
-  return __
-}}
-, unit: { get() {
-  var _ = this, __
-
-  __ = _.r.ub(_.n); r = __[0]
-  return new Adele(r, 1n, _.n)
-}}
-, body: { get() {
-  var _ = this, __
-
-  __ = _.r.ub(_.n); r = __[1]
-  return new Adele(r, _.s, 0n)
-}}
-, factor: { get() {
-  var _ = this, p = (_.r * _.s).factor
-
-  if (_.r % p) {
-    return [new Adele(1n, p), new Adele(_.r, _.s/p)]
-  } else {
-    return [new Adele(p, 1n), new Adele(_.r/p, _.s)]
-  }
-}}
-, toString: { value() {
-  var _ = this, __ = ''
-
-  if (_.eql(nil)) {
-    return 'nil'
-  }
-  _.n === 0n || (__ +=       _.n.toString() + '\\')
-                 __ +=       _.r.toString()
-  _.s === 1n || (__ += '/' + _.s.toString())
-  return __
-}}
-})
-
-module.exports = { Adele, Arch }
