@@ -3,20 +3,21 @@
 <title>getCurrentPosition</title>
 <script>
 addEventListener('load', () => {
-  navigator.geolocation.getCurrentPosition(({coords: {accuracy, latitude, longitude}, timestamp}) => {
-    let x = longitude / 360
-    let y = latitude  / 360
-    let [x0, x1] = x.toFixed(9).split('.')
-    let [y0, y1] = y.toFixed(9).split('.')
-    let coords = ['0', x1, y1].join('.')
-    let json = JSON.stringify({accuracy, latitude, longitude, timestamp,
-      x: x.toFixed(9),
-      y: y.toFixed(9),
-      coords
-    }, null, 2)
-    let pre = document.createElement('pre')
-    pre.textContent = json
-    document.body.appendChild(pre)
-  })
+  navigator.geolocation.getCurrentPosition(
+    ({ coords: { accuracy, latitude, longitude }, timestamp }) => {
+      let x = (longitude / 360).toFixed(9)
+      let y = (latitude  / 360).toFixed(9)
+      let [x0, x1] = x.split('.')
+      let [y0, y1] = y.split('.')
+      let coords = ['0', x1, y1].join('.')
+      let json = JSON.stringify({ accuracy, latitude, longitude, timestamp,
+        x, y,
+        coords
+      }, null, 2)
+      let pre = document.createElement('pre')
+      pre.textContent = json
+      document.body.appendChild(pre)
+    }
+  )
 })
 </script>
