@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width">
+<meta charset="UTF-8">
+<title>calc</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+	processEscapes: true,
+    tags: 'ams',
+    macros: {
+    }
+  },
+  chtml: {
+    matchFontHeight: false,
+    displayAlign: "left",
+    displayIndent: "2em"
+  }
+};
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1>calc/*</h1>
+Series of calculators for minimalist.
+<h2>calc/adele</h2>
+<p><a href="adele">calc/adele</a> works on finite points.</p>
+<p>Everyone knows
+the rationals $\mathbb{Q} = \varinjlim \mathbb{Z}/s$,
+the residues  $\widehat{\mathbb{Z}} = \varprojlim n \backslash \mathbb{Z} = \prod_p \mathbb{Z}_p$,
+the reals     $\mathbb{R} = \mathbb{Q}_\infty$ and
+the adeles    $\mathbb{A_Q} = \left(\widehat{\mathbb{Z}} \times \mathbb{R}\right) \otimes \mathbb{Q}$.</p>
+<p>$n \backslash r$ roughly means $r \bmod n$.
+But precisely speaking, it is an element of $\prod_{p \mid n} \mathbb{Z}_p$ with limited accuracies.</p>
+<p>$n \backslash r/s$ means $r/s$ in $\prod_{p \mid n} \mathbb{Z}_p \otimes \mathbb{Q}$ which approximates $\mathbb{A_Q}$.</p>
+<p>For example,
+$2^8 3^3 7 \backslash 7 / 2^{12} 3 \in (\mathbb{Z}_2 \times \mathbb{Z}_3 \times \mathbb{Z}_7) \otimes \mathbb{Q}$
+is a representation of an element of $\mathbb{A}_\mathbb{Q}$ with following accuracies:</p>
+<ul>
+<li>$\mathbb{Q}_2$ : $8 \log 2$</li>
+<li>$\mathbb{Q}_3$ : $3 \log 3$</li>
+<li>$\mathbb{Q}_7$ : $\log 7$.</li>
+</ul>
+<h2>calc/arch</h2>
+<p><a href="arch">calc/arch</a> works at infinity point.</p>
+<p>It recognizes theory of relativity and quantum mechanics via $4\pi G = c = h/2\pi i = 1$.</p>
+<p>It adopts logarithmic notation.</p>
+<p>For example, $1.144730.750000\mathrm{X}$ means $\exp(1.144730 + 2 \pi i \times 0.750000)$.</p>
+<p>
+\[
+  \log x = \int_1^x \frac{ds}{s}
+\]
+</p>
+</body>
+</html>
