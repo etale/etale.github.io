@@ -1,1 +1,13 @@
-<script>copy((new Date).toISOString())</script>
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width">
+<title>now</title>
+<script>
+addEventListener('load', () => (
+  Reflect.set(
+    document.body.appendChild(
+      document.createElement('h1')
+    ), 'textContent',
+    (new Date).toISOString()
+  )
+))
+</script>
