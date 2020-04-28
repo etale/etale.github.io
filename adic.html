@@ -3,36 +3,38 @@
 <head>
 <title>p-adic numbers</title>
 <script>
-Number.prototype.forEach = function (a) {var i = 0; while (i < this) {a(i); i++}}
-let { PI, cos, sin } = Math
+const { PI, cos, sin } = Math
 onload = onhashchange = function () {
-  var
+  ((svg) => {
+    svg && document.body.removeChild(svg)
+  })(document.querySelector('svg'))
+  
+  const
   p = parseInt(location.hash.slice(1)) || 7,
-  f = function (i) { return i * 2 * PI / (p - 1) },
-  s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-  c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'),
-  _ = document.querySelector('svg')
+  f = (i) => i * 2 * PI / (p - 1),
+  ns = 'http://www.w3.org/2000/svg',
+  svg = document.createElementNS(ns, 'svg'),
+  circle = document.createElementNS(ns, 'circle')
 
   document.querySelector('title').textContent = `${p}-adic numbers`
-  s.setAttribute('viewBox', '-1.5 -1.5 3 3')
-  c.cx.baseVal.value = 0
-  c.cy.baseVal.value = 0
-  c.r .baseVal.value = 1/p
-  c.setAttribute('stroke-width', 1/128)
-  c.setAttribute('stroke', 'black')
-  c.setAttribute('fill', 'none')
-  s.appendChild(c.cloneNode())
+  svg.setAttribute('viewBox', '-1.5 -1.5 3 3')
+  circle.cx.baseVal.value = 0
+  circle.cy.baseVal.value = 0
+  circle.r .baseVal.value = 1/p
+  circle.setAttribute('stroke-width', 1/128)
+  circle.setAttribute('stroke', 'black')
+  circle.setAttribute('fill', 'none')
+  svg.appendChild(circle.cloneNode())
 
-  ;(p - 1).forEach(function (i) {
-    var _ = c.cloneNode()
-
-    _.cx.baseVal.value = cos(f(i))
-    _.cy.baseVal.value = sin(f(i))
-    s.appendChild(_)
+  ;[...Array(p - 1).keys()].forEach((i) => {
+    ((circle) => {
+      circle.cx.baseVal.value = cos(f(i))
+      circle.cy.baseVal.value = sin(f(i))
+      svg.appendChild(circle)
+    })(circle.cloneNode())
   })
 
-  _ && document.body.removeChild(_)
-  document.body.appendChild(s)
+  document.body.appendChild(svg)
 }
 </script>
 </head>
