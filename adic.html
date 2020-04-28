@@ -24,7 +24,7 @@ onload = onhashchange = function () {
   circle.setAttribute('stroke-width', 1/128)
   circle.setAttribute('stroke', 'black')
   circle.setAttribute('fill', 'none')
-  svg.appendChild(circle.cloneNode())
+  svg.appendChild(circle)
 
   ;[...Array(p - 1).keys()].forEach((i) => {
     ((circle) => {
