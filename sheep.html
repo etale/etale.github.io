@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>羊が1e3匹</title>
+  <script>
+;((listener) =>
+  ['load', 'hashchange'].forEach((event) => addEventListener(event, listener)))(
+  () =>
+    (({ set }, { n, title, div }) => (
+      set(title, 'textContent', `羊が${n}匹`),
+      set(div  , 'textContent',
+        [...Array(n).keys()].map((a) => `羊が${a}匹`).join('、')
+      )
+    ))(Reflect, {
+      n: parseFloat(location.hash.slice(1)) || 1e3,
+      title: document.querySelector('title'),
+      div: document.querySelector('div'),
+    })
+)
+  </script>
+</head>
+<body>
+  <div></div>
+</body>
+</html>
