@@ -1,4 +1,30 @@
-<!doctype html>
-<meta charset="utf-8">
-<title>etale.github.io</title>
-<body contenteditable="true"></body>
+<!DOCTYPE html>
+<title></title>
+<script>
+addEventListener('load', () => {
+  const title = document.querySelector('title')
+  const pre = document.createElement('pre')
+  const hash2content = () => {
+    const hash = location.hash.slice(1)
+    hash === '' || (
+      (({ titleContent, preContent }) => (
+        Reflect.set(title, 'textContent', titleContent),
+        Reflect.set(pre, 'textContent', preContent)
+      ))(JSON.parse(atob(hash)))
+    )
+  }
+  const content2hash = () => {
+    Reflect.set(location, 'hash', btoa(
+      JSON.stringify({
+        titleContent: title.textContent,
+        preContent: pre.textContent
+      })
+    ))
+  }
+  pre.contentEditable = true
+  document.body.append(pre)
+  hash2content()
+  pre.addEventListener('input', content2hash)
+  addEventListener('hashchange', content2hash)
+})
+</script>
