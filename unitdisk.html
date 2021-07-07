@@ -1,0 +1,60 @@
+<!doctype html>
+<title>5-bit points</title>
+<script>
+Number.prototype.forEach = function (a) { let i = 0; while (i < this) {a(i); i++} }
+onload = onhashchange = function () {
+  const { exp, log, PI, E, cos, sin } = Math;
+  const n = parseInt(location.hash.slice(1)) || 5;
+  const strokeWidth = exp(-7);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  const _ = document.querySelector('svg');
+  
+  document.querySelector('title').textContent = `${n}-bit points`;
+  svg.setAttribute('viewBox', '-1 -1 2 2');
+  g.setAttribute('stroke-width', strokeWidth);
+  g.setAttribute('stroke', 'black');
+
+  const x = (i, j) => exp(-i/(2**n)) * cos(j/(2**n) * 2 * PI);
+  const y = (i, j) => exp(-i/(2**n)) * sin(j/(2**n) * 2 * PI);
+
+  circle.cx.baseVal.value = 0;
+  circle.cy.baseVal.value = 0;
+  circle.setAttribute('fill', 'none');
+
+  (2**n).forEach((i) => {
+    const l = line.cloneNode();
+    l.x1.baseVal.value = x(0, i);
+    l.y1.baseVal.value = y(0, i);
+    l.x2.baseVal.value = x(2**n-1, i);
+    l.y2.baseVal.value = y(2**n-1, i);
+    g.appendChild(l);
+    const c = circle.cloneNode();
+    c.r.baseVal.value = exp(-i/(2**n));
+    g.appendChild(c);
+  })
+  svg.appendChild(g);
+
+  _ && document.body.removeChild(_);
+  document.body.appendChild(svg);
+
+  document.querySelectorAll('line').forEach((a) => {
+    a.addEventListener('mouseover', () => {
+      a.setAttribute('stroke', 'blue');
+    }, false);
+    a.addEventListener('mouseout', () => {
+      a.removeAttribute('stroke');
+    }, false);
+  })
+  document.querySelectorAll('circle').forEach((a) => {
+    a.addEventListener('mouseover', () => {
+      a.setAttribute('stroke', 'blue');
+    }, false);
+    a.addEventListener('mouseout', () => {
+      a.removeAttribute('stroke');
+    }, false);
+  })
+}
+</script>
