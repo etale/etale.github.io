@@ -26,12 +26,14 @@ onload = onhashchange = function () {
 
   (2**n).forEach((i) => {
     const l = line.cloneNode();
+    l.dataset.arg = i;
     l.x1.baseVal.value = x(0, i);
     l.y1.baseVal.value = y(0, i);
     l.x2.baseVal.value = x(2**n-1, i);
     l.y2.baseVal.value = y(2**n-1, i);
     g.appendChild(l);
     const c = circle.cloneNode();
+    c.dataset.ord = i;
     c.r.baseVal.value = exp(-i/(2**n));
     g.appendChild(c);
   })
@@ -41,19 +43,27 @@ onload = onhashchange = function () {
   document.body.appendChild(svg);
 
   document.querySelectorAll('line').forEach((a) => {
-    a.addEventListener('mouseover', () => {
+    a.addEventListener('mouseover', (e) => {
+      console.log(e.type, a.dataset);
       a.setAttribute('stroke', 'blue');
     }, false);
-    a.addEventListener('mouseout', () => {
-      a.removeAttribute('stroke');
+    a.addEventListener('mouseout', (e) => {
+      console.log(e.type, a.dataset);
+      setTimeout(() => {
+        a.removeAttribute('stroke');
+      }, 1e3);
     }, false);
   })
   document.querySelectorAll('circle').forEach((a) => {
-    a.addEventListener('mouseover', () => {
+    a.addEventListener('mouseover', (e) => {
+      console.log(e.type, a.dataset);
       a.setAttribute('stroke', 'blue');
     }, false);
-    a.addEventListener('mouseout', () => {
-      a.removeAttribute('stroke');
+    a.addEventListener('mouseout', (e) => {
+      console.log(e.type, a.dataset);
+      setTimeout(() => {
+        a.removeAttribute('stroke');
+      }, 1e3);
     }, false);
   })
 }
