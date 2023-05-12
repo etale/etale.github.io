@@ -5,17 +5,25 @@
  <title>title</title>
  <script src="https://unpkg.com/pdfjs-dist/build/pdf.js"></script>
  <script>
- onload = function() {
+ window.onload = function() {
 async function preview(url) {
+  // 1. `fetch` で PDF を取得します。
   const response = await fetch(url, { mode: "no-cors" });
+  // 2. `PDFJS` で PDF を解析します。
   const pdfDoc = new PDFJS.PDFDocument(await response.arrayBuffer());
+  // 3. 最初のページを取得します。
   const page = pdfDoc.getPage(1);
+  // 4. ページのビューポートを取得します。
   const viewport = page.getViewport({ scale: 0.8 });
+  // 5. キャンバスを取得します。
   const canvas = document.getElementById("pdf-preview");
+  // 6. キャンバスにページを描画します。
   const ctx = canvas.getContext("2d");
   ctx.drawImage(page.getImage({ viewport: viewport }), 0, 0);
  }
+ // 7. URL ハッシュから PDF の URL を取得します。
  const url = window.location.hash.substring(1);
+ // 8. URL が存在する場合、プレビューを表示します。
  if (url) {
   preview(url);
  }
