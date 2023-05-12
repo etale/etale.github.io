@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+ <title>title</title>
+</head>
+<body>
+ <h1>h1</h1>
+ <canvas id="pdf-preview" width="600" height="800"></canvas>
+ <script src="https://unpkg.com/pdfjs-dist/build/pdf.js"></script>
+ <script>
+ function preview(url) {
+  const response = await fetch(url);
+  const pdfDoc = new PDFJS.PDFDocument(await response.arrayBuffer());
+  const page = pdfDoc.getPage(1);
+  const viewport = page.getViewport({ scale: 0.8 });
+  const canvas = document.getElementById("pdf-preview");
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(page.getImage({ viewport: viewport }), 0, 0);
+ }
+</script>
+ <script>
+ const url = window.location.hash.substring(1);
+ if (url) {
+  preview(url);
+ }
+</script>
+</body>
+</html>
