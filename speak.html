@@ -1,0 +1,19 @@
+<script>
+addEventListener('load', () => 
+String.raw`
+はい
+OKです
+大丈夫です
+ちょっと待って
+いいえ
+これ聞こえますか？
+
+`
+.split('\n').forEach((a) => 
+  ((b) => (
+    Reflect.set(b, 'textContent', a),
+    b.addEventListener('ontouchend', () => navigator.clipboard.writeText(a).then(() => speechSynthesis.speak(new SpeechSynthesisUtterance(a)))),
+    document.body.appendChild(b)
+  ))(document.createElement('pre'))
+))
+</script>
