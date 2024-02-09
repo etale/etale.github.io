@@ -4,15 +4,17 @@ String.raw`
 はい
 OKです
 大丈夫です
+いいと思います
 ちょっと待って
 いいえ
 これ聞こえますか？
+チャットで送りますね
 
 `
 .split('\n').forEach((a) => 
   ((b) => (
     Reflect.set(b, 'textContent', a),
-    b.addEventListener('touchend', () => navigator.clipboard.writeText(a).then(() => speechSynthesis.speak(new SpeechSynthesisUtterance(a)))),
+    b.addEventListener('touchend', () => speechSynthesis.speak(new SpeechSynthesisUtterance(a))),
     document.body.appendChild(b)
   ))(document.createElement('pre'))
 ))
