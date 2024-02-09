@@ -12,7 +12,7 @@ OKです
 .split('\n').forEach((a) => 
   ((b) => (
     Reflect.set(b, 'textContent', a),
-    b.addEventListener('ontouchend', () => navigator.clipboard.writeText(a).then(() => speechSynthesis.speak(new SpeechSynthesisUtterance(a)))),
+    b.addEventListener('touchend', () => navigator.clipboard.writeText(a).then(() => speechSynthesis.speak(new SpeechSynthesisUtterance(a)))),
     document.body.appendChild(b)
   ))(document.createElement('pre'))
 ))
