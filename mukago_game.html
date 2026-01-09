@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>零余子と零因子</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #f0f4f8;
+            overflow: hidden; /* スクロールバーを出さない */
+            font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; /* 明朝体の方が雰囲気が出る */
+            position: relative;
+        }
+
+        .item {
+            position: absolute;
+            font-size: 24px;
+            cursor: pointer;
+            user-select: none; /* 文字選択できないようにする */
+            transition: transform 0.2s ease;
+            color: #333;
+        }
+
+        .item:hover {
+            color: #d32f2f; /* ホバー時に赤くする */
+            z-index: 100;    /* ホバー時は最前面に */
+            transform: scale(1.5) !important; /* 回転を維持しつつ拡大は難しいので、これだけだと回転がリセットされますが、視認性向上のため */
+        }
+
+        /* 見つけた時のスタイル */
+        .found {
+            font-weight: bold;
+            color: red;
+            font-size: 50px;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const totalItems = 100;
+        const targetText = '零因子';
+        const commonText = '零余子';
+        const body = document.body;
+        
+        // 0から99までのランダムな数値を1つ選ぶ（これが当たりのインデックス）
+        const targetIndex = Math.floor(Math.random() * totalItems);
+
+        for (let i = 0; i < totalItems; i++) {
+            const span = document.createElement('span');
+            span.classList.add('item');
+
+            // 当たりかどうかの判定
+            if (i === targetIndex) {
+                span.textContent = targetText;
+                span.dataset.type = 'target'; // 目印をつけておく
+                span.style.fontWeight = 'bold'; // ほんの少しだけヒント（太字）にするかはお好みで
+            } else {
+                span.textContent = commonText;
+            }
+
+            // ランダムな位置 (画面端に見切れないようにマージンを考慮)
+            // 画面の幅・高さの 5% ～ 95% の範囲に配置
+            const x = Math.random() * 90 + 5; 
+            const y = Math.random() * 90 + 5;
+            
+            // ランダムな回転 (-30度 ～ 30度) で自然な散らばり感を出す
+            const rot = Math.random() * 60 - 30;
+
+            span.style.left = `${x}%`;
+            span.style.top = `${y}%`;
+            span.style.transform = `rotate(${rot}deg)`;
+
+            // クリックイベント
+            span.addEventListener('click', function() {
+                if (this.dataset.type === 'target') {
+                    alert('正解！これが零因子（Zero Divisor）です！');
+                    this.classList.add('found');
+                    this.style.transform = 'translate(-50%, -50%) scale(2)';
+                    this.style.left = '50%';
+                    this.style.top = '50%';
+                } else {
+                    // 間違いをクリックした時の挙動（お好みで）
+                    // console.log('それは零余子（むかご）です。食べる方です。');
+                }
+            });
+
+            body.appendChild(span);
+        }
+    });
+</script>
+
+</body>
+</html>
